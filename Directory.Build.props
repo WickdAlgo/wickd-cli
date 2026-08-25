@@ -1,0 +1,19 @@
+<Project>
+  <PropertyGroup>
+    <WickdCliVersion>0.1.0</WickdCliVersion>
+    <Version>$(WickdCliVersion)</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+    <Authors>WickdAlgo, DevBD1</Authors>
+    <Company>WickdAlgo</Company>
+    <Product>WickdAlgo</Product>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/DevBD1/wickd-cli</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/DevBD1/wickd-cli</PackageProjectUrl>
+    <PackageReleaseNotes>https://github.com/DevBD1/wickd-cli/releases/tag/v$(Version)</PackageReleaseNotes>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright 2026 WickdAlgo</Copyright>
+  </PropertyGroup>
+</Project>

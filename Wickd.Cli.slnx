@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Wickd.Cli/Wickd.Cli.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Wickd.Cli.Tests/Wickd.Cli.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore Wickd.Cli.slnx
+
+    - name: Build
+      run: dotnet build Wickd.Cli.slnx --no-restore --configuration Release
+
+    - name: Test
+      run: dotnet test Wickd.Cli.slnx --no-build --configuration Release --verbosity normal
+
+    - name: Pack Tool
+      run: dotnet pack src/Wickd.Cli/Wickd.Cli.csproj --no-build --configuration Release -o artifacts
+
+    - name: Verify Clean Package Boundary (ADR 002)
+      run: |
+        nupkg_file=$(ls artifacts/wickd-cli.*.nupkg | head -n 1)
+        echo "Inspecting package: $nupkg_file"
+        if unzip -l "$nupkg_file" | grep -E "Wickd\.(Core|Inspection|Adapters)"; then
+          echo "ERROR: Proprietary Wickd assemblies leaked into public package!"
+          exit 1
+        fi
+        echo "Clean package boundary verified."

@@ -1,8 +1,8 @@
 # Vendored Wickd API Contracts
 
 These JSON Schemas are the public wire boundary consumed by `wickd-cli`. They
-were copied from `wickd-api` commit `1d5bd37` (`feat/cli-cache-compute`) on
-2026-08-27. The CLI has no project or package reference to `wickd-api` or
+were verified against `wickd-api` commit `f7f9268` on 2026-08-28. The CLI has
+no project or package reference to `wickd-api` or
 `wickd-core`.
 
 Update these files only when the corresponding API contract change is accepted.

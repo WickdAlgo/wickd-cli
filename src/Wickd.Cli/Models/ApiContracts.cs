@@ -223,6 +223,9 @@ public sealed class AccountsPayloadDto
     public int SchemaVersion { get; set; }
     public string Contract { get; set; } = string.Empty;
     public List<AccountDto> Accounts { get; set; } = [];
+
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement> Data { get; set; } = [];
 }
 
 public sealed class AccountDto
@@ -232,6 +235,9 @@ public sealed class AccountDto
     public string Kind { get; set; } = string.Empty;
     public string Currency { get; set; } = string.Empty;
     public List<AccountEquityObservationDto> EquityObservations { get; set; } = [];
+
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement> Data { get; set; } = [];
 }
 
 public sealed class AccountEquityObservationDto

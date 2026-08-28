@@ -13,7 +13,7 @@ public interface IWickdApiClient
     Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default);
     Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default);
     Task<InspectionRunDto?> GetRunAsync(string runId, CancellationToken cancellationToken = default);
-    Task<List<AccountDto>> GetAccountsAsync(CancellationToken cancellationToken = default);
+    Task<AccountsPayloadDto> GetAccountsAsync(CancellationToken cancellationToken = default);
     Task<AccountRiskDto?> GetAccountRiskAsync(string accountId, CancellationToken cancellationToken = default);
     Task<List<TradeSummaryDto>> GetTradesAsync(CancellationToken cancellationToken = default);
     Task<TradeDetailDto?> GetTradeAsync(string tradeId, CancellationToken cancellationToken = default);

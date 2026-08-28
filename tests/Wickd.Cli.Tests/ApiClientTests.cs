@@ -109,11 +109,16 @@ public sealed class ApiClientTests
             """);
         var client = Client(handler);
 
-        var accounts = await client.GetAccountsAsync();
+        var payload = await client.GetAccountsAsync();
 
-        accounts.Should().ContainSingle();
-        accounts[0].Id.Should().Be("acc-1");
-        accounts[0].EquityObservations.Single().Equity.Should().Be(50000m);
+        payload.SchemaVersion.Should().Be(1);
+        payload.Contract.Should().Be("accounts");
+        payload.Data.Should().ContainKey("provenance");
+        payload.Accounts.Should().ContainSingle();
+        payload.Accounts[0].Id.Should().Be("acc-1");
+        payload.Accounts[0].EquityObservations.Single().Equity.Should().Be(50000m);
+        payload.Accounts[0].Data.Should().ContainKeys(
+            "capitalAllocations", "riskProfiles", "walletObservations", "cashMovements");
     }
 
     [Fact]

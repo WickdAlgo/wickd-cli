@@ -100,8 +100,8 @@ public class CommandValidationTests
             Task.FromResult<InspectionRunDto?>(new InspectionRunDto());
 
 
-        public Task<List<AccountDto>> GetAccountsAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult(new List<AccountDto>());
+        public Task<AccountsPayloadDto> GetAccountsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new AccountsPayloadDto());
 
         public Task<AccountRiskDto?> GetAccountRiskAsync(string accountId, CancellationToken cancellationToken = default) =>
             Task.FromResult<AccountRiskDto?>(new AccountRiskDto { AccountId = accountId });

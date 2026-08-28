@@ -53,7 +53,12 @@ public class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Settings>
 
     private static readonly JsonSerializerOptions JsonLineOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        Converters =
+        {
+            new DecimalStringJsonConverter(),
+            new NullableDecimalStringJsonConverter()
+        }
     };
 
     public AnalyzeVwapCommand(IApiClientFactory apiClientFactory, IConsoleRenderer renderer)

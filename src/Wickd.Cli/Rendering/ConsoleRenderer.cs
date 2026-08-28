@@ -226,14 +226,14 @@ public sealed class ConsoleRenderer : IConsoleRenderer
             var dirColor = t.Direction.Equals("long", StringComparison.OrdinalIgnoreCase) ? "green" : "red";
 
             table.AddRow(
-                $"[bold]{t.Id}[/]",
-                t.Source,
-                $"[cyan]{t.Instrument.Market}[/]",
-                $"[{dirColor}]{t.Direction.ToUpperInvariant()}[/]",
-                t.SetupName ?? "-",
+                $"[bold]{Markup.Escape(t.Id)}[/]",
+                Markup.Escape(t.Source),
+                $"[cyan]{Markup.Escape(t.Instrument.Market)}[/]",
+                $"[{dirColor}]{Markup.Escape(t.Direction.ToUpperInvariant())}[/]",
+                Markup.Escape(t.SetupName ?? "-"),
                 t.ReportedR.HasValue ? $"{t.ReportedR.Value:F2}R" : "-",
                 pnlText,
-                t.DerivedStatus
+                Markup.Escape(t.DerivedStatus)
             );
         }
 

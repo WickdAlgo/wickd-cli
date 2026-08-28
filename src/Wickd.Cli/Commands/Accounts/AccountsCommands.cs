@@ -23,7 +23,7 @@ public sealed class AccountsListCommand : AsyncCommand<GlobalCommandSettings>
     protected override async Task<int> ExecuteAsync(CommandContext context, GlobalCommandSettings settings, CancellationToken cancellationToken)
     {
         var client = _apiClientFactory.CreateClient(settings);
-        List<AccountDto>? accounts = null;
+        AccountsPayloadDto? payload = null;
 
         try
         {
@@ -31,7 +31,7 @@ public sealed class AccountsListCommand : AsyncCommand<GlobalCommandSettings>
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync("Fetching connected accounts...", async _ =>
                 {
-                    accounts = await client.GetAccountsAsync(cancellationToken);
+                    payload = await client.GetAccountsAsync(cancellationToken);
                 });
         }
         catch (Exception ex)
@@ -40,7 +40,7 @@ public sealed class AccountsListCommand : AsyncCommand<GlobalCommandSettings>
             return ExitCodes.Error;
         }
 
-        if (accounts == null)
+        if (payload == null)
         {
             _renderer.RenderError("No response from server.");
             return ExitCodes.Error;
@@ -48,11 +48,11 @@ public sealed class AccountsListCommand : AsyncCommand<GlobalCommandSettings>
 
         if (settings.Json)
         {
-            _renderer.RenderJson(accounts);
+            _renderer.RenderJson(payload);
         }
         else
         {
-            _renderer.RenderAccounts(accounts);
+            _renderer.RenderAccounts(payload.Accounts);
         }
 
         return ExitCodes.Success;

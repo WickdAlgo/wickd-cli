@@ -145,14 +145,13 @@ public sealed class WickdApiClient : IWickdApiClient
             "inspection-dataset");
     }
 
-    public async Task<List<AccountDto>> GetAccountsAsync(CancellationToken cancellationToken = default)
+    public async Task<AccountsPayloadDto> GetAccountsAsync(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("api/accounts", cancellationToken);
-        var payload = RequireContract(
+        return RequireContract(
             await HandleResponseAsync<AccountsPayloadDto>(response, "api/accounts", cancellationToken),
             result => (result.SchemaVersion, result.Contract),
             "accounts");
-        return payload.Accounts;
     }
 
     public async Task<AccountRiskDto?> GetAccountRiskAsync(string accountId, CancellationToken cancellationToken = default)

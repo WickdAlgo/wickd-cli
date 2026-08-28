@@ -51,7 +51,7 @@ public class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Settings>
     private readonly IApiClientFactory _apiClientFactory;
     private readonly IConsoleRenderer _renderer;
 
-    private static readonly JsonSerializerOptions JsonLineOptions = new()
+    internal static readonly JsonSerializerOptions JsonLineOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         Converters =

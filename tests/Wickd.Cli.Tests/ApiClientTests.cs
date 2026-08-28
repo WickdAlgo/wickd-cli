@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using FluentAssertions;
 using Wickd.Cli.Configuration;
@@ -8,170 +9,142 @@ using Xunit;
 
 namespace Wickd.Cli.Tests;
 
-public class ApiClientTests
+public sealed class ApiClientTests
 {
-    private class MockHttpMessageHandler : HttpMessageHandler
+    private sealed class MockHttpMessageHandler : HttpMessageHandler
     {
         public HttpRequestMessage? LastRequest { get; private set; }
         public string? LastRequestBody { get; private set; }
         public HttpResponseMessage ResponseToReturn { get; set; } = new(HttpStatusCode.OK);
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
         {
             LastRequest = request;
-            if (request.Content != null)
-            {
-                LastRequestBody = await request.Content.ReadAsStringAsync(cancellationToken);
-            }
+            LastRequestBody = request.Content is null
+                ? null
+                : await request.Content.ReadAsStringAsync(cancellationToken);
             return ResponseToReturn;
         }
     }
 
     [Fact]
-    public async Task FetchCandlesAsync_SendsCorrectRequest_AndParsesResponse()
+    public async Task FetchUsesTheCanonicalApiContract()
     {
-        var mockHandler = new MockHttpMessageHandler();
-        var expectedResponse = new FetchResultDto
+        var handler = Handler(
+            """
+            {"schemaVersion":1,"contract":"fetch","provenance":{"generatedAtUtc":"2026-08-27T12:00:00Z","applicationVersion":"0.1.0","inspectionRunId":null,"sourceInspectionSchemaVersion":null},"marketId":"BTC_USDT_PERP","exchangeId":"binance","exchangeSymbol":"BTC/USDT:USDT","timeframe":"4h","fromUtc":"2026-07-01T00:00:00Z","toUtc":"2026-08-01T00:00:00Z","candleCount":1500,"cacheHit":false}
+            """);
+        var client = Client(handler, token: "secret-token-xyz");
+
+        var result = await client.FetchCandlesAsync(new FetchHistoricalCandlesRequest
         {
             MarketId = "BTC_USDT_PERP",
-            Timeframe = "4h",
-            CandlesFetched = 1500,
-            Gaps = 0,
-            Alias = "jul-btc"
-        };
-
-        mockHandler.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
-        };
-
-        var httpClient = new HttpClient(mockHandler);
-        var config = new WickdCliConfig
-        {
-            ApiUrl = "https://api.wickdalgo.test",
-            ApiToken = "secret-token-xyz"
-        };
-
-        var client = new WickdApiClient(httpClient, config);
-
-        var request = new FetchHistoricalCandlesRequest
-        {
-            MarketId = "BTC_USDT_PERP",
-            Timeframe = "4h",
             ExchangeId = "binance",
+            ExchangeSymbol = "BTC/USDT:USDT",
+            Timeframe = "4h",
             FromUtc = DateTimeOffset.Parse("2026-07-01T00:00:00Z"),
-            ToUtc = DateTimeOffset.Parse("2026-08-01T00:00:00Z"),
-            Alias = "jul-btc"
-        };
+            ToUtc = DateTimeOffset.Parse("2026-08-01T00:00:00Z")
+        });
 
-        var result = await client.FetchCandlesAsync(request);
-
-        result.Should().NotBeNull();
-        result.MarketId.Should().Be("BTC_USDT_PERP");
-        result.CandlesFetched.Should().Be(1500);
-        result.Alias.Should().Be("jul-btc");
-
-        mockHandler.LastRequest.Should().NotBeNull();
-        mockHandler.LastRequest!.Method.Should().Be(HttpMethod.Post);
-        mockHandler.LastRequest.RequestUri!.ToString().Should().Be("https://api.wickdalgo.test/api/fetch");
-        mockHandler.LastRequest.Headers.Authorization.Should().NotBeNull();
-        mockHandler.LastRequest.Headers.Authorization!.Scheme.Should().Be("Bearer");
-        mockHandler.LastRequest.Headers.Authorization!.Parameter.Should().Be("secret-token-xyz");
+        result.CandleCount.Should().Be(1500);
+        result.ExchangeSymbol.Should().Be("BTC/USDT:USDT");
+        handler.LastRequest!.RequestUri!.AbsolutePath.Should().Be("/api/fetch");
+        handler.LastRequest.Headers.Authorization!.Parameter.Should().Be("secret-token-xyz");
+        using var body = JsonDocument.Parse(handler.LastRequestBody!);
+        body.RootElement.GetProperty("exchangeSymbol").GetString().Should().Be("BTC/USDT:USDT");
+        body.RootElement.TryGetProperty("alias", out _).Should().BeFalse();
+        body.RootElement.TryGetProperty("force", out _).Should().BeFalse();
     }
 
     [Fact]
-    public async Task RunBacktestAsync_SendsCorrectRequest_AndParsesResponse()
+    public async Task BacktestSendsAnAliasSelectorWithoutCandles()
     {
-        var mockHandler = new MockHttpMessageHandler();
-        var expectedResponse = new BacktestResultDto
+        var handler = Handler(
+            """
+            {"schemaVersion":1,"contract":"backtest","provenance":{"generatedAtUtc":"2026-08-27T12:00:00Z","applicationVersion":"0.1.0","inspectionRunId":null,"sourceInspectionSchemaVersion":null},"runId":"test-run-001","marketId":"BTC_USDT_PERP","exchangeId":"binance","exchangeSymbol":"BTC/USDT:USDT","timeframe":"4h","fromUtc":"2026-07-01T00:00:00Z","toUtc":"2026-08-01T00:00:00Z","candleCount":500,"eventCount":12,"gapCount":0}
+            """);
+        var client = Client(handler);
+
+        var result = await client.RunBacktestAsync(new BacktestRequest
         {
             RunId = "test-run-001",
-            MarketId = "BTC_USDT_PERP",
-            Timeframe = "4h",
-            CandlesCount = 500,
-            StructureEventsCount = 12
-        };
+            Dataset = new CachedDatasetSelector { Alias = "jul-btc" }
+        });
 
-        mockHandler.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
-        };
-
-        var httpClient = new HttpClient(mockHandler);
-        var config = new WickdCliConfig { ApiUrl = "https://api.wickdalgo.test" };
-        var client = new WickdApiClient(httpClient, config);
-
-        var request = new BacktestRequest
-        {
-            DatasetAlias = "jul-btc",
-            RunId = "test-run-001"
-        };
-
-        var result = await client.RunBacktestAsync(request);
-
-        result.Should().NotBeNull();
-        result.RunId.Should().Be("test-run-001");
-        result.StructureEventsCount.Should().Be(12);
-        mockHandler.LastRequest!.RequestUri!.ToString().Should().Be("https://api.wickdalgo.test/api/backtest");
+        result.EventCount.Should().Be(12);
+        using var body = JsonDocument.Parse(handler.LastRequestBody!);
+        body.RootElement.GetProperty("dataset").GetProperty("alias").GetString().Should().Be("jul-btc");
+        body.RootElement.GetProperty("candles").ValueKind.Should().Be(JsonValueKind.Null);
+        body.RootElement.GetProperty("pivotStrength").GetInt32().Should().Be(2);
     }
 
     [Fact]
-    public async Task AnalyzeVwapAsync_SendsCorrectRequest()
+    public async Task VwapReadsDecimalStringsFromTheCanonicalResult()
     {
-        var mockHandler = new MockHttpMessageHandler();
-        var expectedResponse = new VwapAnalysisResultDto
+        var handler = Handler(
+            """
+            {"schemaVersion":1,"contract":"vwap-analysis","provenance":{"generatedAtUtc":"2026-08-27T12:00:00Z","applicationVersion":"0.1.0","inspectionRunId":null,"sourceInspectionSchemaVersion":null},"marketId":"BTC_USDT_PERP","exchangeId":"binance","timeframe":"4h","fromUtc":"2026-07-01T00:00:00Z","toUtc":"2026-07-01T04:00:00Z","candleCount":1,"gapCount":0,"series":[{"period":"daily","points":[{"openTimeUtc":"2026-07-01T00:00:00Z","runningVwap":"101.25","previousClose":null}]}],"levels":[{"period":"daily","price":"100.5","bornAtUtc":"2026-07-01T00:00:00Z","expiresAtUtc":"2026-07-02T00:00:00Z","sweptAtUtc":null}],"classifications":[{"openTimeUtc":"2026-07-01T00:00:00Z","volumeClass":"large","isUp":true,"score":"2.5"}]}
+            """);
+        var client = Client(handler);
+
+        var result = await client.AnalyzeVwapAsync(new VwapAnalysisRequest
         {
-            MarketId = "BTC_USDT_PERP",
-            Timeframe = "4h",
-            CandlesAnalyzed = 194,
-            VolumeSummary = new VolumeClassificationSummaryDto { Large = 6, Medium = 9, Low = 23, None = 156 }
-        };
+            Dataset = new CachedDatasetSelector { Alias = "jul-btc" }
+        });
 
-        mockHandler.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(expectedResponse))
-        };
-
-        var httpClient = new HttpClient(mockHandler);
-        var config = new WickdCliConfig { ApiUrl = "https://api.wickdalgo.test" };
-        var client = new WickdApiClient(httpClient, config);
-
-        var request = new VwapAnalysisRequest
-        {
-            DatasetAlias = "jul-btc",
-            Periods = ["daily", "weekly"]
-        };
-
-        var result = await client.AnalyzeVwapAsync(request);
-
-        result.Should().NotBeNull();
-        result.CandlesAnalyzed.Should().Be(194);
-        result.VolumeSummary.Large.Should().Be(6);
-        mockHandler.LastRequest!.RequestUri!.ToString().Should().Be("https://api.wickdalgo.test/api/analyze/vwap");
+        result.Series.Single().Points.Single().RunningVwap.Should().Be(101.25m);
+        result.Levels.Single().Price.Should().Be(100.5m);
+        result.Classifications.Single().Score.Should().Be(2.5m);
+        result.CandleCount.Should().Be(1);
     }
 
     [Fact]
-    public async Task GetAccountsAsync_SendsGet_AndParsesList()
+    public async Task AccountsUnwrapsTheCanonicalEnvelope()
     {
-        var mockHandler = new MockHttpMessageHandler();
-        var expectedAccounts = new List<AccountDto>
-        {
-            new() { AccountId = "acc-1", Name = "Binance Main", Balance = 50000m, Currency = "USDT", IsActive = true }
-        };
-
-        mockHandler.ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent(JsonSerializer.Serialize(expectedAccounts))
-        };
-
-        var httpClient = new HttpClient(mockHandler);
-        var config = new WickdCliConfig { ApiUrl = "https://api.wickdalgo.test" };
-        var client = new WickdApiClient(httpClient, config);
+        var handler = Handler(
+            """
+            {"schemaVersion":1,"contract":"accounts","provenance":{"generatedAtUtc":"2026-08-27T12:00:00Z","applicationVersion":"0.1.0","inspectionRunId":null,"sourceInspectionSchemaVersion":null},"accounts":[{"id":"acc-1","name":"Backtest USDT","kind":"backtest","currency":"USDT","capitalAllocations":[],"riskProfiles":[],"walletObservations":[],"equityObservations":[{"id":"eq-1","accountId":"acc-1","equity":"50000","observedAtUtc":"2026-08-27T00:00:00Z","knownAtUtc":"2026-08-27T00:00:00Z","sequence":0}],"cashMovements":[]}]}
+            """);
+        var client = Client(handler);
 
         var accounts = await client.GetAccountsAsync();
 
-        accounts.Should().HaveCount(1);
-        accounts[0].AccountId.Should().Be("acc-1");
-        mockHandler.LastRequest!.RequestUri!.ToString().Should().Be("https://api.wickdalgo.test/api/accounts");
+        accounts.Should().ContainSingle();
+        accounts[0].Id.Should().Be("acc-1");
+        accounts[0].EquityObservations.Single().Equity.Should().Be(50000m);
     }
+
+    [Fact]
+    public async Task AContractFromTheFutureIsRefused()
+    {
+        var handler = Handler(
+            """
+            {"schemaVersion":2,"contract":"fetch","marketId":"BTC_USDT_PERP","exchangeId":"binance","exchangeSymbol":"BTC/USDT:USDT","timeframe":"4h","fromUtc":"2026-07-01T00:00:00Z","toUtc":"2026-08-01T00:00:00Z","candleCount":1,"cacheHit":true}
+            """);
+        var client = Client(handler);
+
+        var action = () => client.FetchCandlesAsync(new FetchHistoricalCandlesRequest());
+
+        await action.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*expected 'fetch' v1*");
+    }
+
+    private static MockHttpMessageHandler Handler(string json) => new()
+    {
+        ResponseToReturn = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        }
+    };
+
+    private static WickdApiClient Client(MockHttpMessageHandler handler, string? token = null) =>
+        new(
+            new HttpClient(handler),
+            new WickdCliConfig
+            {
+                ApiUrl = "https://api.wickdalgo.test",
+                ApiToken = token
+            });
 }

@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/backtest-request.v1.schema.json",
+  "title": "BacktestRequest",
+  "type": "object",
+  "properties": {
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "marketId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "exchangeId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "exchangeSymbol": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "timeframe": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "candles": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "$ref": "#/$defs/BacktestCandle"
+      },
+      "minItems": 1
+    },
+    "dataset": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CachedDatasetSelector"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "pivotStrength": {
+      "type": "integer",
+      "default": 2,
+      "minimum": 1
+    }
+  },
+  "required": [
+    "runId",
+    "marketId",
+    "exchangeId",
+    "exchangeSymbol",
+    "timeframe",
+    "candles"
+  ],
+  "$defs": {
+    "BacktestCandle": {
+      "type": "object",
+      "properties": {
+        "openTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "open": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "high": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "low": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "close": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "volume": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        }
+      },
+      "required": [
+        "openTimeUtc",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ]
+    },
+    "CachedDatasetSelector": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "marketId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "exchangeId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "exchangeSymbol": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "fromUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "toUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "alias",
+        "marketId",
+        "exchangeId",
+        "exchangeSymbol",
+        "timeframe",
+        "fromUtc",
+        "toUtc"
+      ],
+      "default": null
+    }
+  }
+}

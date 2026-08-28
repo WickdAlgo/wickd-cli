@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "contract": "fetch",
+  "provenance": {
+    "generatedAtUtc": "2026-08-10T12:00:00+00:00",
+    "applicationVersion": "0.4.0",
+    "inspectionRunId": null,
+    "sourceInspectionSchemaVersion": null
+  },
+  "marketId": "BTC_USDT_PERP",
+  "exchangeId": "binance",
+  "exchangeSymbol": "BTC/USDT:USDT",
+  "timeframe": "5m",
+  "fromUtc": "2026-08-10T00:00:00+00:00",
+  "toUtc": "2026-08-10T00:25:00+00:00",
+  "candleCount": 5,
+  "cacheHit": false
+}

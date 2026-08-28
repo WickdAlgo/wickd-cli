@@ -1,0 +1,836 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-dotnet/contracts/trade-detail.v1.schema.json",
+  "title": "TradeDetail",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "trade-detail"
+    },
+    "provenance": {
+      "$ref": "#/$defs/TradeJournalProvenance"
+    },
+    "idea": {
+      "$ref": "#/$defs/TradeIdea"
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TradeLevel"
+      }
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SignalEvent"
+      }
+    },
+    "executions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Execution"
+      }
+    },
+    "fills": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Fill"
+      }
+    },
+    "settlements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ExecutionSettlement"
+      }
+    },
+    "reportedResults": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SourceReportedResult"
+      }
+    },
+    "lifecycle": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TradeLifecycleEvent"
+      }
+    },
+    "evidenceLinks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TradeEvidenceLink"
+      }
+    },
+    "strategyMatches": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/StrategyMatch"
+      }
+    },
+    "review": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TradeReview"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "provenance",
+    "idea",
+    "levels",
+    "signals",
+    "executions",
+    "fills",
+    "settlements",
+    "reportedResults",
+    "lifecycle",
+    "evidenceLinks",
+    "strategyMatches",
+    "review"
+  ],
+  "$defs": {
+    "TradeJournalProvenance": {
+      "type": "object",
+      "properties": {
+        "generatedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionRunId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sourceInspectionSchemaVersion": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "required": [
+        "generatedAtUtc",
+        "applicationVersion",
+        "inspectionRunId",
+        "sourceInspectionSchemaVersion"
+      ]
+    },
+    "InspectionInstrument": {
+      "type": "object",
+      "properties": {
+        "market": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "market",
+        "timeframe"
+      ]
+    },
+    "TradeIdea": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrument": {
+          "$ref": "#/$defs/InspectionInstrument"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "mentor",
+            "self",
+            "wickdCore",
+            "wickdAi",
+            "external"
+          ]
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "signalTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "setupName": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "thesis": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "invalidationSummary": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sourceReference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "instrument",
+        "source",
+        "direction",
+        "signalTimeUtc",
+        "knownAtUtc",
+        "sequence",
+        "setupName",
+        "thesis",
+        "invalidationSummary",
+        "sourceReference"
+      ]
+    },
+    "TradeLevel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "entry",
+            "stop",
+            "target",
+            "breakeven",
+            "invalidation"
+          ]
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "price": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "zoneLow": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "zoneHigh": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "validFromUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validUntilUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sourceSignalEventId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "role",
+        "ordinal",
+        "price",
+        "zoneLow",
+        "zoneHigh",
+        "validFromUtc",
+        "validUntilUtc",
+        "knownAtUtc",
+        "sequence",
+        "sourceSignalEventId"
+      ]
+    },
+    "SignalEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "setup",
+            "entry",
+            "entryUpdate",
+            "stopUpdate",
+            "targetUpdate",
+            "partialTakeProfit",
+            "moveStopToBreakeven",
+            "close",
+            "cancel",
+            "commentary"
+          ]
+        },
+        "messageTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "seenAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "type",
+        "messageTimeUtc",
+        "seenAtUtc",
+        "knownAtUtc",
+        "summary",
+        "sequence"
+      ]
+    },
+    "Execution": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "liveCopy",
+            "paper",
+            "shadow",
+            "backtest"
+          ]
+        },
+        "plannedRiskPct": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "plannedRiskAmount": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "accountId",
+        "mode",
+        "plannedRiskPct",
+        "plannedRiskAmount",
+        "knownAtUtc",
+        "sequence"
+      ]
+    },
+    "Fill": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "signalEventId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "entry",
+            "entryAdd",
+            "partialExit",
+            "takeProfit",
+            "stop",
+            "manualExit",
+            "liquidation"
+          ]
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "price": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "feeAmount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "feeAsset": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "filledAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "executionId",
+        "signalEventId",
+        "role",
+        "side",
+        "price",
+        "quantity",
+        "feeAmount",
+        "feeAsset",
+        "filledAtUtc",
+        "knownAtUtc",
+        "sequence"
+      ]
+    },
+    "ExecutionSettlement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "executionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "grossPnl": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "netPnl": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "grossR": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "netR": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "feesTotal": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        }
+      },
+      "required": [
+        "id",
+        "executionId",
+        "knownAtUtc",
+        "sequence",
+        "grossPnl",
+        "netPnl",
+        "grossR",
+        "netR",
+        "feesTotal"
+      ]
+    },
+    "SourceReportedResult": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reportedR": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "reportedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "reportedR",
+        "reportedAtUtc",
+        "knownAtUtc",
+        "sequence"
+      ]
+    },
+    "TradeLifecycleEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subjectId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subjectKind": {
+          "type": "string",
+          "enum": [
+            "tradeIdea",
+            "execution"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "activated",
+            "triggered",
+            "opened",
+            "partiallyClosed",
+            "closed",
+            "cancelled",
+            "expired",
+            "missed",
+            "skipped"
+          ]
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "subjectId",
+        "subjectKind",
+        "type",
+        "knownAtUtc",
+        "sequence",
+        "note"
+      ]
+    },
+    "TradeEvidenceLink": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionRunId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionEntityId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "biasEvidence",
+            "entryEvidence",
+            "confirmationEvidence",
+            "invalidationEvidence",
+            "targetEvidence",
+            "liquidityTarget"
+          ]
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "inspectionRunId",
+        "inspectionEntityId",
+        "role",
+        "note"
+      ]
+    },
+    "StrategyMatch": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "modelName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "matched",
+            "partial",
+            "unmatched",
+            "notEvaluated"
+          ]
+        },
+        "score": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "modelName",
+        "status",
+        "score",
+        "knownAtUtc",
+        "sequence",
+        "note"
+      ]
+    },
+    "TradeReview": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tradeIdeaId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "writtenAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "followedPlan": {
+          "type": "boolean"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lesson": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "tradeIdeaId",
+        "writtenAtUtc",
+        "knownAtUtc",
+        "followedPlan",
+        "summary",
+        "lesson"
+      ]
+    }
+  }
+}

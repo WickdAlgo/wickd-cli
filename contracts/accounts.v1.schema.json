@@ -1,0 +1,411 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-dotnet/contracts/accounts.v1.schema.json",
+  "title": "AccountsPayload",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "accounts"
+    },
+    "provenance": {
+      "$ref": "#/$defs/TradeJournalProvenance"
+    },
+    "accounts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Account"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "provenance",
+    "accounts"
+  ],
+  "$defs": {
+    "TradeJournalProvenance": {
+      "type": "object",
+      "properties": {
+        "generatedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionRunId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sourceInspectionSchemaVersion": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "required": [
+        "generatedAtUtc",
+        "applicationVersion",
+        "inspectionRunId",
+        "sourceInspectionSchemaVersion"
+      ]
+    },
+    "CapitalAllocation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "validFromUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validUntilUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "accountId",
+        "amount",
+        "validFromUtc",
+        "validUntilUtc",
+        "knownAtUtc",
+        "sequence"
+      ]
+    },
+    "RiskProfile": {
+      "type": "object",
+      "required": [
+        "mode"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "mode": {
+              "const": "fixedFractional"
+            },
+            "riskFractionPct": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "description": "An exact decimal, carried as an invariant-culture string."
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "accountId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "validFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "validUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "knownAtUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "riskFractionPct",
+            "id",
+            "accountId",
+            "validFromUtc",
+            "validUntilUtc",
+            "knownAtUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "mode": {
+              "const": "fixedCurrency"
+            },
+            "riskAmount": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "description": "An exact decimal, carried as an invariant-culture string."
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "accountId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "validFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "validUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "knownAtUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "riskAmount",
+            "id",
+            "accountId",
+            "validFromUtc",
+            "validUntilUtc",
+            "knownAtUtc",
+            "sequence"
+          ]
+        }
+      ]
+    },
+    "AccountWalletObservation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "balance": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "observedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "accountId",
+        "balance",
+        "observedAtUtc",
+        "knownAtUtc",
+        "sequence"
+      ]
+    },
+    "AccountEquityObservation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "equity": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "observedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "id",
+        "accountId",
+        "equity",
+        "observedAtUtc",
+        "knownAtUtc",
+        "sequence"
+      ]
+    },
+    "CashMovement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "deposit",
+            "withdrawal"
+          ]
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "movedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "accountId",
+        "kind",
+        "amount",
+        "movedAtUtc",
+        "knownAtUtc",
+        "sequence",
+        "note"
+      ]
+    },
+    "Account": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "live",
+            "backtest"
+          ]
+        },
+        "currency": {
+          "type": "string",
+          "minLength": 1
+        },
+        "capitalAllocations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CapitalAllocation"
+          }
+        },
+        "riskProfiles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RiskProfile"
+          }
+        },
+        "walletObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AccountWalletObservation"
+          }
+        },
+        "equityObservations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AccountEquityObservation"
+          }
+        },
+        "cashMovements": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CashMovement"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "currency",
+        "capitalAllocations",
+        "riskProfiles",
+        "walletObservations",
+        "equityObservations",
+        "cashMovements"
+      ]
+    }
+  }
+}

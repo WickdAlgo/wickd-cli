@@ -86,17 +86,7 @@ public class FetchCommand : AsyncCommand<FetchCommand.Settings>
 
         var client = _apiClientFactory.CreateClient(settings);
         FetchResultDto? result = null;
-
-        var request = new FetchHistoricalCandlesRequest
-        {
-            MarketId = market,
-            Timeframe = timeframe,
-            ExchangeId = exchange,
-            FromUtc = fromUtc,
-            ToUtc = toUtc,
-            Alias = settings.Alias,
-            Force = settings.Force
-        };
+        DatasetAliasDto? savedAlias = null;
 
         try
         {
@@ -104,7 +94,34 @@ public class FetchCommand : AsyncCommand<FetchCommand.Settings>
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"Fetching candles for {market} ({timeframe}) from {exchange}...", async _ =>
                 {
+                    var instrument = await SupportedInstrumentResolver.ResolveAsync(
+                        client, market, exchange, timeframe, cancellationToken);
+                    var request = new FetchHistoricalCandlesRequest
+                    {
+                        MarketId = market,
+                        Timeframe = timeframe,
+                        ExchangeId = exchange,
+                        ExchangeSymbol = instrument.ExchangeSymbol,
+                        FromUtc = fromUtc,
+                        ToUtc = toUtc
+                    };
                     result = await client.FetchCandlesAsync(request, cancellationToken);
+                    if (!string.IsNullOrWhiteSpace(settings.Alias))
+                    {
+                        savedAlias = await client.SaveDatasetAliasAsync(
+                            new SaveDatasetAliasRequest
+                            {
+                                Alias = settings.Alias,
+                                MarketId = market,
+                                ExchangeId = exchange,
+                                ExchangeSymbol = instrument.ExchangeSymbol,
+                                Timeframe = timeframe,
+                                FromUtc = fromUtc,
+                                ToUtc = toUtc,
+                                Force = settings.Force
+                            },
+                            cancellationToken);
+                    }
                 });
         }
         catch (Exception ex)
@@ -126,6 +143,11 @@ public class FetchCommand : AsyncCommand<FetchCommand.Settings>
         else
         {
             _renderer.RenderFetchResult(result);
+        }
+
+        if (savedAlias is not null && !settings.Json)
+        {
+            _renderer.RenderSuccess($"Saved dataset alias '{savedAlias.Alias}'.");
         }
 
         return ExitCodes.Success;

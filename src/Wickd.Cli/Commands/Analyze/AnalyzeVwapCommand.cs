@@ -11,7 +11,7 @@ using Wickd.Cli.Services;
 
 namespace Wickd.Cli.Commands.Analyze;
 
-public sealed class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Settings>
+public class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Settings>
 {
     public sealed class Settings : GlobalCommandSettings
     {
@@ -35,11 +35,11 @@ public sealed class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Setting
         [CommandOption("--to <UTC>")]
         public string? To { get; init; }
 
-        [Description("Comma-separated anchor periods producing running VWAP (e.g. daily,weekly,monthly,quarterly,yearly).")]
+        [Description("Comma-separated anchor periods producing running VWAP.")]
         [CommandOption("--periods <LIST>")]
         public string? Periods { get; init; }
 
-        [Description("Comma-separated anchor periods producing previous-close levels, or 'none'.")]
+        [Description("Comma-separated periods producing previous-close levels, or 'none'.")]
         [CommandOption("--level-periods <LIST>")]
         public string? LevelPeriods { get; init; }
 
@@ -66,8 +66,11 @@ public sealed class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Setting
     {
         var hasDataset = !string.IsNullOrWhiteSpace(settings.Dataset);
         var hasExplicitRange = !string.IsNullOrWhiteSpace(settings.From) || !string.IsNullOrWhiteSpace(settings.To);
+        var hasExplicitSelector = !string.IsNullOrWhiteSpace(settings.Market)
+            || !string.IsNullOrWhiteSpace(settings.Timeframe)
+            || hasExplicitRange;
 
-        if (hasDataset && hasExplicitRange)
+        if (hasDataset && hasExplicitSelector)
         {
             _renderer.RenderError("Use either --dataset or explicit --market/--timeframe/--from/--to options, not both.");
             return ExitCodes.ValidationError;
@@ -113,40 +116,70 @@ public sealed class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Setting
         }
 
         var config = _apiClientFactory.GetEffectiveConfig(settings);
-
-        List<string>? periods = null;
-        if (!string.IsNullOrWhiteSpace(settings.Periods))
+        if (config.Vwap.VolumeLength < 2)
         {
-            periods = settings.Periods.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+            _renderer.RenderError("Configured VWAP volume length must be at least two.");
+            return ExitCodes.ValidationError;
         }
 
-        List<string>? levelPeriods = null;
-        if (!string.IsNullOrWhiteSpace(settings.LevelPeriods))
+        if (config.Vwap.LargeThreshold < config.Vwap.MediumThreshold)
         {
-            levelPeriods = settings.LevelPeriods.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+            _renderer.RenderError("Configured large volume threshold must be at least the medium threshold.");
+            return ExitCodes.ValidationError;
         }
 
-        var request = new VwapAnalysisRequest
+        if (!TryResolvePeriods(
+                settings.Periods,
+                config.Vwap.EnabledPeriods,
+                allowNone: false,
+                "--periods",
+                out var enabledPeriods)
+            || !TryResolvePeriods(
+                settings.LevelPeriods,
+                config.Vwap.PreviousLevelPeriods,
+                allowNone: true,
+                "--level-periods",
+                out var previousLevelPeriods))
         {
-            DatasetAlias = settings.Dataset,
-            MarketId = settings.Market ?? (hasDataset ? null : config.DefaultMarket),
-            Timeframe = settings.Timeframe ?? (hasDataset ? null : config.DefaultTimeframe),
-            FromUtc = fromUtc,
-            ToUtc = toUtc,
-            Periods = periods ?? config.Vwap.EnabledPeriods,
-            LevelPeriods = levelPeriods ?? config.Vwap.PreviousLevelPeriods
-        };
+            return ExitCodes.ValidationError;
+        }
 
         var client = _apiClientFactory.CreateClient(settings);
         VwapAnalysisResultDto? result = null;
+        var market = settings.Market ?? config.DefaultMarket;
+        var timeframe = settings.Timeframe ?? config.DefaultTimeframe;
 
         try
         {
-            var target = hasDataset ? $"dataset '{settings.Dataset}'" : $"{request.MarketId} ({request.Timeframe})";
+            var target = hasDataset ? $"dataset '{settings.Dataset}'" : $"{market} ({timeframe})";
             await AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"Running VWAP & volume analysis for {target}...", async _ =>
                 {
+                    var selector = hasDataset
+                        ? new CachedDatasetSelector { Alias = settings.Dataset }
+                        : await ExplicitSelectorAsync(
+                            client,
+                            market,
+                            config.DefaultExchange,
+                            timeframe,
+                            fromUtc!.Value,
+                            toUtc!.Value,
+                            cancellationToken);
+                    var request = new VwapAnalysisRequest
+                    {
+                        Dataset = selector,
+                        Settings = new VwapAnalysisSettingsDto
+                        {
+                            EnabledPeriods = enabledPeriods,
+                            PreviousLevelPeriods = previousLevelPeriods,
+                            VolumeLength = config.Vwap.VolumeLength,
+                            MediumThreshold = config.Vwap.MediumThreshold,
+                            LargeThreshold = config.Vwap.LargeThreshold,
+                            LowVolumeThreshold = config.Vwap.LowVolumeThreshold,
+                            ShowLowVolume = config.Vwap.ShowLowVolume
+                        }
+                    };
                     result = await client.AnalyzeVwapAsync(request, cancellationToken);
                 });
         }
@@ -184,22 +217,32 @@ public sealed class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Setting
 
                 using var writer = new StreamWriter(fullOutPath, false);
 
-                foreach (var lvl in result.Levels)
+                foreach (var series in result.Series)
                 {
-                    writer.WriteLine(JsonSerializer.Serialize(lvl, JsonLineOptions));
+                    foreach (var point in series.Points)
+                    {
+                        writer.WriteLine(JsonSerializer.Serialize(
+                            new { kind = "point", series.Period, point.OpenTimeUtc, point.RunningVwap, point.PreviousClose },
+                            JsonLineOptions));
+                    }
                 }
 
-                foreach (var cls in result.Classifications)
+                foreach (var level in result.Levels)
                 {
-                    writer.WriteLine(JsonSerializer.Serialize(cls, JsonLineOptions));
+                    writer.WriteLine(JsonSerializer.Serialize(
+                        new { kind = "level", level.Period, level.Price, level.BornAtUtc, level.ExpiresAtUtc, level.SweptAtUtc },
+                        JsonLineOptions));
                 }
 
-                foreach (var pt in result.Points)
+                foreach (var classification in result.Classifications)
                 {
-                    writer.WriteLine(JsonSerializer.Serialize(pt, JsonLineOptions));
+                    writer.WriteLine(JsonSerializer.Serialize(
+                        new { kind = "classification", classification.OpenTimeUtc, classification.VolumeClass, classification.IsUp, classification.Score },
+                        JsonLineOptions));
                 }
 
-                _renderer.RenderSuccess($"Exported {result.Levels.Count + result.Classifications.Count + result.Points.Count} records to [cyan]{fullOutPath}[/]");
+                var pointCount = result.Series.Sum(series => series.Points.Count);
+                _renderer.RenderSuccess($"Exported {result.Levels.Count + result.Classifications.Count + pointCount} records to [cyan]{fullOutPath}[/]");
             }
             catch (Exception ex)
             {
@@ -209,5 +252,75 @@ public sealed class AnalyzeVwapCommand : AsyncCommand<AnalyzeVwapCommand.Setting
         }
 
         return ExitCodes.Success;
+    }
+
+    private static async Task<CachedDatasetSelector> ExplicitSelectorAsync(
+        IWickdApiClient client,
+        string market,
+        string exchange,
+        string timeframe,
+        DateTimeOffset fromUtc,
+        DateTimeOffset toUtc,
+        CancellationToken cancellationToken)
+    {
+        var instrument = await SupportedInstrumentResolver.ResolveAsync(
+            client, market, exchange, timeframe, cancellationToken);
+        return new CachedDatasetSelector
+        {
+            MarketId = market,
+            ExchangeId = exchange,
+            ExchangeSymbol = instrument.ExchangeSymbol,
+            Timeframe = timeframe,
+            FromUtc = fromUtc,
+            ToUtc = toUtc
+        };
+    }
+
+    private bool TryResolvePeriods(
+        string? value,
+        IReadOnlyList<string> configured,
+        bool allowNone,
+        string option,
+        out List<string> periods)
+    {
+        periods = [];
+        IReadOnlyList<string> raw = value is null
+            ? configured
+            : value.Split(',', StringSplitOptions.TrimEntries);
+        if (raw.Count == 0 || raw.Any(string.IsNullOrWhiteSpace))
+        {
+            _renderer.RenderError($"{option} must name at least one VWAP anchor period.");
+            return false;
+        }
+
+        if (raw.Any(item => item.Equals("none", StringComparison.OrdinalIgnoreCase)))
+        {
+            if (!allowNone || raw.Count != 1)
+            {
+                _renderer.RenderError($"{option} must use 'none' by itself, and only level periods support it.");
+                return false;
+            }
+
+            return true;
+        }
+
+        string[] supported = ["daily", "weekly", "monthly", "quarterly", "yearly"];
+        foreach (var item in raw)
+        {
+            var normalized = item.ToLowerInvariant();
+            if (!supported.Contains(normalized, StringComparer.Ordinal))
+            {
+                _renderer.RenderError(
+                    $"Unsupported VWAP anchor period '{item}'. Supported periods: {string.Join(", ", supported)}.");
+                return false;
+            }
+
+            if (!periods.Contains(normalized, StringComparer.Ordinal))
+            {
+                periods.Add(normalized);
+            }
+        }
+
+        return true;
     }
 }

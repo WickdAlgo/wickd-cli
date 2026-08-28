@@ -5,582 +5,287 @@ namespace Wickd.Cli.Models;
 
 public sealed class FetchHistoricalCandlesRequest
 {
-    [JsonPropertyName("marketId")]
     public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("timeframe")]
+    public string ExchangeId { get; set; } = string.Empty;
+    public string ExchangeSymbol { get; set; } = string.Empty;
     public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("fromUtc")]
     public DateTimeOffset FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset ToUtc { get; set; }
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = "binance";
-
-    [JsonPropertyName("alias")]
-    public string? Alias { get; set; }
-
-    [JsonPropertyName("force")]
-    public bool Force { get; set; }
 }
 
 public sealed class FetchResultDto
 {
-    [JsonPropertyName("marketId")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
     public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("timeframe")]
+    public string ExchangeId { get; set; } = string.Empty;
+    public string ExchangeSymbol { get; set; } = string.Empty;
     public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("fromUtc")]
     public DateTimeOffset FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset ToUtc { get; set; }
+    public int CandleCount { get; set; }
+    public bool CacheHit { get; set; }
+}
 
-    [JsonPropertyName("candlesFetched")]
-    public int CandlesFetched { get; set; }
-
-    [JsonPropertyName("gaps")]
-    public int Gaps { get; set; }
-
-    [JsonPropertyName("cachePath")]
-    public string? CachePath { get; set; }
-
-    [JsonPropertyName("alias")]
+public sealed class CachedDatasetSelector
+{
     public string? Alias { get; set; }
+    public string? MarketId { get; set; }
+    public string? ExchangeId { get; set; }
+    public string? ExchangeSymbol { get; set; }
+    public string? Timeframe { get; set; }
+    public DateTimeOffset? FromUtc { get; set; }
+    public DateTimeOffset? ToUtc { get; set; }
 }
 
 public sealed class BacktestRequest
 {
-    [JsonPropertyName("marketId")]
+    public string RunId { get; set; } = string.Empty;
     public string? MarketId { get; set; }
-
-    [JsonPropertyName("timeframe")]
+    public string? ExchangeId { get; set; }
+    public string? ExchangeSymbol { get; set; }
     public string? Timeframe { get; set; }
-
-    [JsonPropertyName("fromUtc")]
-    public DateTimeOffset? FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
-    public DateTimeOffset? ToUtc { get; set; }
-
-    [JsonPropertyName("datasetAlias")]
-    public string? DatasetAlias { get; set; }
-
-    [JsonPropertyName("runId")]
-    public string? RunId { get; set; }
-
-    [JsonPropertyName("pivotStrength")]
-    public int? PivotStrength { get; set; }
+    public IReadOnlyList<JsonElement>? Candles { get; set; }
+    public CachedDatasetSelector? Dataset { get; set; }
+    public int PivotStrength { get; set; } = 2;
 }
 
 public sealed class BacktestResultDto
 {
-    [JsonPropertyName("runId")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
     public string RunId { get; set; } = string.Empty;
-
-    [JsonPropertyName("marketId")]
     public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("timeframe")]
+    public string ExchangeId { get; set; } = string.Empty;
+    public string ExchangeSymbol { get; set; } = string.Empty;
     public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("fromUtc")]
     public DateTimeOffset FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset ToUtc { get; set; }
-
-    [JsonPropertyName("candlesCount")]
-    public int CandlesCount { get; set; }
-
-    [JsonPropertyName("structureEventsCount")]
-    public int StructureEventsCount { get; set; }
-
-    [JsonPropertyName("manifestPath")]
-    public string? ManifestPath { get; set; }
-
-    [JsonPropertyName("eventsPath")]
-    public string? EventsPath { get; set; }
-
-    [JsonPropertyName("structures")]
-    public List<StructureEventDto> Structures { get; set; } = [];
-}
-
-public sealed class StructureEventDto
-{
-    [JsonPropertyName("kind")]
-    public string Kind { get; set; } = string.Empty;
-
-    [JsonPropertyName("openTimeUtc")]
-    public DateTimeOffset? OpenTimeUtc { get; set; }
-
-    [JsonPropertyName("price")]
-    public decimal? Price { get; set; }
-
-    [JsonPropertyName("subject")]
-    public string? Subject { get; set; }
-
-    [JsonPropertyName("trigger")]
-    public string? Trigger { get; set; }
+    public int CandleCount { get; set; }
+    public int EventCount { get; set; }
+    public int GapCount { get; set; }
 }
 
 public sealed class VwapAnalysisRequest
 {
-    [JsonPropertyName("marketId")]
     public string? MarketId { get; set; }
-
-    [JsonPropertyName("timeframe")]
+    public string? ExchangeId { get; set; }
     public string? Timeframe { get; set; }
-
-    [JsonPropertyName("fromUtc")]
-    public DateTimeOffset? FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
-    public DateTimeOffset? ToUtc { get; set; }
-
-    [JsonPropertyName("datasetAlias")]
-    public string? DatasetAlias { get; set; }
-
-    [JsonPropertyName("periods")]
-    public List<string>? Periods { get; set; }
-
-    [JsonPropertyName("levelPeriods")]
-    public List<string>? LevelPeriods { get; set; }
+    public IReadOnlyList<JsonElement>? Candles { get; set; }
+    public CachedDatasetSelector? Dataset { get; set; }
+    public VwapAnalysisSettingsDto? Settings { get; set; }
 }
 
-public sealed class VwapPeriodSummaryDto
+public sealed class VwapAnalysisSettingsDto
 {
-    [JsonPropertyName("period")]
-    public string Period { get; set; } = string.Empty;
+    public List<string> EnabledPeriods { get; set; } = [];
+    public List<string> PreviousLevelPeriods { get; set; } = [];
+    public int VolumeLength { get; set; }
 
-    [JsonPropertyName("currentVwap")]
-    public decimal? CurrentVwap { get; set; }
+    [JsonConverter(typeof(DecimalStringJsonConverter))]
+    public decimal MediumThreshold { get; set; }
 
-    [JsonPropertyName("previousClose")]
-    public decimal? PreviousClose { get; set; }
+    [JsonConverter(typeof(DecimalStringJsonConverter))]
+    public decimal LargeThreshold { get; set; }
 
-    [JsonPropertyName("isSwept")]
-    public bool IsSwept { get; set; }
+    [JsonConverter(typeof(DecimalStringJsonConverter))]
+    public decimal LowVolumeThreshold { get; set; }
 
-    [JsonPropertyName("levelsCount")]
-    public int LevelsCount { get; set; }
-
-    [JsonPropertyName("sweptLevelsCount")]
-    public int SweptLevelsCount { get; set; }
-
-    [JsonPropertyName("expiredLevelsCount")]
-    public int ExpiredLevelsCount { get; set; }
-}
-
-public sealed class VolumeClassificationSummaryDto
-{
-    [JsonPropertyName("large")]
-    public int Large { get; set; }
-
-    [JsonPropertyName("medium")]
-    public int Medium { get; set; }
-
-    [JsonPropertyName("low")]
-    public int Low { get; set; }
-
-    [JsonPropertyName("none")]
-    public int None { get; set; }
+    public bool ShowLowVolume { get; set; }
 }
 
 public sealed class VwapAnalysisResultDto
 {
-    [JsonPropertyName("marketId")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
     public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("timeframe")]
+    public string ExchangeId { get; set; } = string.Empty;
     public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("fromUtc")]
     public DateTimeOffset FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset ToUtc { get; set; }
-
-    [JsonPropertyName("candlesAnalyzed")]
-    public int CandlesAnalyzed { get; set; }
-
-    [JsonPropertyName("gaps")]
-    public int Gaps { get; set; }
-
-    [JsonPropertyName("summaries")]
-    public List<VwapPeriodSummaryDto> Summaries { get; set; } = [];
-
-    [JsonPropertyName("volumeSummary")]
-    public VolumeClassificationSummaryDto VolumeSummary { get; set; } = new();
-
-    [JsonPropertyName("levels")]
+    public int CandleCount { get; set; }
+    public int GapCount { get; set; }
+    public List<VwapSeriesDto> Series { get; set; } = [];
     public List<VwapLevelDto> Levels { get; set; } = [];
-
-    [JsonPropertyName("classifications")]
     public List<VwapClassificationDto> Classifications { get; set; } = [];
-
-    [JsonPropertyName("points")]
-    public List<VwapPointDto> Points { get; set; } = [];
 }
 
-public sealed class VwapLevelDto
+public sealed class VwapSeriesDto
 {
-    [JsonPropertyName("kind")]
-    public string Kind { get; set; } = "level";
-
-    [JsonPropertyName("marketId")]
-    public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = "binance";
-
-    [JsonPropertyName("timeframe")]
-    public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("period")]
     public string Period { get; set; } = string.Empty;
-
-    [JsonPropertyName("openTimeUtc")]
-    public DateTimeOffset? OpenTimeUtc { get; set; }
-
-    [JsonPropertyName("price")]
-    public decimal? Price { get; set; }
-
-    [JsonPropertyName("bornAtUtc")]
-    public DateTimeOffset? BornAtUtc { get; set; }
-
-    [JsonPropertyName("expiresAtUtc")]
-    public DateTimeOffset? ExpiresAtUtc { get; set; }
-
-    [JsonPropertyName("sweptAtUtc")]
-    public DateTimeOffset? SweptAtUtc { get; set; }
-
-    [JsonPropertyName("runningVwap")]
-    public decimal? RunningVwap { get; set; }
-
-    [JsonPropertyName("previousClose")]
-    public decimal? PreviousClose { get; set; }
-
-    [JsonPropertyName("volumeClass")]
-    public string? VolumeClass { get; set; }
-
-    [JsonPropertyName("isUp")]
-    public bool? IsUp { get; set; }
-
-    [JsonPropertyName("score")]
-    public double? Score { get; set; }
-}
-
-public sealed class VwapClassificationDto
-{
-    [JsonPropertyName("kind")]
-    public string Kind { get; set; } = "classification";
-
-    [JsonPropertyName("marketId")]
-    public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = "binance";
-
-    [JsonPropertyName("timeframe")]
-    public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("period")]
-    public string? Period { get; set; }
-
-    [JsonPropertyName("openTimeUtc")]
-    public DateTimeOffset? OpenTimeUtc { get; set; }
-
-    [JsonPropertyName("price")]
-    public decimal? Price { get; set; }
-
-    [JsonPropertyName("bornAtUtc")]
-    public DateTimeOffset? BornAtUtc { get; set; }
-
-    [JsonPropertyName("expiresAtUtc")]
-    public DateTimeOffset? ExpiresAtUtc { get; set; }
-
-    [JsonPropertyName("sweptAtUtc")]
-    public DateTimeOffset? SweptAtUtc { get; set; }
-
-    [JsonPropertyName("runningVwap")]
-    public decimal? RunningVwap { get; set; }
-
-    [JsonPropertyName("previousClose")]
-    public decimal? PreviousClose { get; set; }
-
-    [JsonPropertyName("volumeClass")]
-    public string? VolumeClass { get; set; }
-
-    [JsonPropertyName("isUp")]
-    public bool? IsUp { get; set; }
-
-    [JsonPropertyName("score")]
-    public double? Score { get; set; }
+    public List<VwapPointDto> Points { get; set; } = [];
 }
 
 public sealed class VwapPointDto
 {
-    [JsonPropertyName("kind")]
-    public string Kind { get; set; } = "point";
+    public DateTimeOffset OpenTimeUtc { get; set; }
 
-    [JsonPropertyName("marketId")]
-    public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = "binance";
-
-    [JsonPropertyName("timeframe")]
-    public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("period")]
-    public string? Period { get; set; }
-
-    [JsonPropertyName("openTimeUtc")]
-    public DateTimeOffset? OpenTimeUtc { get; set; }
-
-    [JsonPropertyName("price")]
-    public decimal? Price { get; set; }
-
-    [JsonPropertyName("bornAtUtc")]
-    public DateTimeOffset? BornAtUtc { get; set; }
-
-    [JsonPropertyName("expiresAtUtc")]
-    public DateTimeOffset? ExpiresAtUtc { get; set; }
-
-    [JsonPropertyName("sweptAtUtc")]
-    public DateTimeOffset? SweptAtUtc { get; set; }
-
-    [JsonPropertyName("runningVwap")]
+    [JsonConverter(typeof(NullableDecimalStringJsonConverter))]
     public decimal? RunningVwap { get; set; }
 
-    [JsonPropertyName("previousClose")]
+    [JsonConverter(typeof(NullableDecimalStringJsonConverter))]
     public decimal? PreviousClose { get; set; }
+}
 
-    [JsonPropertyName("volumeClass")]
-    public string? VolumeClass { get; set; }
+public sealed class VwapLevelDto
+{
+    public string Period { get; set; } = string.Empty;
 
-    [JsonPropertyName("isUp")]
-    public bool? IsUp { get; set; }
+    [JsonConverter(typeof(DecimalStringJsonConverter))]
+    public decimal Price { get; set; }
 
-    [JsonPropertyName("score")]
-    public double? Score { get; set; }
+    public DateTimeOffset BornAtUtc { get; set; }
+    public DateTimeOffset ExpiresAtUtc { get; set; }
+    public DateTimeOffset? SweptAtUtc { get; set; }
+}
+
+public sealed class VwapClassificationDto
+{
+    public DateTimeOffset OpenTimeUtc { get; set; }
+    public string VolumeClass { get; set; } = string.Empty;
+    public bool IsUp { get; set; }
+
+    [JsonConverter(typeof(NullableDecimalStringJsonConverter))]
+    public decimal? Score { get; set; }
 }
 
 public sealed class DatasetAliasDto
 {
-    [JsonPropertyName("alias")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
     public string Alias { get; set; } = string.Empty;
-
-    [JsonPropertyName("marketId")]
     public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = "binance";
-
-    [JsonPropertyName("timeframe")]
+    public string ExchangeId { get; set; } = string.Empty;
     public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("fromUtc")]
     public DateTimeOffset FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset ToUtc { get; set; }
-
-    [JsonPropertyName("candlesCount")]
-    public int CandlesCount { get; set; }
-
-    [JsonPropertyName("createdAtUtc")]
-    public DateTimeOffset? CreatedAtUtc { get; set; }
 }
 
 public sealed class SaveDatasetAliasRequest
 {
-    [JsonPropertyName("alias")]
     public string Alias { get; set; } = string.Empty;
-
-    [JsonPropertyName("marketId")]
     public string MarketId { get; set; } = string.Empty;
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = "binance";
-
-    [JsonPropertyName("timeframe")]
+    public string ExchangeId { get; set; } = string.Empty;
+    public string ExchangeSymbol { get; set; } = string.Empty;
     public string Timeframe { get; set; } = string.Empty;
-
-    [JsonPropertyName("fromUtc")]
     public DateTimeOffset FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset ToUtc { get; set; }
-
-    [JsonPropertyName("force")]
     public bool Force { get; set; }
+}
+
+public sealed class SupportedInstrumentsPayload
+{
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
+    public List<SupportedInstrumentDto> Instruments { get; set; } = [];
+    public List<string> Timeframes { get; set; } = [];
+}
+
+public sealed class SupportedInstrumentDto
+{
+    public string MarketId { get; set; } = string.Empty;
+    public string ExchangeId { get; set; } = string.Empty;
+    public string ExchangeSymbol { get; set; } = string.Empty;
 }
 
 public sealed class RunListingDto
 {
-    [JsonPropertyName("runId")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
     public string RunId { get; set; } = string.Empty;
-
-    [JsonPropertyName("marketId")]
-    public string? MarketId { get; set; }
-
-    [JsonPropertyName("timeframe")]
-    public string? Timeframe { get; set; }
-
-    [JsonPropertyName("fromUtc")]
+    public bool HasDataset { get; set; }
+    public DateTimeOffset LastWrittenAtUtc { get; set; }
+    public InspectionRunInstrumentDto? Instrument { get; set; }
     public DateTimeOffset? FromUtc { get; set; }
-
-    [JsonPropertyName("toUtc")]
     public DateTimeOffset? ToUtc { get; set; }
+    public int? CandleCount { get; set; }
+    public string? ApplicationVersion { get; set; }
+    public string? DatasetAlias { get; set; }
+}
 
-    [JsonPropertyName("candlesCount")]
-    public int? CandlesCount { get; set; }
-
-    [JsonPropertyName("structureEventsCount")]
-    public int? StructureEventsCount { get; set; }
-
-    [JsonPropertyName("createdAtUtc")]
-    public DateTimeOffset? CreatedAtUtc { get; set; }
-
-    [JsonPropertyName("status")]
-    public string? Status { get; set; }
+public sealed class InspectionRunInstrumentDto
+{
+    public string Market { get; set; } = string.Empty;
+    public string Timeframe { get; set; } = string.Empty;
 }
 
 public sealed class InspectionRunDto
 {
-    [JsonPropertyName("runId")]
-    public string RunId { get; set; } = string.Empty;
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
 
-    [JsonPropertyName("manifest")]
-    public JsonElement? Manifest { get; set; }
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement> Data { get; set; } = [];
+}
 
-    [JsonPropertyName("structures")]
-    public List<StructureEventDto> Structures { get; set; } = [];
+public sealed class AccountsPayloadDto
+{
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
+    public List<AccountDto> Accounts { get; set; } = [];
 }
 
 public sealed class AccountDto
 {
-    [JsonPropertyName("accountId")]
-    public string AccountId { get; set; } = string.Empty;
-
-    [JsonPropertyName("exchangeId")]
-    public string ExchangeId { get; set; } = string.Empty;
-
-    [JsonPropertyName("name")]
+    public string Id { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
+    public string Kind { get; set; } = string.Empty;
+    public string Currency { get; set; } = string.Empty;
+    public List<AccountEquityObservationDto> EquityObservations { get; set; } = [];
+}
 
-    [JsonPropertyName("balance")]
-    public decimal Balance { get; set; }
+public sealed class AccountEquityObservationDto
+{
+    [JsonConverter(typeof(DecimalStringJsonConverter))]
+    public decimal Equity { get; set; }
 
-    [JsonPropertyName("currency")]
-    public string Currency { get; set; } = "USDT";
-
-    [JsonPropertyName("isActive")]
-    public bool IsActive { get; set; }
+    public DateTimeOffset ObservedAtUtc { get; set; }
 }
 
 public sealed class AccountRiskDto
 {
-    [JsonPropertyName("accountId")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
     public string AccountId { get; set; } = string.Empty;
+    public DateTimeOffset AsOfUtc { get; set; }
 
-    [JsonPropertyName("totalEquity")]
-    public decimal TotalEquity { get; set; }
+    [JsonConverter(typeof(DecimalStringJsonConverter))]
+    public decimal OpenRisk { get; set; }
 
-    [JsonPropertyName("utilizedMargin")]
-    public decimal UtilizedMargin { get; set; }
-
-    [JsonPropertyName("freeMargin")]
-    public decimal FreeMargin { get; set; }
-
-    [JsonPropertyName("openPositionsCount")]
-    public int OpenPositionsCount { get; set; }
-
-    [JsonPropertyName("riskScore")]
-    public double RiskScore { get; set; }
+    public List<JsonElement> ConcurrentRiskWarnings { get; set; } = [];
 }
 
 public sealed class TradeSummaryDto
 {
-    [JsonPropertyName("tradeId")]
-    public string TradeId { get; set; } = string.Empty;
-
-    [JsonPropertyName("accountId")]
-    public string AccountId { get; set; } = string.Empty;
-
-    [JsonPropertyName("symbol")]
-    public string Symbol { get; set; } = string.Empty;
-
-    [JsonPropertyName("direction")]
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
+    public string Id { get; set; } = string.Empty;
+    public InspectionInstrumentDto Instrument { get; set; } = new();
+    public string Source { get; set; } = string.Empty;
     public string Direction { get; set; } = string.Empty;
+    public DateTimeOffset SignalTimeUtc { get; set; }
+    public string CanonicalMonth { get; set; } = string.Empty;
+    public string DerivedStatus { get; set; } = string.Empty;
+    public string? SetupName { get; set; }
 
-    [JsonPropertyName("entryPrice")]
-    public decimal EntryPrice { get; set; }
+    [JsonConverter(typeof(NullableDecimalStringJsonConverter))]
+    public decimal? ReportedR { get; set; }
 
-    [JsonPropertyName("exitPrice")]
-    public decimal? ExitPrice { get; set; }
+    [JsonConverter(typeof(NullableDecimalStringJsonConverter))]
+    public decimal? NetR { get; set; }
+}
 
-    [JsonPropertyName("quantity")]
-    public decimal Quantity { get; set; }
-
-    [JsonPropertyName("pnl")]
-    public decimal? Pnl { get; set; }
-
-    [JsonPropertyName("status")]
-    public string Status { get; set; } = string.Empty;
-
-    [JsonPropertyName("openedAtUtc")]
-    public DateTimeOffset OpenedAtUtc { get; set; }
-
-    [JsonPropertyName("closedAtUtc")]
-    public DateTimeOffset? ClosedAtUtc { get; set; }
+public sealed class InspectionInstrumentDto
+{
+    public string Market { get; set; } = string.Empty;
+    public string Timeframe { get; set; } = string.Empty;
 }
 
 public sealed class TradeDetailDto
 {
-    [JsonPropertyName("tradeId")]
-    public string TradeId { get; set; } = string.Empty;
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
 
-    [JsonPropertyName("accountId")]
-    public string AccountId { get; set; } = string.Empty;
-
-    [JsonPropertyName("symbol")]
-    public string Symbol { get; set; } = string.Empty;
-
-    [JsonPropertyName("direction")]
-    public string Direction { get; set; } = string.Empty;
-
-    [JsonPropertyName("entryPrice")]
-    public decimal EntryPrice { get; set; }
-
-    [JsonPropertyName("exitPrice")]
-    public decimal? ExitPrice { get; set; }
-
-    [JsonPropertyName("stopLoss")]
-    public decimal? StopLoss { get; set; }
-
-    [JsonPropertyName("takeProfit")]
-    public decimal? TakeProfit { get; set; }
-
-    [JsonPropertyName("quantity")]
-    public decimal Quantity { get; set; }
-
-    [JsonPropertyName("pnl")]
-    public decimal? Pnl { get; set; }
-
-    [JsonPropertyName("status")]
-    public string Status { get; set; } = string.Empty;
-
-    [JsonPropertyName("openedAtUtc")]
-    public DateTimeOffset OpenedAtUtc { get; set; }
-
-    [JsonPropertyName("closedAtUtc")]
-    public DateTimeOffset? ClosedAtUtc { get; set; }
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement> Data { get; set; } = [];
 }

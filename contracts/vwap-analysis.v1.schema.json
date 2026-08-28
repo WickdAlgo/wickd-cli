@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/vwap-analysis.v1.schema.json",
+  "title": "AnalyzeVwapResult",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "vwap-analysis"
+    },
+    "provenance": {
+      "$ref": "#/$defs/TradeJournalProvenance"
+    },
+    "marketId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeframe": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fromUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "toUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "candleCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "gapCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "series": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VwapAnalysisSeries"
+      }
+    },
+    "levels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VwapAnalysisLevel"
+      }
+    },
+    "classifications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/VwapAnalysisClassification"
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "provenance",
+    "marketId",
+    "exchangeId",
+    "timeframe",
+    "fromUtc",
+    "toUtc",
+    "candleCount",
+    "gapCount",
+    "series",
+    "levels",
+    "classifications"
+  ],
+  "$defs": {
+    "TradeJournalProvenance": {
+      "type": "object",
+      "properties": {
+        "generatedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionRunId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sourceInspectionSchemaVersion": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "required": [
+        "generatedAtUtc",
+        "applicationVersion",
+        "inspectionRunId",
+        "sourceInspectionSchemaVersion"
+      ]
+    },
+    "VwapAnalysisPoint": {
+      "type": "object",
+      "properties": {
+        "openTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "runningVwap": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "previousClose": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        }
+      },
+      "required": [
+        "openTimeUtc",
+        "runningVwap",
+        "previousClose"
+      ]
+    },
+    "VwapAnalysisSeries": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "type": "string",
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly",
+            "quarterly",
+            "yearly"
+          ]
+        },
+        "points": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VwapAnalysisPoint"
+          }
+        }
+      },
+      "required": [
+        "period",
+        "points"
+      ]
+    },
+    "VwapAnalysisLevel": {
+      "type": "object",
+      "properties": {
+        "period": {
+          "type": "string",
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly",
+            "quarterly",
+            "yearly"
+          ]
+        },
+        "price": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "bornAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sweptAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "period",
+        "price",
+        "bornAtUtc",
+        "expiresAtUtc",
+        "sweptAtUtc"
+      ]
+    },
+    "VwapAnalysisClassification": {
+      "type": "object",
+      "properties": {
+        "openTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "volumeClass": {
+          "type": "string",
+          "enum": [
+            "none",
+            "medium",
+            "large",
+            "low"
+          ]
+        },
+        "isUp": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        }
+      },
+      "required": [
+        "openTimeUtc",
+        "volumeClass",
+        "isUp",
+        "score"
+      ]
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-dotnet/contracts/run-listing.v1.schema.json",
+  "title": "RunListingItem",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "run-listing"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "hasDataset": {
+      "type": "boolean"
+    },
+    "lastWrittenAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "instrument": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InspectionInstrument"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fromUtc": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "toUtc": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "candleCount": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "applicationVersion": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "datasetAlias": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "runId",
+    "hasDataset",
+    "lastWrittenAtUtc",
+    "instrument",
+    "fromUtc",
+    "toUtc",
+    "candleCount",
+    "applicationVersion",
+    "datasetAlias"
+  ],
+  "$defs": {
+    "InspectionInstrument": {
+      "type": "object",
+      "properties": {
+        "market": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "market",
+        "timeframe"
+      ]
+    }
+  }
+}

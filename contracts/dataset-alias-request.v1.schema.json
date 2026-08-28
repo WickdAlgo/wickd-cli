@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/dataset-alias-request.v1.schema.json",
+  "title": "DatasetAliasSaveRequest",
+  "type": "object",
+  "properties": {
+    "alias": {
+      "type": "string",
+      "minLength": 1
+    },
+    "marketId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeSymbol": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeframe": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fromUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "toUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "force": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "alias",
+    "marketId",
+    "exchangeId",
+    "exchangeSymbol",
+    "timeframe",
+    "fromUtc",
+    "toUtc"
+  ]
+}

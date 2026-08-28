@@ -49,7 +49,7 @@ public class ConfigManagerTests : IDisposable
         var config = manager.LoadConfig(nonExistentPath);
 
         config.Should().NotBeNull();
-        config.ApiUrl.Should().Be("http://localhost:5080");
+        config.ApiUrl.Should().Be("http://localhost:5081");
         config.DefaultMarket.Should().Be("BTC_USDT_PERP");
         config.DefaultTimeframe.Should().Be("4h");
         config.Structure.PivotStrength.Should().Be(2);

@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
+using Wickd.Cli.Commands.Analyze;
 using Wickd.Cli.Models;
 
 namespace Wickd.Cli.Tests;
@@ -9,16 +10,6 @@ public sealed class JsonlDecimalTests
     [Fact]
     public void AnonymousVwapExportWritesInvariantDecimalStrings()
     {
-        var options = new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            Converters =
-            {
-                new DecimalStringJsonConverter(),
-                new NullableDecimalStringJsonConverter()
-            }
-        };
-
         var json = JsonSerializer.Serialize(
             new
             {
@@ -28,7 +19,7 @@ public sealed class JsonlDecimalTests
                 price = 100.5m,
                 score = (decimal?)2.5m
             },
-            options);
+            AnalyzeVwapCommand.JsonLineOptions);
 
         json.Should().Contain("\"runningVwap\":\"101.25\"");
         json.Should().Contain("\"price\":\"100.5\"");

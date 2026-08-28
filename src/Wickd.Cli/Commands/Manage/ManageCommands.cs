@@ -67,9 +67,6 @@ public class ManageDatasetsDeleteCommand : AsyncCommand<ManageDatasetsDeleteComm
         [CommandOption("-a|--alias <NAME>")]
         public string? Alias { get; init; }
 
-        [Description("Also delete underlying candle cache if unreferenced.")]
-        [CommandOption("--delete-cache")]
-        public bool DeleteCache { get; init; }
     }
 
     private readonly IApiClientFactory _apiClientFactory;
@@ -98,7 +95,7 @@ public class ManageDatasetsDeleteCommand : AsyncCommand<ManageDatasetsDeleteComm
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"Deleting dataset alias '{settings.Alias}'...", async _ =>
                 {
-                    success = await client.DeleteDatasetAliasAsync(settings.Alias, settings.DeleteCache, cancellationToken);
+                    success = await client.DeleteDatasetAliasAsync(settings.Alias, cancellationToken);
                 });
         }
         catch (Exception ex)
@@ -222,72 +219,5 @@ public class ManageRunsGetCommand : AsyncCommand<ManageRunsGetCommand.Settings>
 
         _renderer.RenderJson(run);
         return ExitCodes.Success;
-    }
-}
-
-public class ManageRunsDeleteCommand : AsyncCommand<ManageRunsDeleteCommand.Settings>
-{
-    public class Settings : GlobalCommandSettings
-    {
-        [Description("Run ID to delete.")]
-        [CommandOption("-r|--run-id <ID>")]
-        public string? RunId { get; init; }
-
-        [Description("Force deletion of run output.")]
-        [CommandOption("-f|--force")]
-        public bool Force { get; init; }
-    }
-
-    private readonly IApiClientFactory _apiClientFactory;
-    private readonly IConsoleRenderer _renderer;
-
-    public ManageRunsDeleteCommand(IApiClientFactory apiClientFactory, IConsoleRenderer renderer)
-    {
-        _apiClientFactory = apiClientFactory;
-        _renderer = renderer;
-    }
-
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
-    {
-        if (string.IsNullOrWhiteSpace(settings.RunId))
-        {
-            _renderer.RenderError("--run-id <id> is required.");
-            return ExitCodes.ValidationError;
-        }
-
-        if (!settings.Force)
-        {
-            _renderer.RenderError("Deleting a run requires --force.");
-            return ExitCodes.ValidationError;
-        }
-
-        var client = _apiClientFactory.CreateClient(settings);
-        var success = false;
-
-        try
-        {
-            await AnsiConsole.Status()
-                .Spinner(Spinner.Known.Dots)
-                .StartAsync($"Deleting run '{settings.RunId}'...", async _ =>
-                {
-                    success = await client.DeleteRunAsync(settings.RunId, settings.Force, cancellationToken);
-                });
-        }
-        catch (Exception ex)
-        {
-            _renderer.RenderError($"Failed to delete run '{settings.RunId}'.", ex);
-            return ExitCodes.Error;
-        }
-
-        if (success)
-        {
-            _renderer.RenderSuccess($"Run [cyan]{settings.RunId}[/] deleted successfully.");
-            return ExitCodes.Success;
-        }
-        else
-        {
-            _renderer.RenderError($"Run '{settings.RunId}' was not found or could not be deleted.");
-            return ExitCodes.Error;
-        }
     }
 }

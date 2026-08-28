@@ -5,7 +5,7 @@ namespace Wickd.Cli.Configuration;
 public sealed class WickdCliConfig
 {
     [JsonPropertyName("apiUrl")]
-    public string ApiUrl { get; set; } = "http://localhost:5080";
+    public string ApiUrl { get; set; } = "http://localhost:5081";
 
     [JsonPropertyName("apiToken")]
     public string? ApiToken { get; set; }
@@ -38,22 +38,22 @@ public sealed class StructureConfig
 public sealed class VwapConfig
 {
     [JsonPropertyName("enabledPeriods")]
-    public List<string> EnabledPeriods { get; set; } = ["Daily", "Weekly"];
+    public List<string> EnabledPeriods { get; set; } = ["daily", "weekly"];
 
     [JsonPropertyName("previousLevelPeriods")]
-    public List<string> PreviousLevelPeriods { get; set; } = ["Daily", "Weekly"];
+    public List<string> PreviousLevelPeriods { get; set; } = ["daily", "weekly"];
 
     [JsonPropertyName("volumeLength")]
     public int VolumeLength { get; set; } = 20;
 
     [JsonPropertyName("mediumThreshold")]
-    public double MediumThreshold { get; set; } = 1.5;
+    public decimal MediumThreshold { get; set; } = 1.5m;
 
     [JsonPropertyName("largeThreshold")]
-    public double LargeThreshold { get; set; } = 2.5;
+    public decimal LargeThreshold { get; set; } = 2.5m;
 
     [JsonPropertyName("lowVolumeThreshold")]
-    public double LowVolumeThreshold { get; set; } = -1.0;
+    public decimal LowVolumeThreshold { get; set; } = -1m;
 
     [JsonPropertyName("showLowVolume")]
     public bool ShowLowVolume { get; set; } = true;

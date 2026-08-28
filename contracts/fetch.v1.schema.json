@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/fetch.v1.schema.json",
+  "title": "FetchResult",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "fetch"
+    },
+    "provenance": {
+      "$ref": "#/$defs/TradeJournalProvenance"
+    },
+    "marketId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeSymbol": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeframe": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fromUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "toUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "candleCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "cacheHit": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "provenance",
+    "marketId",
+    "exchangeId",
+    "exchangeSymbol",
+    "timeframe",
+    "fromUtc",
+    "toUtc",
+    "candleCount",
+    "cacheHit"
+  ],
+  "$defs": {
+    "TradeJournalProvenance": {
+      "type": "object",
+      "properties": {
+        "generatedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionRunId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sourceInspectionSchemaVersion": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "required": [
+        "generatedAtUtc",
+        "applicationVersion",
+        "inspectionRunId",
+        "sourceInspectionSchemaVersion"
+      ]
+    }
+  }
+}

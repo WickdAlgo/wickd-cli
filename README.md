@@ -103,7 +103,7 @@ wickd fetch --market <MARKET> --timeframe <TIMEFRAME> --from <UTC> --to <UTC> [-
 Replays a cached dataset through the market structure detector.
 
 ```bash
-wickd backtest (--dataset <ALIAS> | --market <M> --timeframe <TF> --from <F> --to <T>) [--run-id <ID>] [--pivot-strength <N>]
+wickd backtest (--dataset <ALIAS> | --market <M> --timeframe <TF> --from <F> --to <T>) [--run-id <ID>]
 ```
 
 | Option | Description |
@@ -111,7 +111,6 @@ wickd backtest (--dataset <ALIAS> | --market <M> --timeframe <TF> --from <F> --t
 | `-d`, `--dataset <ALIAS>` | Saved dataset alias name. |
 | `--market`, `--timeframe`, `--from`, `--to` | Explicit market and date range (alternative to `--dataset`). |
 | `-r`, `--run-id <ID>` | Custom run ID (generated automatically if omitted). |
-| `-p`, `--pivot-strength <N>` | Pivot strength for swing detection. |
 
 ---
 
@@ -125,8 +124,8 @@ wickd analyze vwap (--dataset <ALIAS> | --market <M> --timeframe <TF> --from <F>
 | Option | Description |
 |---|---|
 | `-d`, `--dataset <ALIAS>` | Saved dataset alias name. |
-| `--periods <LIST>` | Comma-separated anchor periods (`daily,weekly,monthly,quarterly,yearly`). |
-| `--level-periods <LIST>` | Comma-separated periods for previous-close levels, or `none`. |
+| `--periods <LIST>` | Comma-separated running-series periods (`daily,weekly,monthly,quarterly,yearly`). |
+| `--level-periods <LIST\|none>` | Previous-close level periods, or `none` to disable levels. |
 | `-o`, `--out <PATH>` | Export full result records to a JSONL file. |
 
 ---
@@ -137,12 +136,11 @@ Dataset and backtest run management.
 ```bash
 # Datasets / Aliases
 wickd manage datasets list
-wickd manage datasets delete --alias <NAME> [--delete-cache]
+wickd manage datasets delete --alias <NAME>
 
 # Runs
 wickd manage runs list
 wickd manage runs get --run-id <ID>
-wickd manage runs delete --run-id <ID> --force
 ```
 
 ---
@@ -205,7 +203,7 @@ Example `config.json`:
 
 ```json
 {
-  "apiUrl": "http://localhost:5080",
+  "apiUrl": "http://localhost:5081",
   "apiToken": null,
   "defaultExchange": "binance",
   "defaultMarket": "BTC_USDT_PERP",
@@ -215,8 +213,8 @@ Example `config.json`:
     "pivotStrength": 2
   },
   "vwap": {
-    "enabledPeriods": [ "Daily", "Weekly" ],
-    "previousLevelPeriods": [ "Daily", "Weekly" ],
+    "enabledPeriods": [ "daily", "weekly" ],
+    "previousLevelPeriods": [ "daily", "weekly" ],
     "volumeLength": 20,
     "mediumThreshold": 1.5,
     "largeThreshold": 2.5,

@@ -21,7 +21,7 @@ public static class Program
     {
         var services = new ServiceCollection();
 
-        // Register Core Services
+        // Register thin-client services.
         services.AddSingleton<IConfigManager, ConfigManager>();
         services.AddSingleton<IConsoleRenderer, ConsoleRenderer>();
         services.AddSingleton<IApiClientFactory, ApiClientFactory>();
@@ -78,13 +78,11 @@ public static class Program
 
                 manage.AddBranch("runs", runs =>
                 {
-                    runs.SetDescription("List, inspect, or delete backtest runs.");
+                    runs.SetDescription("List or inspect backtest runs.");
                     runs.AddCommand<ManageRunsListCommand>("list")
                         .WithDescription("List backtest runs.");
                     runs.AddCommand<ManageRunsGetCommand>("get")
                         .WithDescription("Inspect a specific backtest run.");
-                    runs.AddCommand<ManageRunsDeleteCommand>("delete")
-                        .WithDescription("Delete a backtest run.");
                 });
             });
 

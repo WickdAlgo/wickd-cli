@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-dotnet/contracts/trade-summary.v1.schema.json",
+  "title": "TradeSummary",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "trade-summary"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "instrument": {
+      "$ref": "#/$defs/InspectionInstrument"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "mentor",
+        "self",
+        "wickdCore",
+        "wickdAi",
+        "external"
+      ]
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "long",
+        "short"
+      ]
+    },
+    "signalTimeUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "canonicalMonth": {
+      "type": "string",
+      "minLength": 7,
+      "maxLength": 7,
+      "pattern": "^[0-9]{4}-[0-9]{2}$",
+      "description": "Diary month as yyyy-MM in UTC. Projected from the idea's signal; never recomputed by the consumer."
+    },
+    "derivedStatus": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "planned",
+        "active",
+        "triggered",
+        "cancelled",
+        "expired",
+        "closed"
+      ]
+    },
+    "setupName": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "reportedR": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+      "description": "An exact decimal, carried as an invariant-culture string."
+    },
+    "netR": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+      "description": "An exact decimal, carried as an invariant-culture string."
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "id",
+    "instrument",
+    "source",
+    "direction",
+    "signalTimeUtc",
+    "canonicalMonth",
+    "derivedStatus",
+    "setupName",
+    "reportedR",
+    "netR"
+  ],
+  "$defs": {
+    "InspectionInstrument": {
+      "type": "object",
+      "properties": {
+        "market": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "market",
+        "timeframe"
+      ]
+    }
+  }
+}

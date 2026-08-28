@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, stage, dev ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, stage, dev ]
 
 jobs:
   build:
@@ -33,9 +33,13 @@ jobs:
     - name: Verify Clean Package Boundary (ADR 002)
       run: |
         nupkg_file=$(ls artifacts/wickd-cli.*.nupkg | head -n 1)
-        echo "Inspecting package: $nupkg_file"
-        if unzip -l "$nupkg_file" | grep -E "Wickd\.(Core|Inspection|Adapters)"; then
-          echo "ERROR: Proprietary Wickd assemblies leaked into public package!"
-          exit 1
-        fi
-        echo "Clean package boundary verified."
+        scripts/verify-package.sh "$nupkg_file"
+
+    - name: Smoke Test Packed Tool
+      run: |
+        nupkg_file=$(ls artifacts/wickd-cli.*.nupkg | head -n 1)
+        package_version=$(basename "$nupkg_file" | sed -E 's/^wickd-cli\.(.*)\.nupkg$/\1/')
+        dotnet tool install --tool-path "$RUNNER_TEMP/wickd-tool" --add-source artifacts wickd-cli --version "$package_version"
+        "$RUNNER_TEMP/wickd-tool/wickd" --help
+        "$RUNNER_TEMP/wickd-tool/wickd" analyze vwap --help
+        "$RUNNER_TEMP/wickd-tool/wickd" backtest --help

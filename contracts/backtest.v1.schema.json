@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/backtest.v1.schema.json",
+  "title": "BacktestResult",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "backtest"
+    },
+    "provenance": {
+      "$ref": "#/$defs/TradeJournalProvenance"
+    },
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "marketId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeSymbol": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeframe": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fromUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "toUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "candleCount": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "eventCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "gapCount": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "provenance",
+    "runId",
+    "marketId",
+    "exchangeId",
+    "exchangeSymbol",
+    "timeframe",
+    "fromUtc",
+    "toUtc",
+    "candleCount",
+    "eventCount",
+    "gapCount"
+  ],
+  "$defs": {
+    "TradeJournalProvenance": {
+      "type": "object",
+      "properties": {
+        "generatedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inspectionRunId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "sourceInspectionSchemaVersion": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        }
+      },
+      "required": [
+        "generatedAtUtc",
+        "applicationVersion",
+        "inspectionRunId",
+        "sourceInspectionSchemaVersion"
+      ]
+    }
+  }
+}

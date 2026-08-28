@@ -38,9 +38,6 @@ public class BacktestCommand : AsyncCommand<BacktestCommand.Settings>
         [CommandOption("-r|--run-id <ID>")]
         public string? RunId { get; init; }
 
-        [Description("Custom pivot strength for swing detection.")]
-        [CommandOption("-p|--pivot-strength <N>")]
-        public int? PivotStrength { get; init; }
     }
 
     private readonly IApiClientFactory _apiClientFactory;
@@ -56,8 +53,11 @@ public class BacktestCommand : AsyncCommand<BacktestCommand.Settings>
     {
         var hasDataset = !string.IsNullOrWhiteSpace(settings.Dataset);
         var hasExplicitRange = !string.IsNullOrWhiteSpace(settings.From) || !string.IsNullOrWhiteSpace(settings.To);
+        var hasExplicitSelector = !string.IsNullOrWhiteSpace(settings.Market)
+            || !string.IsNullOrWhiteSpace(settings.Timeframe)
+            || hasExplicitRange;
 
-        if (hasDataset && hasExplicitRange)
+        if (hasDataset && hasExplicitSelector)
         {
             _renderer.RenderError("Use either --dataset or explicit --market/--timeframe/--from/--to options, not both.");
             return ExitCodes.ValidationError;
@@ -103,28 +103,43 @@ public class BacktestCommand : AsyncCommand<BacktestCommand.Settings>
         }
 
         var config = _apiClientFactory.GetEffectiveConfig(settings);
-
-        var request = new BacktestRequest
+        if (config.Structure.PivotStrength < 1)
         {
-            DatasetAlias = settings.Dataset,
-            MarketId = settings.Market ?? (hasDataset ? null : config.DefaultMarket),
-            Timeframe = settings.Timeframe ?? (hasDataset ? null : config.DefaultTimeframe),
-            FromUtc = fromUtc,
-            ToUtc = toUtc,
-            RunId = settings.RunId,
-            PivotStrength = settings.PivotStrength ?? config.Structure.PivotStrength
-        };
+            _renderer.RenderError("Configured structure pivot strength must be at least one.");
+            return ExitCodes.ValidationError;
+        }
 
         var client = _apiClientFactory.CreateClient(settings);
         BacktestResultDto? result = null;
+        var market = settings.Market ?? config.DefaultMarket;
+        var timeframe = settings.Timeframe ?? config.DefaultTimeframe;
+        var runId = string.IsNullOrWhiteSpace(settings.RunId)
+            ? $"cli-{DateTimeOffset.UtcNow:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}"[..32]
+            : settings.RunId;
 
         try
         {
-            var target = hasDataset ? $"dataset '{settings.Dataset}'" : $"{request.MarketId} ({request.Timeframe})";
+            var target = hasDataset ? $"dataset '{settings.Dataset}'" : $"{market} ({timeframe})";
             await AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"Running deterministic backtest for {target}...", async _ =>
                 {
+                    var selector = hasDataset
+                        ? new CachedDatasetSelector { Alias = settings.Dataset }
+                        : await ExplicitSelectorAsync(
+                            client,
+                            market,
+                            config.DefaultExchange,
+                            timeframe,
+                            fromUtc!.Value,
+                            toUtc!.Value,
+                            cancellationToken);
+                    var request = new BacktestRequest
+                    {
+                        RunId = runId,
+                        Dataset = selector,
+                        PivotStrength = config.Structure.PivotStrength
+                    };
                     result = await client.RunBacktestAsync(request, cancellationToken);
                 });
         }
@@ -150,5 +165,27 @@ public class BacktestCommand : AsyncCommand<BacktestCommand.Settings>
         }
 
         return ExitCodes.Success;
+    }
+
+    private static async Task<CachedDatasetSelector> ExplicitSelectorAsync(
+        IWickdApiClient client,
+        string market,
+        string exchange,
+        string timeframe,
+        DateTimeOffset fromUtc,
+        DateTimeOffset toUtc,
+        CancellationToken cancellationToken)
+    {
+        var instrument = await SupportedInstrumentResolver.ResolveAsync(
+            client, market, exchange, timeframe, cancellationToken);
+        return new CachedDatasetSelector
+        {
+            MarketId = market,
+            ExchangeId = exchange,
+            ExchangeSymbol = instrument.ExchangeSymbol,
+            Timeframe = timeframe,
+            FromUtc = fromUtc,
+            ToUtc = toUtc
+        };
     }
 }

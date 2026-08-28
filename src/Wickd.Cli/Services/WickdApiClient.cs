@@ -57,44 +57,79 @@ public sealed class WickdApiClient : IWickdApiClient
     public async Task<FetchResultDto> FetchCandlesAsync(FetchHistoricalCandlesRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/fetch", request, JsonOptions, cancellationToken);
-        return await HandleResponseAsync<FetchResultDto>(response, "api/fetch", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<FetchResultDto>(response, "api/fetch", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "fetch");
+    }
+
+    public async Task<SupportedInstrumentsPayload> GetSupportedInstrumentsAsync(CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.GetAsync("api/instruments", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<SupportedInstrumentsPayload>(response, "api/instruments", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "supported-instruments");
     }
 
     public async Task<BacktestResultDto> RunBacktestAsync(BacktestRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/backtest", request, JsonOptions, cancellationToken);
-        return await HandleResponseAsync<BacktestResultDto>(response, "api/backtest", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<BacktestResultDto>(response, "api/backtest", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "backtest");
     }
 
     public async Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/analyze/vwap", request, JsonOptions, cancellationToken);
-        return await HandleResponseAsync<VwapAnalysisResultDto>(response, "api/analyze/vwap", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<VwapAnalysisResultDto>(response, "api/analyze/vwap", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "vwap-analysis");
     }
 
     public async Task<List<DatasetAliasDto>> GetDatasetAliasesAsync(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("api/dataset-aliases", cancellationToken);
-        return await HandleResponseAsync<List<DatasetAliasDto>>(response, "api/dataset-aliases", cancellationToken);
+        var aliases = await HandleResponseAsync<List<DatasetAliasDto>>(response, "api/dataset-aliases", cancellationToken);
+        return aliases.Select(alias => RequireContract(
+                alias,
+                item => (item.SchemaVersion, item.Contract),
+                "dataset-alias"))
+            .ToList();
     }
 
     public async Task<DatasetAliasDto> SaveDatasetAliasAsync(SaveDatasetAliasRequest request, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("api/dataset-aliases", request, JsonOptions, cancellationToken);
-        return await HandleResponseAsync<DatasetAliasDto>(response, "api/dataset-aliases", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<DatasetAliasDto>(response, "api/dataset-aliases", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "dataset-alias");
     }
 
-    public async Task<bool> DeleteDatasetAliasAsync(string alias, bool deleteCache = false, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default)
     {
-        var uri = $"api/dataset-aliases/{Uri.EscapeDataString(alias)}?deleteCache={deleteCache.ToString().ToLowerInvariant()}";
+        var uri = $"api/dataset-aliases/{Uri.EscapeDataString(alias)}";
         var response = await _httpClient.DeleteAsync(uri, cancellationToken);
-        return response.IsSuccessStatusCode;
+        _ = RequireContract(
+            await HandleResponseAsync<DatasetAliasDto>(response, uri, cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "dataset-alias");
+        return true;
     }
 
     public async Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("api/runs", cancellationToken);
-        return await HandleResponseAsync<List<RunListingDto>>(response, "api/runs", cancellationToken);
+        var runs = await HandleResponseAsync<List<RunListingDto>>(response, "api/runs", cancellationToken);
+        return runs.Select(run => RequireContract(
+                run,
+                item => (item.SchemaVersion, item.Contract),
+                "run-listing"))
+            .ToList();
     }
 
     public async Task<InspectionRunDto?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -104,20 +139,19 @@ public sealed class WickdApiClient : IWickdApiClient
         {
             return null;
         }
-        return await HandleResponseAsync<InspectionRunDto>(response, $"api/runs/{runId}", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<InspectionRunDto>(response, $"api/runs/{runId}", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "inspection-dataset");
     }
 
-    public async Task<bool> DeleteRunAsync(string runId, bool force = false, CancellationToken cancellationToken = default)
-    {
-        var uri = $"api/runs/{Uri.EscapeDataString(runId)}?force={force.ToString().ToLowerInvariant()}";
-        var response = await _httpClient.DeleteAsync(uri, cancellationToken);
-        return response.IsSuccessStatusCode;
-    }
-
-    public async Task<List<AccountDto>> GetAccountsAsync(CancellationToken cancellationToken = default)
+    public async Task<AccountsPayloadDto> GetAccountsAsync(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("api/accounts", cancellationToken);
-        return await HandleResponseAsync<List<AccountDto>>(response, "api/accounts", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<AccountsPayloadDto>(response, "api/accounts", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "accounts");
     }
 
     public async Task<AccountRiskDto?> GetAccountRiskAsync(string accountId, CancellationToken cancellationToken = default)
@@ -127,13 +161,21 @@ public sealed class WickdApiClient : IWickdApiClient
         {
             return null;
         }
-        return await HandleResponseAsync<AccountRiskDto>(response, $"api/accounts/{accountId}/risk", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<AccountRiskDto>(response, $"api/accounts/{accountId}/risk", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "account-risk");
     }
 
     public async Task<List<TradeSummaryDto>> GetTradesAsync(CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.GetAsync("api/trades", cancellationToken);
-        return await HandleResponseAsync<List<TradeSummaryDto>>(response, "api/trades", cancellationToken);
+        var trades = await HandleResponseAsync<List<TradeSummaryDto>>(response, "api/trades", cancellationToken);
+        return trades.Select(trade => RequireContract(
+                trade,
+                item => (item.SchemaVersion, item.Contract),
+                "trade-summary"))
+            .ToList();
     }
 
     public async Task<TradeDetailDto?> GetTradeAsync(string tradeId, CancellationToken cancellationToken = default)
@@ -143,19 +185,37 @@ public sealed class WickdApiClient : IWickdApiClient
         {
             return null;
         }
-        return await HandleResponseAsync<TradeDetailDto>(response, $"api/trades/{tradeId}", cancellationToken);
+        return RequireContract(
+            await HandleResponseAsync<TradeDetailDto>(response, $"api/trades/{tradeId}", cancellationToken),
+            result => (result.SchemaVersion, result.Contract),
+            "trade-detail");
     }
 
     public async Task<bool> HealthCheckAsync(CancellationToken cancellationToken = default)
     {
         try
         {
-            var response = await _httpClient.GetAsync("api/instruments", cancellationToken);
-            return response.IsSuccessStatusCode;
+            _ = await GetSupportedInstrumentsAsync(cancellationToken);
+            return true;
         }
         catch
         {
             return false;
         }
+    }
+
+    private static T RequireContract<T>(
+        T value,
+        Func<T, (int SchemaVersion, string Contract)> identity,
+        string expectedContract)
+    {
+        var (schemaVersion, contract) = identity(value);
+        if (schemaVersion != 1 || !contract.Equals(expectedContract, StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException(
+                $"Unsupported API contract '{contract}' v{schemaVersion}; expected '{expectedContract}' v1.");
+        }
+
+        return value;
     }
 }

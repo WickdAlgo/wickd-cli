@@ -27,9 +27,10 @@ dotnet run --project src/Wickd.Cli -- --help
 - The tool is packed with `<PackAsTool>true</PackAsTool>` and executable name `wickd`.
 - Release verification gate ensures no proprietary engine assembly is ever bundled in `wickd.*.nupkg`:
   ```bash
-  unzip -l artifacts/wickd-cli.*.nupkg | grep -E "Wickd\.(Core|Inspection|Adapters)"
+  scripts/verify-package.sh artifacts/wickd-cli.*.nupkg
   ```
-  This command MUST return exit code 1 (no matches).
+  This command must return exit code 0; it refuses Core, Inspection, adapter,
+  and CCXT package entries.
 
 ## Coding Style & Standards
 

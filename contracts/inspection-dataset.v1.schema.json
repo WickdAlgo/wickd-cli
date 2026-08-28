@@ -1,0 +1,1086 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-dotnet/contracts/inspection-dataset.v1.schema.json",
+  "title": "InspectionDataset",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "inspection-dataset"
+    },
+    "run": {
+      "$ref": "#/$defs/InspectionRunSummary"
+    },
+    "candles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionCandle"
+      }
+    },
+    "entities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionEntity"
+      }
+    },
+    "lifecycle": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionLifecycleEvent"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionEvidence"
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionRelation"
+      }
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/InspectionChartLayer"
+      }
+    },
+    "filters": {
+      "$ref": "#/$defs/InspectionFilters"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "run",
+    "candles",
+    "entities",
+    "lifecycle",
+    "evidence",
+    "relations",
+    "layers",
+    "filters"
+  ],
+  "$defs": {
+    "InspectionInstrument": {
+      "type": "object",
+      "properties": {
+        "market": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "market",
+        "timeframe"
+      ]
+    },
+    "InspectionDetectorReference": {
+      "type": "object",
+      "properties": {
+        "detectorId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "versionedId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "detectorId",
+        "version",
+        "versionedId",
+        "dependencies"
+      ]
+    },
+    "InspectionRunSummary": {
+      "type": "object",
+      "properties": {
+        "runId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "datasetAlias": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrument": {
+          "$ref": "#/$defs/InspectionInstrument"
+        },
+        "intervalMs": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "detectorVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputDatasetVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "generatedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "applicationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceJournalSchemaVersion": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "detectors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InspectionDetectorReference"
+          }
+        }
+      },
+      "required": [
+        "runId",
+        "datasetAlias",
+        "instrument",
+        "intervalMs",
+        "detectorVersion",
+        "inputDatasetVersion",
+        "generatedAtUtc",
+        "applicationVersion",
+        "sourceJournalSchemaVersion",
+        "detectors"
+      ]
+    },
+    "InspectionCandle": {
+      "type": "object",
+      "properties": {
+        "openTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "open": {
+          "type": "number"
+        },
+        "high": {
+          "type": "number"
+        },
+        "low": {
+          "type": "number"
+        },
+        "close": {
+          "type": "number"
+        },
+        "volume": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "openTimeUtc",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume"
+      ]
+    },
+    "InspectionEntity": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family": {
+          "type": "string",
+          "enum": [
+            "swing",
+            "marketStructureBreak",
+            "liquidityPool",
+            "liquiditySweep",
+            "orderBlock",
+            "expansionFvg"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subjectTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "subjectPriceLow": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "subjectPriceHigh": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "triggerTimeUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "detector": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "internal",
+            "external"
+          ],
+          "default": "external"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "bullish",
+            "bearish",
+            "neutral"
+          ],
+          "default": "neutral"
+        }
+      },
+      "required": [
+        "id",
+        "family",
+        "label",
+        "subjectTimeUtc",
+        "subjectPriceLow",
+        "subjectPriceHigh",
+        "triggerTimeUtc",
+        "knownAtUtc",
+        "sequence",
+        "detector"
+      ]
+    },
+    "InspectionLifecycleEvent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entityId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "created",
+            "confirmed",
+            "promoted",
+            "superseded",
+            "touched",
+            "mitigated",
+            "invalidated",
+            "expired"
+          ]
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "note": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "entityId",
+        "type",
+        "knownAtUtc",
+        "sequence",
+        "note"
+      ]
+    },
+    "InspectionEvidence": {
+      "type": "object",
+      "required": [
+        "evidenceType"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "evidenceType": {
+              "const": "observation"
+            },
+            "observationId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "observationSequence": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "marketId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "exchangeId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "entityId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "trigger",
+                "supporting",
+                "contradicting",
+                "measurement",
+                "provenance"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "observedAtUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "observationId",
+            "observationSequence",
+            "marketId",
+            "exchangeId",
+            "id",
+            "entityId",
+            "role",
+            "label",
+            "observedAtUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "evidenceType": {
+              "const": "swing"
+            },
+            "swingId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "side": {
+              "type": "string",
+              "enum": [
+                "high",
+                "low"
+              ]
+            },
+            "price": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "description": "An exact decimal, carried as an invariant-culture string."
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "entityId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "trigger",
+                "supporting",
+                "contradicting",
+                "measurement",
+                "provenance"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "observedAtUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "swingId",
+            "side",
+            "price",
+            "id",
+            "entityId",
+            "role",
+            "label",
+            "observedAtUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "evidenceType": {
+              "const": "measurement"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "description": "An exact decimal, carried as an invariant-culture string."
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "entityId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "trigger",
+                "supporting",
+                "contradicting",
+                "measurement",
+                "provenance"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "minLength": 1
+            },
+            "observedAtUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "name",
+            "value",
+            "unit",
+            "id",
+            "entityId",
+            "role",
+            "label",
+            "observedAtUtc",
+            "sequence"
+          ]
+        }
+      ]
+    },
+    "InspectionRelation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fromEntityId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fromEntityType": {
+          "type": "string",
+          "enum": [
+            "swing",
+            "marketStructureBreak",
+            "liquidityPool",
+            "expansionFvg",
+            "orderBlock"
+          ]
+        },
+        "toEntityId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "toEntityType": {
+          "type": "string",
+          "enum": [
+            "swing",
+            "marketStructureBreak",
+            "liquidityPool",
+            "expansionFvg",
+            "orderBlock"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "supersededBy",
+            "breaks",
+            "provenBy",
+            "equalPricePeer",
+            "memberOf",
+            "usesExpansion"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "fromEntityId",
+        "fromEntityType",
+        "toEntityId",
+        "toEntityType",
+        "type"
+      ]
+    },
+    "InspectionChartPrimitive": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "anyOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "marker"
+            },
+            "atUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "price": {
+              "type": "number"
+            },
+            "placement": {
+              "type": "string",
+              "enum": [
+                "above",
+                "below",
+                "at"
+              ],
+              "default": "at"
+            },
+            "shape": {
+              "type": "string",
+              "enum": [
+                "dot",
+                "triangleUp",
+                "triangleDown",
+                "square"
+              ],
+              "default": "dot"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "entityId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "visibleFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "visibleUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external"
+              ],
+              "default": "external"
+            }
+          },
+          "required": [
+            "atUtc",
+            "price",
+            "id",
+            "label",
+            "entityId",
+            "visibleFromUtc",
+            "visibleUntilUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "level"
+            },
+            "price": {
+              "type": "number"
+            },
+            "fromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "toUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "style": {
+              "type": "string",
+              "enum": [
+                "solid",
+                "dashed",
+                "dotted"
+              ],
+              "default": "solid"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "entityId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "visibleFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "visibleUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external"
+              ],
+              "default": "external"
+            }
+          },
+          "required": [
+            "price",
+            "fromUtc",
+            "toUtc",
+            "id",
+            "label",
+            "entityId",
+            "visibleFromUtc",
+            "visibleUntilUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "zone"
+            },
+            "fromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "toUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "priceLow": {
+              "type": "number"
+            },
+            "priceHigh": {
+              "type": "number"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "entityId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "visibleFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "visibleUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external"
+              ],
+              "default": "external"
+            }
+          },
+          "required": [
+            "fromUtc",
+            "toUtc",
+            "priceLow",
+            "priceHigh",
+            "id",
+            "label",
+            "entityId",
+            "visibleFromUtc",
+            "visibleUntilUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "connection"
+            },
+            "fromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "fromPrice": {
+              "type": "number"
+            },
+            "toUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "toPrice": {
+              "type": "number"
+            },
+            "style": {
+              "type": "string",
+              "enum": [
+                "solid",
+                "dashed",
+                "dotted"
+              ],
+              "default": "dashed"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "entityId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "visibleFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "visibleUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external"
+              ],
+              "default": "external"
+            }
+          },
+          "required": [
+            "fromUtc",
+            "fromPrice",
+            "toUtc",
+            "toPrice",
+            "id",
+            "label",
+            "entityId",
+            "visibleFromUtc",
+            "visibleUntilUtc",
+            "sequence"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "rangeHighlight"
+            },
+            "fromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "toUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "label": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "entityId": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "minLength": 1
+            },
+            "visibleFromUtc": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "visibleUntilUtc": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external"
+              ],
+              "default": "external"
+            }
+          },
+          "required": [
+            "fromUtc",
+            "toUtc",
+            "id",
+            "label",
+            "entityId",
+            "visibleFromUtc",
+            "visibleUntilUtc",
+            "sequence"
+          ]
+        }
+      ]
+    },
+    "InspectionChartLayer": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primitives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InspectionChartPrimitive"
+          }
+        },
+        "defaultVisible": {
+          "type": "boolean",
+          "default": true
+        },
+        "z": {
+          "type": "string",
+          "enum": [
+            "under",
+            "over"
+          ],
+          "default": "under"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "primitives"
+      ]
+    },
+    "InspectionFilters": {
+      "type": "object",
+      "properties": {
+        "families": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "swing",
+              "marketStructureBreak",
+              "liquidityPool",
+              "liquiditySweep",
+              "orderBlock",
+              "expansionFvg"
+            ]
+          }
+        },
+        "scopes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "internal",
+              "external"
+            ]
+          }
+        },
+        "directions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "bullish",
+              "bearish",
+              "neutral"
+            ]
+          }
+        },
+        "layerIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "families",
+        "scopes",
+        "directions",
+        "layerIds"
+      ]
+    }
+  }
+}

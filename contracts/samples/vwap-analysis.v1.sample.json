@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "contract": "vwap-analysis",
+  "provenance": {
+    "generatedAtUtc": "2026-07-28T12:00:00+00:00",
+    "applicationVersion": "0.4.0",
+    "inspectionRunId": null,
+    "sourceInspectionSchemaVersion": null
+  },
+  "marketId": "BTC_USDT_PERP",
+  "exchangeId": "binance",
+  "timeframe": "4h",
+  "fromUtc": "2026-07-27T00:00:00+00:00",
+  "toUtc": "2026-07-28T04:00:00+00:00",
+  "candleCount": 3,
+  "gapCount": 1,
+  "series": [
+    {
+      "period": "daily",
+      "points": [
+        {
+          "openTimeUtc": "2026-07-27T00:00:00+00:00",
+          "runningVwap": "101",
+          "previousClose": null
+        },
+        {
+          "openTimeUtc": "2026-07-27T04:00:00+00:00",
+          "runningVwap": "105.5",
+          "previousClose": null
+        },
+        {
+          "openTimeUtc": "2026-07-28T00:00:00+00:00",
+          "runningVwap": "107",
+          "previousClose": "105.5"
+        }
+      ]
+    },
+    {
+      "period": "weekly",
+      "points": [
+        {
+          "openTimeUtc": "2026-07-27T00:00:00+00:00",
+          "runningVwap": "101",
+          "previousClose": null
+        },
+        {
+          "openTimeUtc": "2026-07-27T04:00:00+00:00",
+          "runningVwap": "105.5",
+          "previousClose": null
+        },
+        {
+          "openTimeUtc": "2026-07-28T00:00:00+00:00",
+          "runningVwap": "105.8",
+          "previousClose": null
+        }
+      ]
+    }
+  ],
+  "levels": [
+    {
+      "period": "daily",
+      "price": "105.5",
+      "bornAtUtc": "2026-07-28T00:00:00+00:00",
+      "expiresAtUtc": "2026-07-29T00:00:00+00:00",
+      "sweptAtUtc": null
+    }
+  ],
+  "classifications": [
+    {
+      "openTimeUtc": "2026-07-27T00:00:00+00:00",
+      "volumeClass": "none",
+      "isUp": true,
+      "score": null
+    },
+    {
+      "openTimeUtc": "2026-07-27T04:00:00+00:00",
+      "volumeClass": "none",
+      "isUp": true,
+      "score": null
+    },
+    {
+      "openTimeUtc": "2026-07-28T00:00:00+00:00",
+      "volumeClass": "none",
+      "isUp": true,
+      "score": null
+    }
+  ]
+}

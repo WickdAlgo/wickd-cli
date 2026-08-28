@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Wickd.Cli.Commands.Backtest;
+using Wickd.Cli.Commands.Analyze;
 using Wickd.Cli.Commands.Fetch;
 using Wickd.Cli.Commands.Manage;
 using Wickd.Cli.Common;
@@ -37,9 +38,11 @@ public class CommandValidationTests
 
     private class FakeApiClientFactory : IApiClientFactory
     {
+        public FakeApiClient Client { get; } = new();
+
         public IWickdApiClient CreateClient(Commands.Settings.GlobalCommandSettings settings)
         {
-            return new FakeApiClient();
+            return Client;
         }
 
         public WickdCliConfig GetEffectiveConfig(Commands.Settings.GlobalCommandSettings settings)
@@ -50,35 +53,55 @@ public class CommandValidationTests
 
     private class FakeApiClient : IWickdApiClient
     {
+        public FetchHistoricalCandlesRequest? FetchRequest { get; private set; }
+        public SaveDatasetAliasRequest? AliasRequest { get; private set; }
+        public BacktestRequest? BacktestRequest { get; private set; }
+        public VwapAnalysisRequest? VwapRequest { get; private set; }
+
         public Task<FetchResultDto> FetchCandlesAsync(FetchHistoricalCandlesRequest request, CancellationToken cancellationToken = default) =>
-            Task.FromResult(new FetchResultDto());
+            Task.FromResult(CaptureFetch(request));
+
+        public Task<SupportedInstrumentsPayload> GetSupportedInstrumentsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new SupportedInstrumentsPayload
+            {
+                SchemaVersion = 1,
+                Contract = "supported-instruments",
+                Timeframes = ["4h"],
+                Instruments =
+                [
+                    new SupportedInstrumentDto
+                    {
+                        MarketId = "BTC_USDT_PERP",
+                        ExchangeId = "binance",
+                        ExchangeSymbol = "BTC/USDT:USDT"
+                    }
+                ]
+            });
 
         public Task<BacktestResultDto> RunBacktestAsync(BacktestRequest request, CancellationToken cancellationToken = default) =>
-            Task.FromResult(new BacktestResultDto());
+            Task.FromResult(CaptureBacktest(request));
 
         public Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default) =>
-            Task.FromResult(new VwapAnalysisResultDto());
+            Task.FromResult(CaptureVwap(request));
 
         public Task<List<DatasetAliasDto>> GetDatasetAliasesAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<DatasetAliasDto>());
 
         public Task<DatasetAliasDto> SaveDatasetAliasAsync(SaveDatasetAliasRequest request, CancellationToken cancellationToken = default) =>
-            Task.FromResult(new DatasetAliasDto());
+            Task.FromResult(CaptureAlias(request));
 
-        public Task<bool> DeleteDatasetAliasAsync(string alias, bool deleteCache = false, CancellationToken cancellationToken = default) =>
+        public Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default) =>
             Task.FromResult(true);
 
         public Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<RunListingDto>());
 
         public Task<InspectionRunDto?> GetRunAsync(string runId, CancellationToken cancellationToken = default) =>
-            Task.FromResult<InspectionRunDto?>(new InspectionRunDto { RunId = runId });
+            Task.FromResult<InspectionRunDto?>(new InspectionRunDto());
 
-        public Task<bool> DeleteRunAsync(string runId, bool force = false, CancellationToken cancellationToken = default) =>
-            Task.FromResult(true);
 
-        public Task<List<AccountDto>> GetAccountsAsync(CancellationToken cancellationToken = default) =>
-            Task.FromResult(new List<AccountDto>());
+        public Task<AccountsPayloadDto> GetAccountsAsync(CancellationToken cancellationToken = default) =>
+            Task.FromResult(new AccountsPayloadDto());
 
         public Task<AccountRiskDto?> GetAccountRiskAsync(string accountId, CancellationToken cancellationToken = default) =>
             Task.FromResult<AccountRiskDto?>(new AccountRiskDto { AccountId = accountId });
@@ -87,10 +110,41 @@ public class CommandValidationTests
             Task.FromResult(new List<TradeSummaryDto>());
 
         public Task<TradeDetailDto?> GetTradeAsync(string tradeId, CancellationToken cancellationToken = default) =>
-            Task.FromResult<TradeDetailDto?>(new TradeDetailDto { TradeId = tradeId });
+            Task.FromResult<TradeDetailDto?>(new TradeDetailDto());
 
         public Task<bool> HealthCheckAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(true);
+
+        private FetchResultDto CaptureFetch(FetchHistoricalCandlesRequest request)
+        {
+            FetchRequest = request;
+            return new FetchResultDto
+            {
+                MarketId = request.MarketId,
+                ExchangeSymbol = request.ExchangeSymbol,
+                Timeframe = request.Timeframe,
+                FromUtc = request.FromUtc,
+                ToUtc = request.ToUtc
+            };
+        }
+
+        private DatasetAliasDto CaptureAlias(SaveDatasetAliasRequest request)
+        {
+            AliasRequest = request;
+            return new DatasetAliasDto { Alias = request.Alias };
+        }
+
+        private BacktestResultDto CaptureBacktest(BacktestRequest request)
+        {
+            BacktestRequest = request;
+            return new BacktestResultDto { RunId = request.RunId };
+        }
+
+        private VwapAnalysisResultDto CaptureVwap(VwapAnalysisRequest request)
+        {
+            VwapRequest = request;
+            return new VwapAnalysisResultDto();
+        }
     }
 
     private sealed class TestBacktestCommand : BacktestCommand
@@ -105,11 +159,12 @@ public class CommandValidationTests
         public Task<int> RunAsync(FetchCommand.Settings settings, CancellationToken ct = default) => ExecuteAsync(null!, settings, ct);
     }
 
-    private sealed class TestManageRunsDeleteCommand : ManageRunsDeleteCommand
+    private sealed class TestAnalyzeVwapCommand : AnalyzeVwapCommand
     {
-        public TestManageRunsDeleteCommand(IApiClientFactory factory, IConsoleRenderer renderer) : base(factory, renderer) { }
-        public Task<int> RunAsync(ManageRunsDeleteCommand.Settings settings, CancellationToken ct = default) => ExecuteAsync(null!, settings, ct);
+        public TestAnalyzeVwapCommand(IApiClientFactory factory, IConsoleRenderer renderer) : base(factory, renderer) { }
+        public Task<int> RunAsync(AnalyzeVwapCommand.Settings settings, CancellationToken ct = default) => ExecuteAsync(null!, settings, ct);
     }
+
 
     [Fact]
     public async Task BacktestCommand_WithBothDatasetAndExplicitRange_ReturnsValidationError()
@@ -129,6 +184,42 @@ public class CommandValidationTests
 
         exitCode.Should().Be(ExitCodes.ValidationError);
         renderer.Errors.Should().Contain(e => e.Contains("not both"));
+    }
+
+    [Fact]
+    public async Task BacktestCommand_WithDatasetAndMarket_ReturnsValidationErrorBeforeCallingTheApi()
+    {
+        var renderer = new FakeConsoleRenderer();
+        var factory = new FakeApiClientFactory();
+        var command = new TestBacktestCommand(factory, renderer);
+
+        var exitCode = await command.RunAsync(new BacktestCommand.Settings
+        {
+            Dataset = "jul-btc",
+            Market = "BTC_USDT_PERP"
+        });
+
+        exitCode.Should().Be(ExitCodes.ValidationError);
+        factory.Client.BacktestRequest.Should().BeNull();
+        renderer.Errors.Should().Contain(error => error.Contains("not both"));
+    }
+
+    [Fact]
+    public async Task AnalyzeCommand_WithDatasetAndTimeframe_ReturnsValidationErrorBeforeCallingTheApi()
+    {
+        var renderer = new FakeConsoleRenderer();
+        var factory = new FakeApiClientFactory();
+        var command = new TestAnalyzeVwapCommand(factory, renderer);
+
+        var exitCode = await command.RunAsync(new AnalyzeVwapCommand.Settings
+        {
+            Dataset = "jul-btc",
+            Timeframe = "4h"
+        });
+
+        exitCode.Should().Be(ExitCodes.ValidationError);
+        factory.Client.VwapRequest.Should().BeNull();
+        renderer.Errors.Should().Contain(error => error.Contains("not both"));
     }
 
     [Fact]
@@ -165,21 +256,102 @@ public class CommandValidationTests
     }
 
     [Fact]
-    public async Task ManageRunsDeleteCommand_WithoutForce_ReturnsValidationError()
+    public async Task FetchResolvesExchangeSymbolAndSavesAliasAfterFetch()
     {
         var renderer = new FakeConsoleRenderer();
         var factory = new FakeApiClientFactory();
-        var cmd = new TestManageRunsDeleteCommand(factory, renderer);
+        var command = new TestFetchCommand(factory, renderer);
 
-        var settings = new ManageRunsDeleteCommand.Settings
+        var exitCode = await command.RunAsync(new FetchCommand.Settings
         {
-            RunId = "my-run",
-            Force = false
-        };
+            Market = "BTC_USDT_PERP",
+            Exchange = "binance",
+            Timeframe = "4h",
+            From = "2026-07-01T00:00:00Z",
+            To = "2026-08-01T00:00:00Z",
+            Alias = "jul-btc",
+            Force = true
+        });
 
-        var exitCode = await cmd.RunAsync(settings);
+        exitCode.Should().Be(ExitCodes.Success);
+        factory.Client.FetchRequest!.ExchangeSymbol.Should().Be("BTC/USDT:USDT");
+        factory.Client.AliasRequest!.Alias.Should().Be("jul-btc");
+        factory.Client.AliasRequest.Force.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task BacktestAliasNeverCarriesCandles()
+    {
+        var factory = new FakeApiClientFactory();
+        var command = new TestBacktestCommand(factory, new FakeConsoleRenderer());
+
+        var exitCode = await command.RunAsync(new BacktestCommand.Settings
+        {
+            Dataset = "jul-btc",
+            RunId = "jul-btc-smoke"
+        });
+
+        exitCode.Should().Be(ExitCodes.Success);
+        factory.Client.BacktestRequest!.Dataset!.Alias.Should().Be("jul-btc");
+        factory.Client.BacktestRequest.Candles.Should().BeNull();
+        factory.Client.BacktestRequest.PivotStrength.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task AnalyzeExplicitRangeSendsTheCompleteCacheIdentity()
+    {
+        var factory = new FakeApiClientFactory();
+        var command = new TestAnalyzeVwapCommand(factory, new FakeConsoleRenderer());
+
+        var exitCode = await command.RunAsync(new AnalyzeVwapCommand.Settings
+        {
+            Market = "BTC_USDT_PERP",
+            Timeframe = "4h",
+            From = "2026-07-01T00:00:00Z",
+            To = "2026-08-01T00:00:00Z"
+        });
+
+        exitCode.Should().Be(ExitCodes.Success);
+        factory.Client.VwapRequest!.Dataset!.ExchangeId.Should().Be("binance");
+        factory.Client.VwapRequest.Dataset.ExchangeSymbol.Should().Be("BTC/USDT:USDT");
+        factory.Client.VwapRequest.Candles.Should().BeNull();
+        factory.Client.VwapRequest.Settings!.EnabledPeriods.Should().Equal("daily", "weekly");
+        factory.Client.VwapRequest.Settings.PreviousLevelPeriods.Should().Equal("daily", "weekly");
+    }
+
+    [Fact]
+    public async Task AnalyzePeriodOverridesPreserveNoneAsAnEmptyLevelSet()
+    {
+        var factory = new FakeApiClientFactory();
+        var command = new TestAnalyzeVwapCommand(factory, new FakeConsoleRenderer());
+
+        var exitCode = await command.RunAsync(new AnalyzeVwapCommand.Settings
+        {
+            Dataset = "jul-btc",
+            Periods = "daily,monthly",
+            LevelPeriods = "NoNe"
+        });
+
+        exitCode.Should().Be(ExitCodes.Success);
+        factory.Client.VwapRequest!.Settings!.EnabledPeriods.Should().Equal("daily", "monthly");
+        factory.Client.VwapRequest.Settings.PreviousLevelPeriods.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeRejectsAnUnsupportedPeriodBeforeCallingTheApi()
+    {
+        var renderer = new FakeConsoleRenderer();
+        var factory = new FakeApiClientFactory();
+        var command = new TestAnalyzeVwapCommand(factory, renderer);
+
+        var exitCode = await command.RunAsync(new AnalyzeVwapCommand.Settings
+        {
+            Dataset = "jul-btc",
+            Periods = "daily,hourly"
+        });
 
         exitCode.Should().Be(ExitCodes.ValidationError);
-        renderer.Errors.Should().Contain(e => e.Contains("--force"));
+        factory.Client.VwapRequest.Should().BeNull();
+        renderer.Errors.Should().Contain(error => error.Contains("hourly"));
     }
 }

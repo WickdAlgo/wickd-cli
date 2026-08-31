@@ -67,10 +67,10 @@ wickd fetch --market BTC_USDT_PERP --timeframe 4h \
 # 5. Run VWAP and volume anomaly analysis
 wickd analyze vwap --dataset jul-btc --periods daily,weekly --out runs/vwap.jsonl
 
-# 6. Execute deterministic backtest replay through the structure engine
-wickd backtest --dataset jul-btc --run-id jul-btc-smoke
+# 6. Run the structure engine over a cached dataset
+wickd run --dataset jul-btc --run-id jul-btc-smoke
 
-# 7. View backtest runs and trade journal
+# 7. View structure runs and trade journal
 wickd manage runs list
 wickd trades list
 wickd accounts list
@@ -99,11 +99,12 @@ wickd fetch --market <MARKET> --timeframe <TIMEFRAME> --from <UTC> --to <UTC> [-
 
 ---
 
-### `wickd backtest`
-Replays a cached dataset through the market structure detector.
+### `wickd run`
+Runs the structure engine over a cached dataset. This is a structure-determination
+run, not a strategy backtest.
 
 ```bash
-wickd backtest (--dataset <ALIAS> | --market <M> --timeframe <TF> --from <F> --to <T>) [--run-id <ID>]
+wickd run (--dataset <ALIAS> | --market <M> --timeframe <TF> --from <F> --to <T>) [--run-id <ID>]
 ```
 
 | Option | Description |

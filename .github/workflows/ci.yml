@@ -42,4 +42,4 @@ jobs:
         dotnet tool install --tool-path "$RUNNER_TEMP/wickd-tool" --add-source artifacts wickd-cli --version "$package_version"
         "$RUNNER_TEMP/wickd-tool/wickd" --help
         "$RUNNER_TEMP/wickd-tool/wickd" analyze vwap --help
-        "$RUNNER_TEMP/wickd-tool/wickd" backtest --help
+        "$RUNNER_TEMP/wickd-tool/wickd" run --help

@@ -122,7 +122,7 @@ public class BacktestCommand : AsyncCommand<BacktestCommand.Settings>
             var target = hasDataset ? $"dataset '{settings.Dataset}'" : $"{market} ({timeframe})";
             await AnsiConsole.Status()
                 .Spinner(Spinner.Known.Dots)
-                .StartAsync($"Running deterministic backtest for {target}...", async _ =>
+                .StartAsync($"Running structure engine for {target}...", async _ =>
                 {
                     var selector = hasDataset
                         ? new CachedDatasetSelector { Alias = settings.Dataset }
@@ -145,13 +145,13 @@ public class BacktestCommand : AsyncCommand<BacktestCommand.Settings>
         }
         catch (Exception ex)
         {
-            _renderer.RenderError("Failed to execute backtest.", ex);
+            _renderer.RenderError("Failed to execute structure run.", ex);
             return ExitCodes.Error;
         }
 
         if (result == null)
         {
-            _renderer.RenderError("No backtest result received from API server.");
+            _renderer.RenderError("No structure-run result received from API server.");
             return ExitCodes.Error;
         }
 

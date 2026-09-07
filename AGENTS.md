@@ -1,5 +1,7 @@
 # Repository Guidelines: wickd-cli
 
+For repository ownership and current-versus-target contracts, read [docs/client-boundary.md](docs/client-boundary.md). Keep public documentation free of private implementation and research definitions. Existing workflow and data-access restrictions below remain in force.
+
 `wickd-cli` is the public command-line interface for the WickdAlgo algorithmic trading and market analysis platform.
 
 ## Architecture & Boundary Rules (ADR 002)

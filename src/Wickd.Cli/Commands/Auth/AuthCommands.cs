@@ -49,21 +49,20 @@ public sealed class AuthLoginCommand : AsyncCommand<AuthLoginCommand.Settings>
         var config = _configManager.LoadConfig(settings.ConfigPath);
         config.ApiToken = token.Trim();
 
-        var client = _apiClientFactory.CreateClient(settings);
+        // CreateClient only overlays --token; pass the token that is about to be saved.
+        var client = _apiClientFactory.CreateClient(new Settings
+        {
+            ConfigPath = settings.ConfigPath,
+            ApiUrl = settings.ApiUrl,
+            Token = config.ApiToken
+        });
         bool isOk = false;
 
         await AnsiConsole.Status()
             .Spinner(Spinner.Known.Dots)
             .StartAsync("Verifying token with WickdAlgo API...", async _ =>
             {
-                try
-                {
-                    isOk = await client.HealthCheckAsync(cancellationToken);
-                }
-                catch
-                {
-                    isOk = false;
-                }
+                isOk = await client.HealthCheckAsync(cancellationToken);
             });
 
         _configManager.SaveConfig(config, settings.ConfigPath);

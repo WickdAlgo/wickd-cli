@@ -23,4 +23,3 @@ Package boundary verification uses scripts/verify-package.sh with an existing
 nupkg path. A successful package check is not proof of a live authenticated server.
 The repository's CI builds/tests/packs and smoke-tests the tool. Publication and
 service availability are separate release facts.
-

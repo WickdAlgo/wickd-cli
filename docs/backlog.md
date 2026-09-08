@@ -15,4 +15,3 @@ CLI adoption needed by research users. Preserve dataset/run-qualified references
 and server error semantics; do not add detector code or a duplicate inspector.
 Validation: HTTP contract fixtures plus authenticated server smoke test, package
 boundary check and CLI help/exit-code tests. Dependency: served API capability.
-

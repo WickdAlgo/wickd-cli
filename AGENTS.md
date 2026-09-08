@@ -1,5 +1,7 @@
 # Repository Guidelines: wickd-cli
 
+For repository ownership and current-versus-target contracts, read [docs/client-boundary.md](docs/client-boundary.md). Keep public documentation free of private implementation and research definitions. Existing workflow and data-access restrictions below remain in force.
+
 `wickd-cli` is the public command-line interface for the WickdAlgo algorithmic trading and market analysis platform.
 
 ## Architecture & Boundary Rules (ADR 002)
@@ -12,6 +14,12 @@ public wickd CLI  --HTTPS/auth-->  wickd-api  --private NuGet-->  wickd-core
 - **`wickd-cli` MUST NEVER bundle or reference `Wickd.Core`, `Wickd.Inspection`, or proprietary engine assemblies.**
 - **Contracts and DTOs are client-side models** serializing over standard JSON/HTTPS to `wickd-api`.
 - **Configuration** is managed locally in `~/.wickd/config.json` or overridden by `--config` / `WICKD_CONFIG`.
+
+## Documentation and delivery
+
+Use docs/sprints/backlog.md as the single local backlog and dated sprint records
+for delivery evidence. Do not add another backlog at docs/backlog.md. Existing
+package, privacy and release-approval boundaries remain unchanged.
 
 ## Build & Test Commands
 

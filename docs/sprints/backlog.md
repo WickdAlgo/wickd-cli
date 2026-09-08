@@ -19,3 +19,25 @@ Canonical pool for planned `wickd-cli` work.
   contracts gate the wire models; the fresh package contains no proprietary
   assembly; 27 tests and all package/output boundaries are perturbed.
 - **Related:** `WA-CLI-03`; API repair slice `API-BL-003` / `WA-CLI-02`.
+
+
+## 2026-09-08 documentation and compatibility follow-up
+
+Consolidated from the extra docs/backlog.md introduced during documentation
+cleanup. This file remains the one local backlog; historical IDs are unchanged.
+
+### CLI-DOC-001 — boundary/documentation reconciliation
+
+Status: documentation prepared, 2026-09-08; not release-relevant.
+Correct repository links, remote/local boundaries and command terminology.
+Validation: source command registration, package identity, Markdown links and
+git diff --check. No command implementation or service-availability claim.
+
+### CLI-BL-001 — API compatibility and evidence display
+
+Status: Candidate; no implementation claimed.
+After versioned server research/setup contracts are served, decide the minimal
+CLI adoption needed by research users. Preserve dataset/run-qualified references
+and server error semantics; do not add detector code or a duplicate inspector.
+Validation: HTTP contract fixtures plus authenticated server smoke test, package
+boundary check and CLI help/exit-code tests. Dependency: served API capability.

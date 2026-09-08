@@ -1,6 +1,8 @@
 # Wickd CLI (`wickd`)
 
-[![CI](https://github.com/DevBD1/wickd-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/DevBD1/wickd-cli/actions/workflows/ci.yml)
+Repository scope, current-versus-target behavior, and documentation routing: [client boundary](docs/client-boundary.md).
+
+[![CI](https://github.com/WickdAlgo/wickd-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/WickdAlgo/wickd-cli/actions/workflows/ci.yml)
 [![.NET](https://img.shields.io/badge/.NET-10.0-512BD4)](https://dotnet.microsoft.com/)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
@@ -18,7 +20,7 @@ wickd-cli (Public CLI)  ──HTTPS / Bearer Auth──►  wickd-api (Platform 
 
 - **Physical Separation:** The CLI communicates with `wickd-api` via HTTP/REST contracts.
 - **Fast & Responsive:** Built on modern .NET 10 with rich console rendering via Spectre.Console.
-- **Zero Local Footprint:** Replays, session VWAP analytics, and trade journal reads are requested over HTTPS.
+- **Remote computation:** Replays, session VWAP analytics, and trade journal reads are requested over HTTPS. Local configuration, credentials and requested output files still have a local footprint.
 
 ---
 
@@ -39,7 +41,7 @@ dotnet tool update -g wickd-cli
 ### Build From Source
 
 ```bash
-git clone https://github.com/DevBD1/wickd-cli.git
+git clone https://github.com/WickdAlgo/wickd-cli.git
 cd wickd-cli
 dotnet build
 dotnet run --project src/Wickd.Cli -- --help

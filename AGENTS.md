@@ -15,6 +15,12 @@ public wickd CLI  --HTTPS/auth-->  wickd-api  --private NuGet-->  wickd-core
 - **Contracts and DTOs are client-side models** serializing over standard JSON/HTTPS to `wickd-api`.
 - **Configuration** is managed locally in `~/.wickd/config.json` or overridden by `--config` / `WICKD_CONFIG`.
 
+## Documentation and delivery
+
+Use docs/sprints/backlog.md as the single local backlog and dated sprint records
+for delivery evidence. Do not add another backlog at docs/backlog.md. Existing
+package, privacy and release-approval boundaries remain unchanged.
+
 ## Build & Test Commands
 
 ```bash

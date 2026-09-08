@@ -17,7 +17,7 @@ describe run output as a strategy's economic result.
 
 Public product information lives in the [organization profile](https://github.com/WickdAlgo).
 Private implementation/definition documents are not duplicated or linked here.
-[Client backlog](backlog.md) tracks only client-specific work.
+[Client backlog](sprints/backlog.md) tracks only client-specific work.
 
 Package boundary verification uses scripts/verify-package.sh with an existing
 nupkg path. A successful package check is not proof of a live authenticated server.

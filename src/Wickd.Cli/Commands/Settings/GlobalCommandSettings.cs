@@ -20,8 +20,4 @@ public class GlobalCommandSettings : CommandSettings
     [Description("Output response data as raw JSON.")]
     [CommandOption("--json")]
     public bool Json { get; init; }
-
-    [Description("Enable verbose logging.")]
-    [CommandOption("-v|--verbose")]
-    public bool Verbose { get; init; }
 }

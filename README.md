@@ -188,7 +188,6 @@ Every command supports:
 - `--api-url <URL>`: Override platform API URL.
 - `--token <TOKEN>`: Override API Bearer token.
 - `--json`: Output raw structured JSON.
-- `-v`, `--verbose`: Enable verbose diagnostic logging.
 - `-h`, `--help`: Display context-sensitive help.
 
 ---

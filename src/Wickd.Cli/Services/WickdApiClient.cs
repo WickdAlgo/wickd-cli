@@ -110,7 +110,7 @@ public sealed class WickdApiClient : IWickdApiClient
             "dataset-alias");
     }
 
-    public async Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default)
+    public async Task DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default)
     {
         var uri = $"api/dataset-aliases/{Uri.EscapeDataString(alias)}";
         var response = await _httpClient.DeleteAsync(uri, cancellationToken);
@@ -118,7 +118,6 @@ public sealed class WickdApiClient : IWickdApiClient
             await HandleResponseAsync<DatasetAliasDto>(response, uri, cancellationToken),
             result => (result.SchemaVersion, result.Contract),
             "dataset-alias");
-        return true;
     }
 
     public async Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default)

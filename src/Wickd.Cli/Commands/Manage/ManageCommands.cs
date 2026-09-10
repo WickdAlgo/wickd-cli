@@ -87,7 +87,6 @@ public class ManageDatasetsDeleteCommand : AsyncCommand<ManageDatasetsDeleteComm
         }
 
         var client = _apiClientFactory.CreateClient(settings);
-        var success = false;
 
         try
         {
@@ -95,7 +94,7 @@ public class ManageDatasetsDeleteCommand : AsyncCommand<ManageDatasetsDeleteComm
                 .Spinner(Spinner.Known.Dots)
                 .StartAsync($"Deleting dataset alias '{settings.Alias}'...", async _ =>
                 {
-                    success = await client.DeleteDatasetAliasAsync(settings.Alias, cancellationToken);
+                    await client.DeleteDatasetAliasAsync(settings.Alias, cancellationToken);
                 });
         }
         catch (Exception ex)
@@ -104,16 +103,8 @@ public class ManageDatasetsDeleteCommand : AsyncCommand<ManageDatasetsDeleteComm
             return ExitCodes.Error;
         }
 
-        if (success)
-        {
-            _renderer.RenderSuccess($"Dataset alias [cyan]{settings.Alias}[/] deleted successfully.");
-            return ExitCodes.Success;
-        }
-        else
-        {
-            _renderer.RenderError($"Dataset alias '{settings.Alias}' was not found or could not be deleted.");
-            return ExitCodes.Error;
-        }
+        _renderer.RenderSuccess($"Dataset alias [cyan]{settings.Alias}[/] deleted successfully.");
+        return ExitCodes.Success;
     }
 }
 

@@ -1,6 +1,14 @@
 # Product Backlog
 
-Canonical pool for planned `wickd-cli` work.
+> **Historical snapshot — read only.** New ideas, bugs and planned work are
+> tracked in [GitHub Issues](https://github.com/WickdAlgo/wickd-cli/issues) and
+> the [WickdAlgo Project](https://github.com/orgs/WickdAlgo/projects/1). The
+> [migration map](../issue-migration.json) maps legacy IDs to the corresponding
+> Issues. Keep this file for historical decisions and traceability; do not add
+> or update backlog rows here.
+
+Historical pool for planned `wickd-cli` work. Current intake and status are
+tracked in GitHub Issues and the WickdAlgo Project.
 
 ## Done
 
@@ -24,7 +32,8 @@ Canonical pool for planned `wickd-cli` work.
 ## 2026-09-08 documentation and compatibility follow-up
 
 Consolidated from the extra docs/backlog.md introduced during documentation
-cleanup. This file remains the one local backlog; historical IDs are unchanged.
+cleanup. The legacy IDs are unchanged; current work and status are tracked in
+GitHub Issues and the WickdAlgo Project.
 
 ### CLI-DOC-001 — boundary/documentation reconciliation
 

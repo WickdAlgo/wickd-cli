@@ -2,9 +2,10 @@
 
 -
 
-## Sprint Or Backlog Link
+## GitHub Issue And Project
 
--
+- Issue:
+- [ ] Accepted work is represented in the WickdAlgo Project.
 
 ## Validation
 

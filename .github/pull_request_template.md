@@ -2,10 +2,9 @@
 
 -
 
-## GitHub Issue And Project
+## GitHub Issue
 
 - Issue:
-- [ ] Accepted work is represented in the WickdAlgo Project.
 
 ## Validation
 

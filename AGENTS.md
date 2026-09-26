@@ -1,14 +1,28 @@
 # Repository Guidelines: wickd-cli
 
-## GitHub work approval
+## GitHub Work Flow
 
-Owning Issues and the shared WickdAlgo Project hold current work state. A brief
-idea may be title only. Inbox/Candidate, an imported source-era Ready status,
-and a migration/history receipt do not authorize new implementation. Confirm
-actual maintainer-approved scope and acceptance before taking Ready work;
-checkpoint evidence, blockers and next action on the owning issue. Preserve
-existing review, release, privacy, account and acquisition boundaries.
+GitHub Issues are the durable record for current work; linked pull requests hold
+implementation and validation evidence. The WickdAlgo Project is an optional
+view and does not authorize work. Search related Issues before creating one.
+Ideas and bugs can start as a title with free-form detail. Capturing or updating
+an Issue records the idea only; it does not authorize implementation.
 
+When asked to plan and implement, discover relevant open and historical Issues,
+inventory the requested scope, and put bounded acceptance criteria and checks
+on the owning Issues. Keep any detailed implementation plan temporary: use it
+while working, never commit it, and delete it when the work completes or is
+cancelled. Implement and run relevant checks, then open pull requests linked to
+their Issues with `Refs #N` (or equivalent non-closing links). Do not use GitHub
+auto-close keywords. Use repository labels when they help review or routing; no
+board status, priority, rank, lease, or structured checkpoint is required.
+
+After merge, reconcile each linked Issue with the merged change. Manually close
+it only when its full scope and required human or deployment acceptance are
+complete; otherwise leave it open with the remaining work. At the start of a
+resumed task, check whether a related PR merged while its Issue stayed open. Do
+not keep a separate work ledger or session log. Preserve existing package, privacy, and release-approval
+boundaries.
 
 For repository ownership and current-versus-target contracts, read [docs/client-boundary.md](docs/client-boundary.md). Keep public documentation free of private implementation and research definitions. Existing workflow and data-access restrictions below remain in force.
 
@@ -27,14 +41,10 @@ public wickd CLI  --HTTPS/auth-->  wickd-api  --private NuGet-->  wickd-core
 
 ## Work Intake And Delivery
 
-Track new feature ideas, bug reports, maintenance, and documentation work in
-GitHub Issues and the [WickdAlgo Project](https://github.com/orgs/WickdAlgo/projects/1).
-The former `docs/sprints/backlog.md` is a historical snapshot. Preserve its
-legacy keys and use [`docs/issue-migration.json`](docs/issue-migration.json) to
-find their current Issues. Do not add backlog rows or require weekly sprint
-bookkeeping commits. Keep acceptance, validation and current implementation
-status in the owning Issue; accepted work is tracked in the Project. Existing
-sprint records and changelog remain historical delivery and release evidence.
+Use the GitHub work flow above for issue discovery, implementation, and merge
+reconciliation. The former `docs/sprints/backlog.md` and delivery records are
+historical; preserve legacy keys and use [`docs/issue-migration.json`](docs/issue-migration.json)
+when tracing them. Do not add backlog rows or require weekly sprint commits.
 Existing package, privacy, and release-approval boundaries remain unchanged.
 
 ## Build & Test Commands

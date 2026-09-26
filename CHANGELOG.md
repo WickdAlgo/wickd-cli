@@ -2,8 +2,8 @@
 
 All notable changes to the public WickdAlgo CLI are recorded here.
 
-Current planned work is tracked in GitHub Issues and the
-[WickdAlgo Project](https://github.com/orgs/WickdAlgo/projects/1). The former
+Current work is tracked in GitHub Issues; the
+[WickdAlgo Project](https://github.com/orgs/WickdAlgo/projects/1) is optional. The former
 backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 [`docs/issue-migration.json`](docs/issue-migration.json) maps legacy IDs.
 

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "migration_date": "2026-09-26",
+  "purpose": "Immutable source-to-issue provenance only; GitHub owns current state and priorities.",
+  "project": "https://github.com/orgs/WickdAlgo/projects/1",
+  "source_heads": {
+    "wickd-cli": "12a52e527d122f6cc6b969d3c228df0000871b35"
+  },
+  "entries": [
+    {
+      "legacy_ids": [
+        "CLI-BL-001"
+      ],
+      "issue": "https://github.com/WickdAlgo/wickd-cli/issues/11",
+      "source": "https://github.com/WickdAlgo/wickd-cli/blob/12a52e527d122f6cc6b969d3c228df0000871b35/docs/sprints/backlog.md#L36",
+      "additional_sources": []
+    }
+  ]
+}

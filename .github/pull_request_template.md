@@ -2,9 +2,9 @@
 
 -
 
-## Sprint Or Backlog Link
+## GitHub Issue
 
--
+- Issue:
 
 ## Validation
 

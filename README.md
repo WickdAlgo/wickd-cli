@@ -238,6 +238,16 @@ dotnet test
 
 ---
 
+## Work Tracking
+
+Track feature ideas and bug reports in [GitHub Issues](https://github.com/WickdAlgo/wickd-cli/issues).
+Search for an existing Issue first. The [WickdAlgo Project](https://github.com/orgs/WickdAlgo/projects/1) is optional. Existing
+backlog and sprint documents are retained under [`docs/sprints/`](docs/sprints/)
+as historical records; [`docs/issue-migration.json`](docs/issue-migration.json)
+maps their legacy IDs to current Issues.
+
+---
+
 ## 📜 License
 
 Distributed under the **Apache License 2.0**. See [`LICENSE`](LICENSE) for details.

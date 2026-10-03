@@ -10,7 +10,7 @@ public interface IWickdApiClient
     Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default);
     Task<List<DatasetAliasDto>> GetDatasetAliasesAsync(CancellationToken cancellationToken = default);
     Task<DatasetAliasDto> SaveDatasetAliasAsync(SaveDatasetAliasRequest request, CancellationToken cancellationToken = default);
-    Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default);
+    Task DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default);
     Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default);
     Task<InspectionRunDto?> GetRunAsync(string runId, CancellationToken cancellationToken = default);
     Task<AccountsPayloadDto> GetAccountsAsync(CancellationToken cancellationToken = default);

@@ -13,17 +13,6 @@ public sealed class ConsoleRenderer : IConsoleRenderer
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
 
-    public void RenderBanner()
-    {
-        AnsiConsole.Write(
-            new FigletText("WickdAlgo")
-                .LeftJustified()
-                .Color(Color.Cyan1));
-
-        AnsiConsole.MarkupLine("[grey]Deterministic Backtest & Algorithmic Trading CLI[/]");
-        AnsiConsole.WriteLine();
-    }
-
     public void RenderSuccess(string message)
     {
         AnsiConsole.MarkupLine($"[green]✓[/] {Markup.Escape(message)}");
@@ -41,11 +30,6 @@ public sealed class ConsoleRenderer : IConsoleRenderer
     public void RenderWarning(string message)
     {
         AnsiConsole.MarkupLine($"[yellow]![/] {Markup.Escape(message)}");
-    }
-
-    public void RenderInfo(string message)
-    {
-        AnsiConsole.MarkupLine($"[blue]ℹ[/] {Markup.Escape(message)}");
     }
 
     public void RenderJson<T>(T data)

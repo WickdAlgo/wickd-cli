@@ -4,11 +4,9 @@ namespace Wickd.Cli.Rendering;
 
 public interface IConsoleRenderer
 {
-    void RenderBanner();
     void RenderSuccess(string message);
     void RenderError(string message, Exception? ex = null);
     void RenderWarning(string message);
-    void RenderInfo(string message);
     void RenderJson<T>(T data);
     void RenderDatasets(IEnumerable<DatasetAliasDto> datasets);
     void RenderRuns(IEnumerable<RunListingDto> runs);

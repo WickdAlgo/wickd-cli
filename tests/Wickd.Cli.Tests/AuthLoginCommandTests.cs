@@ -137,11 +137,9 @@ public sealed class AuthLoginCommandTests : IDisposable
     {
         public List<string> Successes { get; } = [];
 
-        public void RenderBanner() { }
         public void RenderSuccess(string message) => Successes.Add(message);
         public void RenderError(string message, Exception? ex = null) { }
         public void RenderWarning(string message) { }
-        public void RenderInfo(string message) { }
         public void RenderJson<T>(T data) { }
         public void RenderDatasets(IEnumerable<DatasetAliasDto> datasets) { }
         public void RenderRuns(IEnumerable<RunListingDto> runs) { }

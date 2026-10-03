@@ -138,11 +138,9 @@ public class CommandRegistrationTests
 
     private sealed class SilentConsoleRenderer : IConsoleRenderer
     {
-        public void RenderBanner() { }
         public void RenderSuccess(string message) { }
         public void RenderError(string message, Exception? ex = null) { }
         public void RenderWarning(string message) { }
-        public void RenderInfo(string message) { }
         public void RenderJson<T>(T data) { }
         public void RenderDatasets(IEnumerable<DatasetAliasDto> datasets) { }
         public void RenderRuns(IEnumerable<RunListingDto> runs) { }
@@ -202,8 +200,8 @@ public class CommandRegistrationTests
         public Task<DatasetAliasDto> SaveDatasetAliasAsync(SaveDatasetAliasRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(new DatasetAliasDto { Alias = request.Alias });
 
-        public Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default) =>
-            Task.FromResult(true);
+        public Task DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
 
         public Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<RunListingDto>());

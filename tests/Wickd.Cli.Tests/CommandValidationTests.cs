@@ -20,11 +20,9 @@ public class CommandValidationTests
         public List<string> Warnings { get; } = [];
         public List<string> Successes { get; } = [];
 
-        public void RenderBanner() { }
         public void RenderSuccess(string message) => Successes.Add(message);
         public void RenderError(string message, Exception? ex = null) => Errors.Add(message);
         public void RenderWarning(string message) => Warnings.Add(message);
-        public void RenderInfo(string message) { }
         public void RenderJson<T>(T data) { }
         public void RenderDatasets(IEnumerable<DatasetAliasDto> datasets) { }
         public void RenderRuns(IEnumerable<RunListingDto> runs) { }
@@ -90,8 +88,8 @@ public class CommandValidationTests
         public Task<DatasetAliasDto> SaveDatasetAliasAsync(SaveDatasetAliasRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(CaptureAlias(request));
 
-        public Task<bool> DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default) =>
-            Task.FromResult(true);
+        public Task DeleteDatasetAliasAsync(string alias, CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
 
         public Task<List<RunListingDto>> GetRunsAsync(CancellationToken cancellationToken = default) =>
             Task.FromResult(new List<RunListingDto>());

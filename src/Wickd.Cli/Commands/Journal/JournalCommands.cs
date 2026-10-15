@@ -69,7 +69,9 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                 Request: request, IdempotencyKey: (settings as WriteSettings)?.IdempotencyKey,
                 IfMatch: (settings as AmendSettings)?.IfMatch, Limit: (settings as PageSettings)?.Limit ?? 50,
                 Cursor: (settings as PageSettings)?.Cursor), cancellationToken);
-            AnsiConsole.WriteLine(JsonSerializer.Serialize(response, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
+            // Write machine-readable JSON directly; Spectre rendering wraps strings to terminal width.
+            await AnsiConsole.Console.Profile.Out.Writer.WriteLineAsync(
+                JsonSerializer.Serialize(response, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
             return ExitCodes.Success;
         }
         catch (Exception error) when (error is ArgumentException or JsonException or IOException or UnauthorizedAccessException)

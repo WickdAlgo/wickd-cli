@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/wallet-detail.v2.schema.json",
+  "title": "WalletDetailPayload",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "wallet-detail"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/WalletDetail"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "WalletSummary": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "backtest",
+            "live"
+          ]
+        },
+        "baseAssetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseAssetCode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "createdAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "archivedAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "walletId",
+        "name",
+        "kind",
+        "baseAssetId",
+        "baseAssetCode",
+        "createdAtUtc",
+        "archivedAtUtc"
+      ]
+    },
+    "WalletOpeningFact": {
+      "type": "object",
+      "properties": {
+        "factId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "openingAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "factId",
+        "walletId",
+        "assetId",
+        "quantity",
+        "openingAtUtc",
+        "source",
+        "knownAtUtc",
+        "publicationSequence"
+      ]
+    },
+    "WalletBalanceBasisReceipt": {
+      "type": "object",
+      "properties": {
+        "receiptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "basisKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceFactId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceObservedAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "decisionAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "quality": {
+          "type": "string",
+          "minLength": 1
+        },
+        "freshness": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "receiptId",
+        "walletId",
+        "assetId",
+        "quantity",
+        "basisKind",
+        "source",
+        "sourceFactId",
+        "sourceObservedAtUtc",
+        "decisionAtUtc",
+        "knownAtUtc",
+        "quality",
+        "freshness",
+        "publicationSequence"
+      ]
+    },
+    "WalletDetail": {
+      "type": "object",
+      "properties": {
+        "wallet": {
+          "$ref": "#/$defs/WalletSummary"
+        },
+        "openingFacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WalletOpeningFact"
+          }
+        },
+        "openingBalanceBasis": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WalletBalanceBasisReceipt"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "wallet",
+        "openingFacts",
+        "openingBalanceBasis"
+      ]
+    }
+  }
+}

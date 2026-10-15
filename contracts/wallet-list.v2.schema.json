@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/wallet-list.v2.schema.json",
+  "title": "WalletListPayload",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "wallet-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/WalletSummary"
+      }
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "nextCursor",
+    "publicationWatermark"
+  ],
+  "$defs": {
+    "WalletSummary": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "backtest",
+            "live"
+          ]
+        },
+        "baseAssetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseAssetCode": {
+          "type": "string",
+          "minLength": 1
+        },
+        "createdAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "archivedAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "walletId",
+        "name",
+        "kind",
+        "baseAssetId",
+        "baseAssetCode",
+        "createdAtUtc",
+        "archivedAtUtc"
+      ]
+    }
+  }
+}

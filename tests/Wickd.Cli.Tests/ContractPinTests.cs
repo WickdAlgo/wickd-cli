@@ -10,6 +10,20 @@ public sealed class ContractPinTests
 {
     private static readonly string[] ExpectedContracts =
     [
+        "catalog-assets.v2.schema.json",
+        "catalog-instruments.v2.schema.json",
+        "instrument-spec-versions.v2.schema.json",
+        "timeframe-definitions.v2.schema.json",
+        "wallet-create-request.v2.schema.json",
+        "wallet-list.v2.schema.json",
+        "wallet-detail.v2.schema.json",
+        "wallet-balance.v2.schema.json",
+        "risk-preview-request.v2.schema.json",
+        "risk-preview.v2.schema.json",
+        "setup-accept-request.v2.schema.json",
+        "setup-amend-request.v2.schema.json",
+        "journal-setup.v2.schema.json",
+        "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
         "accounts.v1.schema.json",
         "backtest-request.v1.schema.json",

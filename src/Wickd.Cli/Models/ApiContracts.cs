@@ -50,6 +50,26 @@ public sealed class BacktestRequest
     public int PivotStrength { get; set; } = 2;
 }
 
+public sealed class StructureRunRequestDto
+{
+    public string RunId { get; set; } = string.Empty;
+    public CachedDatasetSelector Dataset { get; set; } = new();
+    public int PivotStrength { get; set; } = 2;
+}
+
+public sealed class DatasetListingDto
+{
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
+    public string DatasetAlias { get; set; } = string.Empty;
+    public string MarketId { get; set; } = string.Empty;
+    public string ExchangeId { get; set; } = string.Empty;
+    public string ExchangeSymbol { get; set; } = string.Empty;
+    public string Timeframe { get; set; } = string.Empty;
+    public DateTimeOffset FromUtc { get; set; }
+    public DateTimeOffset ToUtc { get; set; }
+}
+
 public sealed class BacktestResultDto
 {
     public int SchemaVersion { get; set; }
@@ -64,6 +84,75 @@ public sealed class BacktestResultDto
     public int CandleCount { get; set; }
     public int EventCount { get; set; }
     public int GapCount { get; set; }
+}
+
+public sealed class WorkspaceListPayloadDto
+{
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
+    public string RequestId { get; set; } = string.Empty;
+    public DateTimeOffset AsOf { get; set; }
+    public List<WorkspaceDto> Workspaces { get; set; } = [];
+}
+
+public sealed class WorkspaceDetailPayloadDto
+{
+    public int SchemaVersion { get; set; }
+    public string Contract { get; set; } = string.Empty;
+    public string RequestId { get; set; } = string.Empty;
+    public DateTimeOffset AsOf { get; set; }
+    public WorkspaceDto Workspace { get; set; } = new();
+}
+
+public sealed class WorkspaceDto
+{
+    public string WorkspaceId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Role { get; set; } = string.Empty;
+    public bool Personal { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; set; }
+}
+
+public sealed class StrategyListPayloadDto
+{
+    public string Contract { get; set; } = string.Empty;
+    public int SchemaVersion { get; set; }
+    public string RequestId { get; set; } = string.Empty;
+    public DateTimeOffset AsOf { get; set; }
+    public StrategyListPageDto Data { get; set; } = new();
+}
+
+public sealed class StrategyListPageDto
+{
+    public List<StrategySummaryDto> Items { get; set; } = [];
+    public string? NextCursor { get; set; }
+    public long PublicationWatermark { get; set; }
+}
+
+public sealed class StrategySummaryDto
+{
+    public string StrategyId { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string ResearchStatus { get; set; } = string.Empty;
+    public int MetadataRevision { get; set; }
+    public bool Archived { get; set; }
+    public DateTimeOffset CreatedAtUtc { get; set; }
+    public int PublishedVersionCount { get; set; }
+}
+
+public sealed class StrategyDetailPayloadDto
+{
+    public string Contract { get; set; } = string.Empty;
+    public int SchemaVersion { get; set; }
+    public string RequestId { get; set; } = string.Empty;
+    public DateTimeOffset AsOf { get; set; }
+    public StrategyDetailDto Data { get; set; } = new();
+}
+
+public sealed class StrategyDetailDto
+{
+    public StrategySummaryDto Strategy { get; set; } = new();
 }
 
 public sealed class VwapAnalysisRequest

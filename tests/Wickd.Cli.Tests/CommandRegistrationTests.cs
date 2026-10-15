@@ -201,6 +201,7 @@ public class CommandRegistrationTests
     private sealed class FakeApiClient : IWickdApiClient
     {
         public BacktestRequest? BacktestRequest { get; private set; }
+        public Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public List<string> WorkspaceIdsSeen { get; } = [];
         public Exception? WorkspaceFailure { get; set; }
 

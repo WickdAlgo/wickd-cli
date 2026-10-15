@@ -8,6 +8,7 @@ using Wickd.Cli.Commands.Backtest;
 using Wickd.Cli.Commands.Config;
 using Wickd.Cli.Commands.Fetch;
 using Wickd.Cli.Commands.Manage;
+using Wickd.Cli.Commands.Journal;
 using Wickd.Cli.Commands.Strategies;
 using Wickd.Cli.Commands.Trades;
 using Wickd.Cli.Commands.Workspaces;
@@ -162,6 +163,36 @@ public static class Program
             workspace.SetDescription("Discover available workspaces and select the local v2 workspace context.");
             workspace.AddCommand<WorkspaceListCommand>("list").WithDescription("List workspaces available to the configured user session.");
             workspace.AddCommand<WorkspaceUseCommand>("use").WithDescription("Select a workspace in local CLI configuration.");
+        });
+
+        config.AddBranch("catalog", catalog =>
+        {
+            catalog.SetDescription("Read the authenticated global instrument and asset catalog.");
+            catalog.AddCommand<CatalogAssetsCommand>("assets");
+            catalog.AddCommand<CatalogInstrumentsCommand>("instruments");
+            catalog.AddCommand<CatalogSpecsCommand>("specs");
+            catalog.AddCommand<CatalogTimeframesCommand>("timeframes");
+        });
+        config.AddBranch("wallet", wallet =>
+        {
+            wallet.SetDescription("Manage wallet identities and inspect retained opening balance basis.");
+            wallet.AddCommand<WalletCreateCommand>("create");
+            wallet.AddCommand<WalletListCommand>("list");
+            wallet.AddCommand<WalletGetCommand>("get");
+            wallet.AddCommand<WalletBalanceCommand>("balance");
+        });
+        config.AddBranch("risk", risk =>
+        {
+            risk.SetDescription("Request server-calculated sizing for a complete plan.");
+            risk.AddCommand<RiskPreviewCommand>("preview");
+        });
+        config.AddBranch("setup", setup =>
+        {
+            setup.SetDescription("Accept and inspect wallet-bound journal setups.");
+            setup.AddCommand<SetupAcceptCommand>("accept");
+            setup.AddCommand<SetupListCommand>("list");
+            setup.AddCommand<SetupGetCommand>("get");
+            setup.AddCommand<SetupAmendCommand>("amend");
         });
 
         config.AddBranch("accounts", accounts =>

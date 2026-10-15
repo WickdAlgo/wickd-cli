@@ -1,0 +1,595 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/journal-setup.v2.schema.json",
+  "title": "JournalSetupEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "journal-setup"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/JournalSetupDetail"
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data",
+    "publicationWatermark"
+  ],
+  "$defs": {
+    "SetupRiskTarget": {
+      "type": "object",
+      "properties": {
+        "ordinal": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "exitFraction": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "ordinal",
+        "price",
+        "exitFraction"
+      ]
+    },
+    "SetupRiskRequest": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "entryPrice": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "stopPrice": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "sizingKind": {
+          "type": "string",
+          "enum": [
+            "riskAmount",
+            "riskPercent",
+            "quantity"
+          ]
+        },
+        "sizingValue": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupRiskTarget"
+          }
+        }
+      },
+      "required": [
+        "walletId",
+        "instrumentId",
+        "direction",
+        "entryPrice",
+        "stopPrice",
+        "sizingKind",
+        "sizingValue",
+        "targets"
+      ]
+    },
+    "SetupTargetRisk": {
+      "type": "object",
+      "properties": {
+        "ordinal": {
+          "type": "integer"
+        },
+        "price": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "r": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "exitFraction": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "ordinal",
+        "price",
+        "r",
+        "exitFraction"
+      ]
+    },
+    "SetupRiskProjection": {
+      "type": "object",
+      "properties": {
+        "schemaVersion": {
+          "type": "integer"
+        },
+        "contract": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentSpecVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baselineAsset": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "chosenSizingValue": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "riskBudgetAmount": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "initialRiskAmount": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "positionValue": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "balanceAtPlan": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "riskPercentOfBalance": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "weightedPlannedR": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupTargetRisk"
+          }
+        },
+        "incompleteReasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "schemaVersion",
+        "contract",
+        "walletId",
+        "instrumentId",
+        "instrumentSpecVersionId",
+        "baselineAsset",
+        "policy",
+        "chosenSizingValue",
+        "riskBudgetAmount",
+        "quantity",
+        "initialRiskAmount",
+        "positionValue",
+        "balanceAtPlan",
+        "riskPercentOfBalance",
+        "weightedPlannedR",
+        "targets",
+        "incompleteReasons"
+      ]
+    },
+    "SetupPlanRevision": {
+      "type": "object",
+      "properties": {
+        "planRevisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "effectiveAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "plan": {
+          "$ref": "#/$defs/SetupRiskRequest"
+        },
+        "instrumentSpecVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previewId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "balanceBasisReceiptId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "projection": {
+          "$ref": "#/$defs/SetupRiskProjection"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupRiskTarget"
+          }
+        }
+      },
+      "required": [
+        "planRevisionId",
+        "revision",
+        "effectiveAtUtc",
+        "knownAtUtc",
+        "reason",
+        "plan",
+        "instrumentSpecVersionId",
+        "previewId",
+        "balanceBasisReceiptId",
+        "projection",
+        "targets"
+      ]
+    },
+    "SetupRiskBaseline": {
+      "type": "object",
+      "properties": {
+        "originalPlanRevisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "previewId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "initialRiskAmount": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "denominationAssetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sizingKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sizingValue": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "policy": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "originalPlanRevisionId",
+        "previewId",
+        "initialRiskAmount",
+        "denominationAssetId",
+        "sizingKind",
+        "sizingValue",
+        "policy",
+        "knownAtUtc"
+      ]
+    },
+    "SetupNote": {
+      "type": "object",
+      "properties": {
+        "noteId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effectiveAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revision": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "noteId",
+        "category",
+        "body",
+        "effectiveAtUtc",
+        "knownAtUtc",
+        "revision"
+      ]
+    },
+    "SetupEvent": {
+      "type": "object",
+      "properties": {
+        "eventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "effectiveAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sequence": {
+          "type": "integer"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "eventId",
+        "type",
+        "effectiveAtUtc",
+        "knownAtUtc",
+        "sequence",
+        "reason"
+      ]
+    },
+    "JournalSetupDetail": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentSpecVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primaryTimeframeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "decisionAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "mentor",
+            "self",
+            "wickdCore",
+            "wickdAi",
+            "external"
+          ]
+        },
+        "correlationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disposition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "originalPlan": {
+          "$ref": "#/$defs/SetupPlanRevision"
+        },
+        "currentPlan": {
+          "$ref": "#/$defs/SetupPlanRevision"
+        },
+        "riskBaseline": {
+          "$ref": "#/$defs/SetupRiskBaseline"
+        },
+        "planRevisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupPlanRevision"
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupNote"
+          }
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupEvent"
+          }
+        }
+      },
+      "required": [
+        "setupId",
+        "walletId",
+        "strategyVersionId",
+        "instrumentId",
+        "instrumentSpecVersionId",
+        "primaryTimeframeId",
+        "direction",
+        "decisionAtUtc",
+        "source",
+        "correlationId",
+        "status",
+        "disposition",
+        "revision",
+        "originalPlan",
+        "currentPlan",
+        "riskBaseline",
+        "planRevisions",
+        "notes",
+        "events"
+      ]
+    }
+  }
+}

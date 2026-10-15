@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/catalog-instruments.v2.schema.json",
+  "title": "CatalogInstrumentsPayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "catalog-instruments"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/CatalogInstrumentList"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "CatalogInstrument": {
+      "type": "object",
+      "properties": {
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "venue": {
+          "type": "string",
+          "minLength": 1
+        },
+        "providerInstrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "productType": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baseAssetId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "quoteAssetId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "settlementAssetId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "expiryAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "instrumentId",
+        "venue",
+        "providerInstrumentId",
+        "productType",
+        "baseAssetId",
+        "quoteAssetId",
+        "settlementAssetId",
+        "expiryAtUtc"
+      ]
+    },
+    "CatalogInstrumentList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CatalogInstrument"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ]
+    }
+  }
+}

@@ -425,6 +425,14 @@
         },
         "revision": {
           "type": "integer"
+        },
+        "supersedesId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "minLength": 1
         }
       },
       "required": [

@@ -23,16 +23,23 @@ public sealed partial class WickdApiClient
             V2Operation.SetupList => ("setups", "journal-setup-list", null),
             V2Operation.SetupGet => ($"setups/{Segment(call.Id)}", "journal-setup", null),
             V2Operation.SetupAmend => ($"setups/{Segment(call.Id)}/plan-revisions", "journal-setup", "setup-amend-request"),
+            V2Operation.SetupSkip or V2Operation.SetupMissed or V2Operation.SetupCancel =>
+                ($"setups/{Segment(call.Id)}/dispositions", "journal-setup", "setup-disposition-request"),
+            V2Operation.SetupNoteAppend or V2Operation.SetupNoteRevise =>
+                ($"setups/{Segment(call.Id)}/notes", "journal-setup", "setup-note-request"),
             _ => throw new ArgumentException("Unknown v2 operation.")
         };
         RequireV2Credentials(requireWorkspace: !path.StartsWith("catalog/", StringComparison.Ordinal));
         if (call.Operation is V2Operation.WalletList or V2Operation.SetupList)
         {
             if (call.Limit is < 1 or > 100) throw new ArgumentException("Page limit must be between 1 and 100.");
-            if (call.Cursor is not null && (string.IsNullOrWhiteSpace(call.Cursor) || call.Cursor.Any(char.IsControl)))
-                throw new ArgumentException("Cursor must be a nonempty opaque value without control characters.");
             path += $"?limit={call.Limit}";
-            if (call.Cursor is not null) path += "&cursor=" + Uri.EscapeDataString(call.Cursor);
+        }
+        if (call.Cursor is not null && (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupGet))
+        {
+            if (string.IsNullOrWhiteSpace(call.Cursor) || call.Cursor.Trim() != call.Cursor || call.Cursor.Any(char.IsControl))
+                throw new ArgumentException("Cursor must be a nonempty opaque value without surrounding whitespace or control characters.");
+            path += (call.Operation == V2Operation.SetupGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
         }
         using var request = new HttpRequestMessage(requestContract is null ? HttpMethod.Get : HttpMethod.Post, "api/v2/" + path);
         if (requestContract is not null)
@@ -40,12 +47,14 @@ public sealed partial class WickdApiClient
             HeaderToken(call.IdempotencyKey, "Idempotency-Key", 200);
             if (call.Request is null || call.Request.Length is 0 or > 1_048_576)
                 throw new ArgumentException("A JSON request of at most 1 MiB is required.");
-            V2Contracts.Validate(call.Request, requestContract);
+            var requestBody = V2Contracts.Validate(call.Request, requestContract);
+            RequireLifecycleIntent(call.Operation, requestBody);
             request.Headers.Add("Idempotency-Key", call.IdempotencyKey);
             request.Content = new ByteArrayContent(call.Request);
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
         }
-        if (call.Operation == V2Operation.SetupAmend)
+        if (call.Operation is V2Operation.SetupAmend or V2Operation.SetupSkip or V2Operation.SetupMissed
+            or V2Operation.SetupCancel or V2Operation.SetupNoteAppend or V2Operation.SetupNoteRevise)
         {
             HeaderToken(call.IfMatch, "If-Match", 200);
             if (!EntityTagHeaderValue.TryParse(call.IfMatch, out var tag) || tag.IsWeak || tag.Tag == "*")
@@ -65,6 +74,27 @@ public sealed partial class WickdApiClient
         if (body.GetProperty("schemaVersion").GetInt32() != 2 || body.GetProperty("contract").GetString() != responseContract)
             throw new InvalidOperationException($"Unsupported API contract; expected {responseContract} v2.");
         return new V2Response((int)response.StatusCode, response.Headers.ETag?.ToString(), response.Headers.Location?.ToString(), body);
+    }
+
+    private static void RequireLifecycleIntent(V2Operation operation, JsonElement body)
+    {
+        var disposition = operation switch
+        {
+            V2Operation.SetupSkip => "markSkipped",
+            V2Operation.SetupMissed => "markMissed",
+            V2Operation.SetupCancel => "cancel",
+            _ => null
+        };
+        if (disposition is not null && body.GetProperty("command").GetString() != disposition)
+            throw new ArgumentException($"This command requires request.command '{disposition}'. The original request file is sent unchanged.");
+        if (operation is V2Operation.SetupNoteAppend or V2Operation.SetupNoteRevise)
+        {
+            var supersedes = body.GetProperty("supersedesId");
+            if (operation == V2Operation.SetupNoteAppend && supersedes.ValueKind != JsonValueKind.Null)
+                throw new ArgumentException("Append requires supersedesId: null. Use 'setup notes revise' to revise an existing note.");
+            if (operation == V2Operation.SetupNoteRevise && (supersedes.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(supersedes.GetString())))
+                throw new ArgumentException("Revise requires the supersedesId of the note being revised.");
+        }
     }
 
     private static string Segment(string? value)

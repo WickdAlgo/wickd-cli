@@ -16,3 +16,8 @@ Catalog, wallet and accepted-setup v2 schemas and synthetic samples are pinned
 to API candidate `dd9d43c`. The CLI embeds these schemas and validates JSON
 without converting financial strings to machine numbers. The sync script copies
 the same public generated artifacts; review the producer SHA and diff on update.
+
+Setup dispositions, note requests, setup detail and list artifacts are synchronized
+from lifecycle checkpoint `3b9fa78`. List `snapshotCursor` is required; response
+note `supersedesId` is optional to retain compatibility with earlier v2 receipts.
+The CLI forwards frozen detail cursors and never reconstructs setup history.

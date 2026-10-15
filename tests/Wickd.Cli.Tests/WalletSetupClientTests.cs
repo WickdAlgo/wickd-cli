@@ -191,6 +191,16 @@ public sealed class WalletSetupClientTests
     }
 
     [Fact]
+    public async Task MalformedFinancialRequestIsRejectedBeforeNetwork()
+    {
+        var handler = new Handler(Sample("risk-preview"));
+        var bytes = Encoding.UTF8.GetBytes(Sample("risk-preview-request").Replace("\"50000\"", "50000"));
+        await FluentActions.Awaiting(() => Client(handler).SendV2Async(new V2Call(V2Operation.RiskPreview,
+            Request: bytes, IdempotencyKey: "invalid-money"))).Should().ThrowAsync<ArgumentException>();
+        handler.Count.Should().Be(0);
+    }
+
+    [Fact]
     public async Task UnexpectedAndMalformedResponseContractsAreRejected()
     {
         foreach (var sample in new[] { "{broken", Sample("wallet-detail").Replace("\"wallet-detail\"", "\"wallet-other\""), "{\"schemaVersion\":2,\"contract\":\"wallet-detail\"}" })

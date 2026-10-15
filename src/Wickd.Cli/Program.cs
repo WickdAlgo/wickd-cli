@@ -191,8 +191,17 @@ public static class Program
             setup.SetDescription("Accept and inspect wallet-bound journal setups.");
             setup.AddCommand<SetupAcceptCommand>("accept");
             setup.AddCommand<SetupListCommand>("list");
-            setup.AddCommand<SetupGetCommand>("get");
-            setup.AddCommand<SetupAmendCommand>("amend");
+            setup.AddCommand<SetupGetCommand>("get").WithDescription("Read current detail or frozen detail with --cursor from list snapshotCursor.");
+            setup.AddCommand<SetupAmendCommand>("amend").WithDescription("Append a complete plan revision from a new preview; requires current ETag.");
+            setup.AddCommand<SetupSkipCommand>("skip").WithDescription("Record a skipped opportunity using an explicit markSkipped request and current ETag.");
+            setup.AddCommand<SetupMissedCommand>("missed").WithDescription("Record a missed opportunity using an explicit markMissed request and current ETag.");
+            setup.AddCommand<SetupCancelCommand>("cancel").WithDescription("Record cancellation using an explicit cancel request and current ETag.");
+            setup.AddBranch("notes", notes =>
+            {
+                notes.SetDescription("Append personal/observation notes and retain their revision history.");
+                notes.AddCommand<SetupNoteAppendCommand>("append").WithDescription("Append a note with supersedesId null; requires current setup ETag.");
+                notes.AddCommand<SetupNoteReviseCommand>("revise").WithDescription("Revise the latest note using its supersedesId; requires current setup ETag.");
+            });
         });
 
         config.AddBranch("accounts", accounts =>

@@ -35,6 +35,10 @@
     },
     "publicationWatermark": {
       "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
     }
   },
   "required": [
@@ -44,7 +48,8 @@
     "asOf",
     "items",
     "nextCursor",
-    "publicationWatermark"
+    "publicationWatermark",
+    "snapshotCursor"
   ],
   "$defs": {
     "JournalSetupSummary": {

@@ -282,11 +282,30 @@ public sealed class WalletSetupClientTests
         handler.Count.Should().Be(0);
     }
 
-    private static async Task<(int Exit, string Output)> RunCommand(Handler handler, string[] args)
+    [Fact]
+    public async Task JsonOutputRemainsParseableAtNarrowTerminalWidth()
+    {
+        var cursor = new string('a', 512) + ".signed+/cursor==";
+        var description = string.Join(" ", Enumerable.Repeat("A long descriptive wallet name [with markup]", 12));
+        var sample = System.Text.Json.Nodes.JsonNode.Parse(Sample("wallet-list"))!;
+        sample["nextCursor"] = cursor;
+        sample["items"]![0]!["name"] = description;
+        var result = await RunCommand(new Handler(sample.ToJsonString()), ["wallet", "list"], width: 20);
+
+        result.Exit.Should().Be(0);
+        using var output = JsonDocument.Parse(result.Output);
+        var body = output.RootElement.GetProperty("body");
+        body.GetProperty("nextCursor").GetString().Should().Be(cursor);
+        body.GetProperty("items")[0].GetProperty("name").GetString().Should().Be(description);
+        output.RootElement.GetProperty("eTag").GetString().Should().Be("\"setup-3\"");
+    }
+
+    private static async Task<(int Exit, string Output)> RunCommand(Handler handler, string[] args, int? width = null)
     {
         using var output = new StringWriter();
         var console = AnsiConsole.Create(new AnsiConsoleSettings { Ansi = AnsiSupport.No, ColorSystem = ColorSystemSupport.NoColors,
             Interactive = InteractionSupport.No, Out = new AnsiConsoleOutput(output) });
+        if (width.HasValue) console.Profile.Width = width.Value;
         var services = new ServiceCollection();
         services.AddSingleton<IApiClientFactory>(new Factory(handler));
         var prior = AnsiConsole.Console;

@@ -16,10 +16,18 @@ public sealed class ContractPinTests
         "backtest.v1.schema.json",
         "dataset-alias-request.v1.schema.json",
         "dataset-alias.v1.schema.json",
+        "dataset-listing.v1.schema.json",
         "fetch.v1.schema.json",
         "inspection-dataset.v1.schema.json",
         "run-listing.v1.schema.json",
+        "run-request.v1.schema.json",
+        "run.v1.schema.json",
+        "strategy-detail.v2.schema.json",
+        "strategy-list-page.v2.schema.json",
+        "strategy-version-list-page.v2.schema.json",
         "supported-instruments.v1.schema.json",
+        "workspace-detail.v2.schema.json",
+        "workspace-list.v2.schema.json",
         "trade-detail.v1.schema.json",
         "trade-summary.v1.schema.json",
         "vwap-analysis-request.v1.schema.json",
@@ -48,11 +56,18 @@ public sealed class ContractPinTests
             File.ReadAllText(Path.Combine(samples, "fetch.v1.sample.json")), JsonOptions)!;
         var backtest = JsonSerializer.Deserialize<BacktestResultDto>(
             File.ReadAllText(Path.Combine(samples, "backtest.v1.sample.json")), JsonOptions)!;
+        var run = JsonSerializer.Deserialize<BacktestResultDto>(
+            File.ReadAllText(Path.Combine(samples, "run.v1.sample.json")), JsonOptions)!;
+        var runRequest = JsonSerializer.Deserialize<StructureRunRequestDto>(
+            File.ReadAllText(Path.Combine(samples, "run-request.v1.sample.json")), JsonOptions)!;
         var vwap = JsonSerializer.Deserialize<VwapAnalysisResultDto>(
             File.ReadAllText(Path.Combine(samples, "vwap-analysis.v1.sample.json")), JsonOptions)!;
 
         (fetch.SchemaVersion, fetch.Contract).Should().Be((1, "fetch"));
         (backtest.SchemaVersion, backtest.Contract).Should().Be((1, "backtest"));
+        (run.SchemaVersion, run.Contract).Should().Be((1, "run"));
+        runRequest.RunId.Should().Be("run-sample");
+        runRequest.Dataset.Timeframe.Should().Be("5m");
         (vwap.SchemaVersion, vwap.Contract).Should().Be((1, "vwap-analysis"));
         vwap.Series.Should().NotBeEmpty();
         vwap.CandleCount.Should().BeGreaterThan(0);

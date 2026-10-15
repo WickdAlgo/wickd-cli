@@ -8,7 +8,9 @@ using Wickd.Cli.Commands.Backtest;
 using Wickd.Cli.Commands.Config;
 using Wickd.Cli.Commands.Fetch;
 using Wickd.Cli.Commands.Manage;
+using Wickd.Cli.Commands.Strategies;
 using Wickd.Cli.Commands.Trades;
+using Wickd.Cli.Commands.Workspaces;
 using Wickd.Cli.Common;
 using Wickd.Cli.Configuration;
 using Wickd.Cli.Rendering;
@@ -115,6 +117,13 @@ public static class Program
                 runs.AddCommand<ManageRunsGetCommand>("get")
                     .WithDescription("Inspect a specific backtest run.");
             });
+
+            manage.AddBranch("strategies", strategies =>
+            {
+                strategies.SetDescription("Browse the selected workspace strategy book.");
+                strategies.AddCommand<StrategyListCommand>("list").WithDescription("List strategies in the selected workspace.");
+                strategies.AddCommand<StrategyGetCommand>("get").WithDescription("Get a strategy and its metadata.");
+            });
         });
 
         config.AddBranch("config", cfg =>
@@ -146,6 +155,13 @@ public static class Program
                 .WithDescription("List trade journal summaries.");
             trades.AddCommand<TradesGetCommand>("get")
                 .WithDescription("Get detailed information for a specific trade.");
+        });
+
+        config.AddBranch("workspace", workspace =>
+        {
+            workspace.SetDescription("Discover available workspaces and select the local v2 workspace context.");
+            workspace.AddCommand<WorkspaceListCommand>("list").WithDescription("List workspaces available to the configured user session.");
+            workspace.AddCommand<WorkspaceUseCommand>("use").WithDescription("Select a workspace in local CLI configuration.");
         });
 
         config.AddBranch("accounts", accounts =>

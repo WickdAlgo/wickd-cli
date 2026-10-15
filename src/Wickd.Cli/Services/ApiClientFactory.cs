@@ -34,6 +34,16 @@ public sealed class ApiClientFactory : IApiClientFactory
             config.ApiToken = settings.Token;
         }
 
+        if (!string.IsNullOrWhiteSpace(settings.SessionToken))
+        {
+            config.SessionToken = settings.SessionToken;
+        }
+
+        if (!string.IsNullOrWhiteSpace(settings.WorkspaceId))
+        {
+            config.WorkspaceId = settings.WorkspaceId;
+        }
+
         return config;
     }
 

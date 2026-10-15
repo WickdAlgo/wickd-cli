@@ -9,6 +9,13 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ## Unreleased
 
+### Added
+
+- Add separate user session/workspace configuration, membership-verified workspace
+  selection and paginated StrategyBook reads. Keep host authentication separate.
+- Align structure runs with the canonical `/api/runs` contract and resolve
+  friendly dataset aliases before submitting their complete cached identity.
+
 ### Removed
 
 - Drop the no-op `-v` / `--verbose` global option and its README listing.

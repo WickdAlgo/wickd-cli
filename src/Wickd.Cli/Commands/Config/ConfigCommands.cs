@@ -83,6 +83,8 @@ public sealed class ConfigGetCommand : Command<ConfigGetCommand.Settings>
 
         if (string.IsNullOrWhiteSpace(settings.Key))
         {
+            config.ApiToken = string.IsNullOrWhiteSpace(config.ApiToken) ? null : "(configured)";
+            config.SessionToken = string.IsNullOrWhiteSpace(config.SessionToken) ? null : "(configured)";
             _renderer.RenderJson(config);
             return ExitCodes.Success;
         }
@@ -97,7 +99,15 @@ public sealed class ConfigGetCommand : Command<ConfigGetCommand.Settings>
             case "apitoken":
             case "api-token":
             case "token":
-                AnsiConsole.WriteLine(config.ApiToken ?? string.Empty);
+                AnsiConsole.WriteLine(string.IsNullOrWhiteSpace(config.ApiToken) ? string.Empty : "(configured)");
+                break;
+            case "sessiontoken":
+            case "session-token":
+                AnsiConsole.WriteLine(string.IsNullOrWhiteSpace(config.SessionToken) ? string.Empty : "(configured)");
+                break;
+            case "workspaceid":
+            case "workspace-id":
+                AnsiConsole.WriteLine(config.WorkspaceId ?? string.Empty);
                 break;
             case "defaultexchange":
             case "exchange":
@@ -158,6 +168,26 @@ public sealed class ConfigSetCommand : Command<ConfigSetCommand.Settings>
             case "token":
                 config.ApiToken = string.IsNullOrWhiteSpace(settings.Value) ? null : settings.Value;
                 break;
+            case "sessiontoken":
+            case "session-token":
+                if (!string.IsNullOrWhiteSpace(settings.Value) &&
+                    (settings.Value.Trim().Length > 2048 || settings.Value.Any(char.IsControl)))
+                {
+                    _renderer.RenderError("Session token is invalid.");
+                    return ExitCodes.ValidationError;
+                }
+                config.SessionToken = string.IsNullOrWhiteSpace(settings.Value) ? null : settings.Value.Trim();
+                break;
+            case "workspaceid":
+            case "workspace-id":
+                if (!string.IsNullOrWhiteSpace(settings.Value) &&
+                    (settings.Value.Trim().Length > 128 || settings.Value.Any(char.IsControl)))
+                {
+                    _renderer.RenderError("Workspace ID is invalid.");
+                    return ExitCodes.ValidationError;
+                }
+                config.WorkspaceId = string.IsNullOrWhiteSpace(settings.Value) ? null : settings.Value.Trim();
+                break;
             case "defaultexchange":
             case "exchange":
                 config.DefaultExchange = settings.Value;
@@ -176,7 +206,10 @@ public sealed class ConfigSetCommand : Command<ConfigSetCommand.Settings>
         }
 
         _configManager.SaveConfig(config, settings.ConfigPath);
-        _renderer.RenderSuccess($"Updated [cyan]{settings.Key}[/] = [green]{settings.Value}[/]");
+        var displayedValue = key is "apitoken" or "api-token" or "token" or "sessiontoken" or "session-token"
+            ? (string.IsNullOrWhiteSpace(settings.Value) ? "(cleared)" : "(configured)")
+            : settings.Value;
+        _renderer.RenderSuccess($"Updated [cyan]{settings.Key}[/] = [green]{displayedValue}[/]");
         return ExitCodes.Success;
     }
 }

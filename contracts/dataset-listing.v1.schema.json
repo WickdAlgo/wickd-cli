@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/dataset-listing.v1.schema.json",
+  "title": "DatasetListingItem",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "const": "dataset-listing"
+    },
+    "datasetAlias": {
+      "type": "string",
+      "minLength": 1
+    },
+    "marketId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "exchangeSymbol": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timeframe": {
+      "type": "string",
+      "minLength": 1
+    },
+    "fromUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "toUtc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "datasetAlias",
+    "marketId",
+    "exchangeId",
+    "exchangeSymbol",
+    "timeframe",
+    "fromUtc",
+    "toUtc"
+  ]
+}

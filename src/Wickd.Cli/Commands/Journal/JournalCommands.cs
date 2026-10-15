@@ -27,6 +27,13 @@ public class IdentitySettings : GlobalCommandSettings
     public string Id { get; init; } = string.Empty;
 }
 
+public sealed class SetupDetailSettings : IdentitySettings
+{
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from setup list; reconstruct detail at that frozen publication.")]
+    public string? Cursor { get; init; }
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -68,7 +75,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                 Id: settings is AmendSettings amend ? amend.Id : (settings as IdentitySettings)?.Id,
                 Request: request, IdempotencyKey: (settings as WriteSettings)?.IdempotencyKey,
                 IfMatch: (settings as AmendSettings)?.IfMatch, Limit: (settings as PageSettings)?.Limit ?? 50,
-                Cursor: (settings as PageSettings)?.Cursor), cancellationToken);
+                Cursor: (settings as PageSettings)?.Cursor ?? (settings as SetupDetailSettings)?.Cursor), cancellationToken);
             // Write machine-readable JSON directly; Spectre rendering wraps strings to terminal width.
             await AnsiConsole.Console.Profile.Out.Writer.WriteLineAsync(
                 JsonSerializer.Serialize(response, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
@@ -142,7 +149,7 @@ public sealed class SetupListCommand(IApiClientFactory factory) : JournalCommand
     protected override V2Operation Operation => V2Operation.SetupList;
 }
 
-public sealed class SetupGetCommand(IApiClientFactory factory) : JournalCommand<IdentitySettings>(factory)
+public sealed class SetupGetCommand(IApiClientFactory factory) : JournalCommand<SetupDetailSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.SetupGet;
 }
@@ -150,4 +157,29 @@ public sealed class SetupGetCommand(IApiClientFactory factory) : JournalCommand<
 public sealed class SetupAmendCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.SetupAmend;
+}
+
+public sealed class SetupSkipCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupSkip;
+}
+
+public sealed class SetupMissedCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupMissed;
+}
+
+public sealed class SetupCancelCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupCancel;
+}
+
+public sealed class SetupNoteAppendCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupNoteAppend;
+}
+
+public sealed class SetupNoteReviseCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupNoteRevise;
 }

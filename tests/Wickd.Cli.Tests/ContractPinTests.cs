@@ -20,6 +20,8 @@ public sealed class ContractPinTests
         "wallet-balance.v2.schema.json",
         "risk-preview-request.v2.schema.json",
         "risk-preview.v2.schema.json",
+        "setup-disposition-request.v2.schema.json",
+        "setup-note-request.v2.schema.json",
         "setup-accept-request.v2.schema.json",
         "setup-amend-request.v2.schema.json",
         "journal-setup.v2.schema.json",

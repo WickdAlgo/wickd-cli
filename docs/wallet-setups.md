@@ -76,3 +76,70 @@ Local request/schema/path/header validation returns exit code 2. Remote/API erro
 return 1 with the server's exact HTTP status and problem body (including 404,
 409, 412, 422 and 428); success returns 0. Amendments require a single quoted
 strong ETag; wildcard and weak ETags are rejected locally.
+
+## Dispositions and note revisions
+
+The lifecycle candidate adds explicit disposition and note commands. Each write
+requires a request file, idempotency key and the current setup ETag:
+
+```sh
+wickd setup skip setup-id --request skipped.json --idempotency-key skip-key --if-match '"setup-1"'
+wickd setup missed setup-id --request missed.json --idempotency-key missed-key --if-match '"setup-1"'
+wickd setup cancel setup-id --request cancelled.json --idempotency-key cancel-key --if-match '"setup-1"'
+wickd setup notes append setup-id --request note.json --idempotency-key note-key --if-match '"setup-1"'
+wickd setup notes revise setup-id --request revised-note.json --idempotency-key note-revision-key --if-match '"setup-2"'
+```
+
+Use only the disposition that describes the opportunity. The examples above are
+alternative commands, not a sequence of transitions to run on one setup. The API
+decides which transitions are valid and retains disposition history. Refresh
+current detail before a new logical write; use the unchanged original ETag,
+request bytes and key when retrying an already submitted write.
+
+Disposition files explicitly name the requested operation:
+
+```json
+{"command":"markSkipped","reason":"Entry conditions were not met.","effectiveAtUtc":"2026-10-14T08:05:00Z"}
+```
+
+`setup missed` requires `"command":"markMissed"`; `setup cancel` requires
+`"command":"cancel"`. The CLI refuses a mismatched command and sends the
+original file bytes unchanged.
+
+Personal and observation notes retain prior content. An append supplies an
+explicit null successor reference:
+
+```json
+{"category":"observation","body":"Wait for confirmation.","effectiveAtUtc":"2026-10-14T08:05:00Z","supersedesId":null}
+```
+
+A revision references the note being superseded, using a new logical key and
+current setup ETag:
+
+```json
+{"category":"observation","body":"Confirmation arrived.","effectiveAtUtc":"2026-10-14T08:10:00Z","supersedesId":"previous-note-id"}
+```
+
+The API requires the latest note revision in the same category and validates
+effective-time order. These commands append history; they do not edit or delete
+prior note facts. Legacy response notes may omit `supersedesId`; the request
+contract requires it explicitly as a string or null.
+
+## Frozen setup detail
+
+`setup list` now returns a required `body.snapshotCursor` as well as the optional
+`body.nextCursor`. Keep them for their distinct purposes: `nextCursor` fetches the
+next list page, while `snapshotCursor` reads setup detail at the list's retained
+publication and knowledge cutoff, including when `nextCursor` is null.
+
+```sh
+wickd setup list --limit 50
+wickd setup get setup-id --cursor 'snapshotCursor-from-list'
+```
+
+The CLI forwards the opaque token without reconstructing state locally. Omitting
+`--cursor` reads current detail. Frozen responses retain their historical
+publication watermark, `asOf` and ETag. Read current detail before starting a new
+write; a historical ETag can be stale, which the API reports as HTTP 412. Tokens
+remain scoped to the API-selected workspace; switching workspaces does not grant
+access to a retained cursor. Existing 404/409/412/422/428 refusals remain visible.

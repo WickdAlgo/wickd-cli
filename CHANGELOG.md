@@ -11,6 +11,10 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add setup skip/missed/cancel and append/revise note commands with exact JSON
+  requests, explicit keys and ETags. Support frozen detail cursors and required
+  setup list snapshot metadata while retaining legacy note compatibility.
+
 - Add authenticated catalog, wallet, risk preview and accepted setup commands
   with generated-schema JSON validation, explicit idempotency keys, amendment
   ETags, exact decimal transport and retained cursor/HTTP metadata.

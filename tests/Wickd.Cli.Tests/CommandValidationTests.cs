@@ -51,6 +51,7 @@ public class CommandValidationTests
 
     private class FakeApiClient : IWickdApiClient
     {
+        public Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public FetchHistoricalCandlesRequest? FetchRequest { get; private set; }
         public SaveDatasetAliasRequest? AliasRequest { get; private set; }
         public BacktestRequest? BacktestRequest { get; private set; }

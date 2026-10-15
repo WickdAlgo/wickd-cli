@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-amend-request.v2.schema.json",
+  "title": "SetupAmendRequest",
+  "type": "object",
+  "properties": {
+    "previewId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "effectiveAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "previewId",
+    "effectiveAtUtc",
+    "reason"
+  ]
+}

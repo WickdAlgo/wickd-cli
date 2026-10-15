@@ -1,0 +1,1 @@
+{"contract":"timeframe-definitions","schemaVersion":2,"requestId":"request-synthetic","asOf":"2026-10-14T08:00:00+00:00","data":{"items":[{"timeframeId":"timeframe-month-synthetic","token":"1M","unit":"month","count":1,"intervalKind":"calendar","fixedDurationSeconds":null,"calendarId":"iso8601-gregorian","boundaryTimezone":"UTC","policyVersion":"utc-gregorian-month-v1"}]}}

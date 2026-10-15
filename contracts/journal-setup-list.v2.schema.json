@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/journal-setup-list.v2.schema.json",
+  "title": "JournalSetupListEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "journal-setup-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/JournalSetupSummary"
+      }
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "nextCursor",
+    "publicationWatermark"
+  ],
+  "$defs": {
+    "JournalSetupSummary": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentSpecVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "primaryTimeframeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "long",
+            "short"
+          ]
+        },
+        "decisionAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "mentor",
+            "self",
+            "wickdCore",
+            "wickdAi",
+            "external"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disposition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "createdAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "setupId",
+        "walletId",
+        "strategyVersionId",
+        "instrumentId",
+        "instrumentSpecVersionId",
+        "primaryTimeframeId",
+        "direction",
+        "decisionAtUtc",
+        "source",
+        "status",
+        "disposition",
+        "revision",
+        "createdAtUtc"
+      ]
+    }
+  }
+}

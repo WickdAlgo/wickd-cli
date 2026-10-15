@@ -11,3 +11,8 @@ Run `scripts/sync-contracts.sh /path/to/wickd-api`, inspect the diff, then run
 the CLI tests and package-boundary gate. v2 workspace calls use
 `X-Wickd-Session` and `X-Wickd-Workspace`; the service Bearer token remains a
 separate host boundary. No financial calculations are performed by this CLI.
+
+Catalog, wallet and accepted-setup v2 schemas and synthetic samples are pinned
+to API candidate `dd9d43c`. The CLI embeds these schemas and validates JSON
+without converting financial strings to machine numbers. The sync script copies
+the same public generated artifacts; review the producer SHA and diff on update.

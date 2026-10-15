@@ -1,0 +1,1 @@
+{"plan":{"walletId":"wallet-synthetic","instrumentId":"instrument-synthetic","direction":"long","entryPrice":"50000","stopPrice":"49000","sizingKind":"riskAmount","sizingValue":"100","targets":[{"ordinal":1,"price":"52000","exitFraction":"1"}]},"instrumentSpecVersionId":"spec-synthetic-v1","decisionAtUtc":"2026-10-14T08:00:00+00:00","balanceBasisReceiptId":"basis-synthetic"}

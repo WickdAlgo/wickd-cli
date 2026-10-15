@@ -4,6 +4,7 @@ namespace Wickd.Cli.Services;
 
 public interface IWickdApiClient
 {
+    Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default);
     Task<FetchResultDto> FetchCandlesAsync(FetchHistoricalCandlesRequest request, CancellationToken cancellationToken = default);
     Task<SupportedInstrumentsPayload> GetSupportedInstrumentsAsync(CancellationToken cancellationToken = default);
     Task<BacktestResultDto> RunBacktestAsync(BacktestRequest request, CancellationToken cancellationToken = default);

@@ -10,6 +10,8 @@ public sealed class ContractPinTests
 {
     private static readonly string[] ExpectedContracts =
     [
+        "market-history.v2.schema.json",
+        "market-coverage.v2.schema.json",
         "catalog-assets.v2.schema.json",
         "catalog-instruments.v2.schema.json",
         "instrument-spec-versions.v2.schema.json",

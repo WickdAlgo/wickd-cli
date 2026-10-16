@@ -108,6 +108,45 @@ correction is a new logical write and needs a new key. List `nextCursor` pages
 forward; `snapshotCursor` freezes later `get` reads. IDs and cursors are encoded
 and sent to the API without local financial calculations.
 
+## Paper wallet history and accounting receipts
+
+History commands retain a user's explicit declarations about opening flatness
+and whether manual fills are recorded for one wallet and instrument. The API
+records the authenticated user and immutable revisions. `null` and `false` stay
+distinct; missing history or an unknown opening is not inferred as flat.
+
+```sh
+wickd wallet history create wallet-id instrument-id --request history.json --if-match '"history-wallet-instrument-revision"' --idempotency-key history-key
+wickd wallet history list wallet-id instrument-id --limit 50
+wickd wallet history list wallet-id instrument-id --cursor 'nextCursor-from-prior-page'
+wickd wallet history get wallet-id instrument-id attestation-id --cursor 'snapshotCursor-from-list'
+wickd wallet history correct wallet-id instrument-id attestation-id --request correction.json --if-match '"history-wallet-instrument-revision"' --idempotency-key correction-key
+```
+
+Create and correction requests use the API's generated schemas. Keep the exact
+request bytes, idempotency key and current strong history ETag for a retry. A
+correction appends to the declared history; it does not erase the prior
+attestation. The API decides whether a declaration qualifies as complete.
+
+Accounting receipt commands ask the API to project retained native paper fills,
+history declarations and instrument specifications for a wallet/instrument
+scope. The only request field is the supported projection policy; the client
+does not send lots, matches, fees, costs or financial totals:
+
+```sh
+wickd wallet accounting create wallet-id instrument-id --request accounting.json --idempotency-key accounting-key
+wickd wallet accounting list wallet-id instrument-id --limit 50
+wickd wallet accounting list wallet-id instrument-id --cursor 'nextCursor-from-prior-page'
+wickd wallet accounting get wallet-id instrument-id receipt-id --cursor 'snapshotCursor-from-list'
+```
+
+The request is `{"policyVersion":"wallet-fifo-projection-v2"}`. Receipt
+amounts remain decimal strings, and unknown fees, costs or net results remain
+`null`. These receipts are retained FIFO projection evidence; they are not
+allocations, balanced wallet postings, balances, equity, tax records or
+performance claims. The CLI forwards their exact API payloads without
+financial calculations.
+
 ## Dispositions and note revisions
 
 The lifecycle candidate adds explicit disposition and note commands. Each write

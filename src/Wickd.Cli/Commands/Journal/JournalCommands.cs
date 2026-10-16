@@ -53,6 +53,44 @@ public sealed class SetupAttemptDetailSettings : GlobalCommandSettings
     public string? Cursor { get; init; }
 }
 
+public sealed class PaperFillCreateSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperFillListSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperFillDetailSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<FILL_ID>")]
+    public string FillId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet's fills list; reads the fill at that frozen publication.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperFillCorrectionSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<FILL_ID>")]
+    public string FillId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Exact quoted strong ETag from this wallet's fills read or preceding write.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -107,20 +145,32 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     SetupAttemptCreateSettings attempt => attempt.SetupId,
                     SetupAttemptListSettings attempt => attempt.SetupId,
                     SetupAttemptDetailSettings attempt => attempt.SetupId,
+                    PaperFillCreateSettings fill => fill.WalletId,
+                    PaperFillListSettings fill => fill.WalletId,
+                    PaperFillDetailSettings fill => fill.WalletId,
+                    PaperFillCorrectionSettings fill => fill.WalletId,
                     _ => (settings as IdentitySettings)?.Id
                 },
-                SubId: (settings as SetupAttemptDetailSettings)?.AttemptId,
+                SubId: settings switch
+                {
+                    SetupAttemptDetailSettings attempt => attempt.AttemptId,
+                    PaperFillDetailSettings fill => fill.FillId,
+                    PaperFillCorrectionSettings fill => fill.FillId,
+                    _ => null
+                },
                 Request: request, IdempotencyKey: (settings as WriteSettings)?.IdempotencyKey,
                 IfMatch: settings switch
                 {
                     AmendSettings amend => amend.IfMatch,
                     SetupAttemptCreateSettings attempt => attempt.IfMatch,
+                    PaperFillCorrectionSettings fill => fill.IfMatch,
                     _ => null
                 }, Limit: (settings as PageSettings)?.Limit ?? 50,
                 Cursor: settings switch
                 {
                     SetupDetailSettings detail => detail.Cursor,
                     SetupAttemptDetailSettings attempt => attempt.Cursor,
+                    PaperFillDetailSettings fill => fill.Cursor,
                     PageSettings page => page.Cursor,
                     _ => null
                 }), cancellationToken);
@@ -245,4 +295,24 @@ public sealed class SetupAttemptListCommand(IApiClientFactory factory) : Journal
 public sealed class SetupAttemptGetCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptDetailSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.SetupAttemptGet;
+}
+
+public sealed class PaperFillCreateCommand(IApiClientFactory factory) : JournalCommand<PaperFillCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillCreate;
+}
+
+public sealed class PaperFillListCommand(IApiClientFactory factory) : JournalCommand<PaperFillListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillList;
+}
+
+public sealed class PaperFillGetCommand(IApiClientFactory factory) : JournalCommand<PaperFillDetailSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillGet;
+}
+
+public sealed class PaperFillCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperFillCorrectionSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillCorrect;
 }

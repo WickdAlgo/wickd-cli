@@ -73,9 +73,40 @@ creation until a verified connection scope exists. No CLI command places orders,
 acquires provider history or fabricates balances/FX.
 
 Local request/schema/path/header validation returns exit code 2. Remote/API errors
-return 1 with the server's exact HTTP status and problem body (including 404,
-409, 412, 422 and 428); success returns 0. Amendments require a single quoted
-strong ETag; wildcard and weak ETags are rejected locally.
+return 1 while preserving HTTP status. Other v2 commands include the problem
+body; paper fill errors use a safe status-specific explanation and omit the
+server body, storage details and credentials. Success returns 0. Amendments and
+fill corrections require a single quoted strong ETag; wildcard and weak ETags
+are rejected locally.
+
+## Paper wallet fills
+
+Paper fills are explicit, immutable wallet-scoped evidence records. Commands
+operate on the selected user session and workspace. A fill stays unassigned, and
+the response's `accounting` value remains API-owned; this CLI does not turn fills
+into legacy executions, allocations, balances, PnL or performance. No command
+places an order.
+
+```sh
+wickd wallet fills create wallet-id --request fill.json --idempotency-key fill-key
+wickd wallet fills list wallet-id --limit 50
+wickd wallet fills list wallet-id --cursor 'nextCursor-from-prior-page'
+wickd wallet fills get wallet-id fill-id --cursor 'snapshotCursor-from-list'
+wickd wallet fills correct wallet-id fill-id --request correction.json --if-match '"paper-fills-wallet-revision"' --idempotency-key correction-key
+```
+
+Creation accepts one exact API request, for example:
+
+```json
+{"instrumentId":"instrument-id","instrumentSpecVersionId":"spec-id","side":"buy","positionSide":"net","price":"100.25","quantity":"0.01","occurredAtUtc":"2026-10-14T08:00:00Z"}
+```
+
+Correction appends a replacement request and reason; it preserves the original
+fill as history. Use the current wallet fills ETag from the latest read/write and
+keep the request file and idempotency key unchanged when retrying. A changed
+correction is a new logical write and needs a new key. List `nextCursor` pages
+forward; `snapshotCursor` freezes later `get` reads. IDs and cursors are encoded
+and sent to the API without local financial calculations.
 
 ## Dispositions and note revisions
 

@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Wickd.Cli.Commands.Settings;
+using Wickd.Cli.Common;
 using Wickd.Cli.Configuration;
 using Wickd.Cli.Models;
 using Wickd.Cli.Services;

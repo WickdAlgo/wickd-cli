@@ -143,3 +143,30 @@ publication watermark, `asOf` and ETag. Read current detail before starting a ne
 write; a historical ETag can be stale, which the API reports as HTTP 412. Tokens
 remain scoped to the API-selected workspace; switching workspaces does not grant
 access to a retained cursor. Existing 404/409/412/422/428 refusals remain visible.
+
+## Native setup attempts
+
+The native attempt candidate adds setup-scoped identity commands. Creation
+requires an accepted plan revision, an admitted paper/backtest mode, the current
+setup ETag and an explicit idempotency key:
+
+```sh
+wickd setup attempts create setup-id --request attempt.json --idempotency-key attempt-key --if-match '"setup-2"'
+wickd setup attempts list setup-id --limit 50
+wickd setup attempts get setup-id attempt-id
+wickd setup attempts get setup-id attempt-id --cursor 'snapshotCursor-from-setup-or-attempt-list'
+```
+
+The create request contains only the plan identity, mode and decision time:
+
+```json
+{"acceptedPlanRevisionId":"plan-revision-id","mode":"paper","decisionAtUtc":"2026-10-14T08:10:00Z"}
+```
+
+The API verifies that the revision belongs to the setup. Attempt detail and list
+responses are checked against the requested setup identity; the nested detail
+command also checks the attempt ID. List `nextCursor` advances pagination, while
+`snapshotCursor` freezes the publication and can be passed to `get`. The API
+accepts either a setup-list or attempt-list snapshot cursor so both detail panels
+can share one historical boundary. Creating an attempt records its identity and accepted preview; it does not create fills,
+place orders or change setup status. Existing v1 executions remain separate.

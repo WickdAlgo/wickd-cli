@@ -11,11 +11,13 @@ public enum V2Operation
     MarketSnapshotGet, MarketSeriesCoverage,
     WalletCreate, WalletList, WalletGet, WalletBalance,
     RiskPreview, SetupAccept, SetupList, SetupGet, SetupAmend,
-    SetupSkip, SetupMissed, SetupCancel, SetupNoteAppend, SetupNoteRevise
+    SetupSkip, SetupMissed, SetupCancel, SetupNoteAppend, SetupNoteRevise,
+    SetupAttemptCreate, SetupAttemptList, SetupAttemptGet
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,
-    string? IdempotencyKey = null, string? IfMatch = null, int Limit = 50, string? Cursor = null);
+    string? IdempotencyKey = null, string? IfMatch = null, int Limit = 50, string? Cursor = null,
+    string? SubId = null);
 
 /// <summary>Exact server payload plus HTTP concurrency metadata. No financial parsing or calculation.</summary>
 public sealed record V2Response(int Status, string? ETag, string? Location, JsonElement Body);

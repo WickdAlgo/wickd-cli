@@ -178,6 +178,41 @@ public sealed class PaperAllocationAssignSettings : WalletInstrumentWriteSetting
     public string IfMatch { get; init; } = string.Empty;
 }
 
+public sealed class PaperCostListSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperCostGetSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<COST_ID>")]
+    public string CostId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet's costs list.")]
+    public string? Cursor { get; init; }
+}
+
+public class PaperCostWriteSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperCostCorrectionSettings : PaperCostWriteSettings
+{
+    [CommandArgument(1, "<COST_ID>")]
+    public string CostId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet's paper costs list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -239,6 +274,9 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperFillListSettings fill => fill.WalletId,
                     PaperFillDetailSettings fill => fill.WalletId,
                     PaperFillCorrectionSettings fill => fill.WalletId,
+                    PaperCostListSettings cost => cost.WalletId,
+                    PaperCostGetSettings cost => cost.WalletId,
+                    PaperCostWriteSettings cost => cost.WalletId,
                     WalletInstrumentSettings scoped => scoped.WalletId,
                     WalletInstrumentPageSettings scoped => scoped.WalletId,
                     WalletInstrumentWriteSettings scoped => scoped.WalletId,
@@ -253,6 +291,8 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryCorrectionSettings history => history.AttestationId,
                     WalletAccountingGetSettings accounting => accounting.ReceiptId,
                     PaperAllocationGetSettings allocation => allocation.RevisionId,
+                    PaperCostGetSettings cost => cost.CostId,
+                    PaperCostCorrectionSettings cost => cost.CostId,
                     _ => null
                 },
                 InstrumentId: settings switch
@@ -271,6 +311,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryCreateSettings history => history.IfMatch,
                     PaperHistoryCorrectionSettings history => history.IfMatch,
                     PaperAllocationAssignSettings allocation => allocation.IfMatch,
+                    PaperCostCorrectionSettings cost => cost.IfMatch,
                     _ => null
                 }, Limit: (settings as PageSettings)?.Limit ?? 50,
                 Cursor: settings switch
@@ -281,6 +322,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryGetSettings history => history.Cursor,
                     WalletAccountingGetSettings accounting => accounting.Cursor,
                     PaperAllocationGetSettings allocation => allocation.Cursor,
+                    PaperCostGetSettings cost => cost.Cursor,
                     PageSettings page => page.Cursor,
                     _ => null
                 }), cancellationToken);
@@ -475,4 +517,24 @@ public sealed class PaperAllocationListCommand(IApiClientFactory factory) : Jour
 public sealed class PaperAllocationGetCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationGetSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.PaperAllocationGet;
+}
+
+public sealed class PaperCostCreateCommand(IApiClientFactory factory) : JournalCommand<PaperCostWriteSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostCreate;
+}
+
+public sealed class PaperCostListCommand(IApiClientFactory factory) : JournalCommand<PaperCostListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostList;
+}
+
+public sealed class PaperCostGetCommand(IApiClientFactory factory) : JournalCommand<PaperCostGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostGet;
+}
+
+public sealed class PaperCostCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperCostCorrectionSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostCorrect;
 }

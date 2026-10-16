@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Json.Schema;
 
 namespace Wickd.Cli.Models;
@@ -16,7 +17,8 @@ public enum V2Operation
     PaperFillCreate, PaperFillList, PaperFillGet, PaperFillCorrect,
     PaperHistoryCreate, PaperHistoryList, PaperHistoryGet, PaperHistoryCorrect,
     WalletAccountingCreate, WalletAccountingList, WalletAccountingGet,
-    PaperAllocationAssign, PaperAllocationList, PaperAllocationGet
+    PaperAllocationAssign, PaperAllocationList, PaperAllocationGet,
+    PaperCostCreate, PaperCostList, PaperCostGet, PaperCostCorrect
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,
@@ -29,6 +31,7 @@ public sealed record V2Response(int Status, string? ETag, string? Location, Json
 public static class V2Contracts
 {
     private static readonly ConcurrentDictionary<string, JsonSchema> Schemas = new(StringComparer.Ordinal);
+    private static readonly Regex PaperCostAmount = new(@"\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]{1,28})?\z", RegexOptions.CultureInvariant);
 
     public static JsonElement Validate(ReadOnlyMemory<byte> bytes, string contract)
     {
@@ -40,10 +43,28 @@ public static class V2Contracts
             using var reader = new StreamReader(stream);
             return JsonSchema.FromText(reader.ReadToEnd());
         });
+        if (contract is "paper-cost-create-request" or "paper-cost-correction-request" or "paper-cost" or "paper-cost-list")
+            RejectInvalidPaperCostAmounts(document.RootElement);
         if (!schema.Evaluate(document.RootElement, new EvaluationOptions { RequireFormatValidation = true }).IsValid)
             throw new ArgumentException($"JSON does not satisfy the {contract} v2 contract. Check required properties, enum values, dates and decimal strings.");
         RejectDuplicateProperties(document.RootElement);
         return document.RootElement.Clone();
+    }
+
+    private static void RejectInvalidPaperCostAmounts(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            foreach (var property in element.EnumerateObject())
+            {
+                if (property.NameEquals("amount") && property.Value.ValueKind == JsonValueKind.String
+                    && !PaperCostAmount.IsMatch(property.Value.GetString()!))
+                    throw new ArgumentException("Paper cost amounts must be exact decimal strings without whitespace or line breaks.");
+                RejectInvalidPaperCostAmounts(property.Value);
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.Array)
+            foreach (var item in element.EnumerateArray()) RejectInvalidPaperCostAmounts(item);
     }
 
     private static void RejectDuplicateProperties(JsonElement element)

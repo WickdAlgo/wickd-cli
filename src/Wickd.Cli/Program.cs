@@ -211,6 +211,13 @@ public static class Program
                 accounting.AddCommand<WalletAccountingListCommand>("list").WithDescription("List one frozen page of retained accounting receipts for one wallet instrument.");
                 accounting.AddCommand<WalletAccountingGetCommand>("get").WithDescription("Read one retained accounting receipt, optionally at a frozen cursor.");
             });
+            wallet.AddBranch("allocations", allocations =>
+            {
+                allocations.SetDescription("Record and inspect retained paper activity attribution to strategy attempts.");
+                allocations.AddCommand<PaperAllocationListCommand>("list").WithDescription("List frozen paper activity allocation revisions for one wallet instrument.");
+                allocations.AddCommand<PaperAllocationGetCommand>("get").WithDescription("Read one allocation revision, optionally at a frozen cursor.");
+                allocations.AddCommand<PaperAllocationAssignCommand>("assign").WithDescription("Append a complete paper activity allocation view with an explicit idempotency key and current strong ETag.");
+            });
             wallet.AddBranch("fills", fills =>
             {
                 fills.SetDescription("Capture and inspect native paper fills. These records are not executions or accounting.");

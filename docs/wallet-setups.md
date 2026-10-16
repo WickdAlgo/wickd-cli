@@ -147,6 +147,28 @@ allocations, balanced wallet postings, balances, equity, tax records or
 performance claims. The CLI forwards their exact API payloads without
 financial calculations.
 
+## Paper activity allocations
+
+Allocation commands append complete assignment views for one wallet and
+instrument. Each assignment names a retained accounting receipt, prior revision,
+reason and setup-attempt attribution rows in the request file. The API validates
+those rows against its retained FIFO lots and matches. Use the list ETag for a
+new write, keep request bytes and the idempotency key unchanged for a retry, and
+pass a list's `snapshotCursor` to read a revision at that frozen publication:
+
+```sh
+wickd wallet allocations list wallet-id instrument-id --limit 50
+wickd wallet allocations list wallet-id instrument-id --cursor 'nextCursor-from-prior-page'
+wickd wallet allocations get wallet-id instrument-id revision-id --cursor 'snapshotCursor-from-list'
+wickd wallet allocations assign wallet-id instrument-id --request assignments.json --if-match '"allocation-wallet-instrument-revision"' --idempotency-key assignment-key
+```
+
+Responses include API-derived unassigned entry-lot and exit-match quantities;
+the client preserves them as decimal strings or `null` with a withholding reason.
+It does not calculate remaining quantities, fills, PnL, costs, fees, net results,
+balances or performance. An allocation records strategy attribution for
+retained paper activity; it does not create an execution or wallet posting.
+
 ## Dispositions and note revisions
 
 The lifecycle candidate adds explicit disposition and note commands. Each write

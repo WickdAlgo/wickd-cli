@@ -159,6 +159,25 @@ public sealed class WalletAccountingGetSettings : WalletInstrumentSettings
     public string? Cursor { get; init; }
 }
 
+public sealed class PaperAllocationListSettings : WalletInstrumentPageSettings;
+
+public sealed class PaperAllocationGetSettings : WalletInstrumentSettings
+{
+    [CommandArgument(2, "<REVISION_ID>")]
+    public string RevisionId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet/instrument allocation list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperAllocationAssignSettings : WalletInstrumentWriteSettings
+{
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet/instrument allocation list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -203,7 +222,10 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
             if (settings is WriteSettings write)
             {
                 if (string.IsNullOrWhiteSpace(write.RequestPath)) throw new ArgumentException("--request is required.");
-                if (new FileInfo(write.RequestPath).Length > 1_048_576) throw new ArgumentException("Request file exceeds 1 MiB.");
+                var maximumRequestBytes = settings is PaperAllocationAssignSettings ? 2_097_152 : 1_048_576;
+                if (new FileInfo(write.RequestPath).Length > maximumRequestBytes)
+                    throw new ArgumentException(settings is PaperAllocationAssignSettings
+                        ? "Request file exceeds 2 MiB." : "Request file exceeds 1 MiB.");
                 request = await File.ReadAllBytesAsync(write.RequestPath, cancellationToken);
             }
             var response = await factory.CreateClient(settings).SendV2Async(new V2Call(Operation,
@@ -230,6 +252,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryGetSettings history => history.AttestationId,
                     PaperHistoryCorrectionSettings history => history.AttestationId,
                     WalletAccountingGetSettings accounting => accounting.ReceiptId,
+                    PaperAllocationGetSettings allocation => allocation.RevisionId,
                     _ => null
                 },
                 InstrumentId: settings switch
@@ -247,6 +270,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperFillCorrectionSettings fill => fill.IfMatch,
                     PaperHistoryCreateSettings history => history.IfMatch,
                     PaperHistoryCorrectionSettings history => history.IfMatch,
+                    PaperAllocationAssignSettings allocation => allocation.IfMatch,
                     _ => null
                 }, Limit: (settings as PageSettings)?.Limit ?? 50,
                 Cursor: settings switch
@@ -256,6 +280,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperFillDetailSettings fill => fill.Cursor,
                     PaperHistoryGetSettings history => history.Cursor,
                     WalletAccountingGetSettings accounting => accounting.Cursor,
+                    PaperAllocationGetSettings allocation => allocation.Cursor,
                     PageSettings page => page.Cursor,
                     _ => null
                 }), cancellationToken);
@@ -435,4 +460,19 @@ public sealed class WalletAccountingListCommand(IApiClientFactory factory) : Jou
 public sealed class WalletAccountingGetCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingGetSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.WalletAccountingGet;
+}
+
+public sealed class PaperAllocationAssignCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationAssignSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperAllocationAssign;
+}
+
+public sealed class PaperAllocationListCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperAllocationList;
+}
+
+public sealed class PaperAllocationGetCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperAllocationGet;
 }

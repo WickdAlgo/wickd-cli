@@ -8,6 +8,7 @@ namespace Wickd.Cli.Models;
 public enum V2Operation
 {
     CatalogAssets, CatalogInstruments, CatalogSpecs, CatalogTimeframes,
+    MarketSnapshotGet, MarketSeriesCoverage,
     WalletCreate, WalletList, WalletGet, WalletBalance,
     RiskPreview, SetupAccept, SetupList, SetupGet, SetupAmend,
     SetupSkip, SetupMissed, SetupCancel, SetupNoteAppend, SetupNoteRevise

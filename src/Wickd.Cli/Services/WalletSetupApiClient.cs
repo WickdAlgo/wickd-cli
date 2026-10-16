@@ -10,6 +10,8 @@ public sealed partial class WickdApiClient
     {
         var (path, responseContract, requestContract) = call.Operation switch
         {
+            V2Operation.MarketSnapshotGet => ($"market-history/snapshots/{Segment(call.Id)}", "market-history", (string?)null),
+            V2Operation.MarketSeriesCoverage => ($"market-history/series/{Segment(call.Id)}/coverage", "market-coverage", null),
             V2Operation.CatalogAssets => ("catalog/assets", "catalog-assets", (string?)null),
             V2Operation.CatalogInstruments => ("catalog/instruments", "catalog-instruments", null),
             V2Operation.CatalogSpecs => ("catalog/instrument-spec-versions", "instrument-spec-versions", null),
@@ -64,6 +66,8 @@ public sealed partial class WickdApiClient
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
+            if (call.Operation is V2Operation.MarketSnapshotGet or V2Operation.MarketSeriesCoverage)
+                throw MarketHistoryFailure(response);
             await HandleResponseAsync<JsonElement>(response, path, cancellationToken);
             throw new InvalidOperationException("Unreachable response.");
         }
@@ -74,6 +78,22 @@ public sealed partial class WickdApiClient
         if (body.GetProperty("schemaVersion").GetInt32() != 2 || body.GetProperty("contract").GetString() != responseContract)
             throw new InvalidOperationException($"Unsupported API contract; expected {responseContract} v2.");
         return new V2Response((int)response.StatusCode, response.Headers.ETag?.ToString(), response.Headers.Location?.ToString(), body);
+    }
+
+    // Retained-data errors may originate in storage. Never echo arbitrary upstream
+    // bodies, storage paths, credentials, or reason phrases into public CLI output.
+    private static HttpRequestException MarketHistoryFailure(HttpResponseMessage response)
+    {
+        var status = (int)response.StatusCode;
+        var explanation = status switch
+        {
+            404 => "The snapshot or series is unavailable in this workspace; current membership and source entitlement are required.",
+            503 => "Retained evidence is unavailable; the server must configure and verify its retained storage.",
+            401 => "A current user session is required.",
+            403 => "The current user is not allowed to read this evidence.",
+            _ => "The server refused the retained-history read."
+        };
+        return new HttpRequestException($"Market history request failed with HTTP {status}. {explanation}", null, response.StatusCode);
     }
 
     private static void RequireLifecycleIntent(V2Operation operation, JsonElement body)

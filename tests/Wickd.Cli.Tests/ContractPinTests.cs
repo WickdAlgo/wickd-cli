@@ -30,6 +30,10 @@ public sealed class ContractPinTests
         "setup-attempt-create-request.v2.schema.json",
         "setup-attempt.v2.schema.json",
         "setup-attempt-list.v2.schema.json",
+        "paper-fill-create-request.v2.schema.json",
+        "paper-fill-correction-request.v2.schema.json",
+        "paper-fill.v2.schema.json",
+        "paper-fill-list.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -117,6 +121,21 @@ public sealed class ContractPinTests
     [InlineData("samples/setup-attempt.v2.sample.json", "8ea9bfe31c2c362c54d017820b80418656d2791771a876ece3413d7a761db341")]
     [InlineData("samples/setup-attempt-list.v2.sample.json", "8c14f8bc32c643e04cc11b5a2a75b5fe515ef63cac96c9241ba09291c7410180")]
     public void SetupAttemptArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
+            .Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("paper-fill-create-request.v2.schema.json", "24b108a22e8a693ec9f2c317b02560bb823a47bf85e86b498552bea0eae15330")]
+    [InlineData("paper-fill-correction-request.v2.schema.json", "b6692e6faef6ff68e9a283b7a78bce3782ec280f2337d75202708e0fb89c3ab4")]
+    [InlineData("paper-fill.v2.schema.json", "f07430a5235b764e40fa6f1013a24252132e00cc6f1dd29e1d270fe53e30a463")]
+    [InlineData("paper-fill-list.v2.schema.json", "7034b85b1d98e07c2afc21154a7d486b3dac9beadc649cabada568ea512ad52d")]
+    [InlineData("samples/paper-fill-create-request.v2.sample.json", "1cb67bd6a25fd12f8bf52617e615edc2210d91e5d4f3c7365e99e4390893251a")]
+    [InlineData("samples/paper-fill-correction-request.v2.sample.json", "ad6cefa16b24e62d8cc7eefce8a349155612993b11b387cac60221dc20fc55bb")]
+    [InlineData("samples/paper-fill.v2.sample.json", "a225cc62a14ab97ac40389fdfc4f824853d7564006dea47dc1a273c818b5e466")]
+    [InlineData("samples/paper-fill-list.v2.sample.json", "882d38a8164effb6c4f3afd080fc668ad170336ee2665213cba416d0aded62eb")]
+    public void PaperFillArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
             .Should().Be(expected);

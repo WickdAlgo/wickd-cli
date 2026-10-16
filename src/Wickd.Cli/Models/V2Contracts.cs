@@ -15,7 +15,8 @@ public enum V2Operation
     SetupAttemptCreate, SetupAttemptList, SetupAttemptGet,
     PaperFillCreate, PaperFillList, PaperFillGet, PaperFillCorrect,
     PaperHistoryCreate, PaperHistoryList, PaperHistoryGet, PaperHistoryCorrect,
-    WalletAccountingCreate, WalletAccountingList, WalletAccountingGet
+    WalletAccountingCreate, WalletAccountingList, WalletAccountingGet,
+    PaperAllocationAssign, PaperAllocationList, PaperAllocationGet
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,

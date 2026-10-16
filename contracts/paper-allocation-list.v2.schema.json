@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-allocation-list.v2.schema.json",
+  "title": "PaperAllocationListEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "paper-allocation-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PaperAllocationRevision"
+      }
+    },
+    "eTag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "eTag",
+    "nextCursor",
+    "publicationWatermark",
+    "snapshotCursor"
+  ],
+  "$defs": {
+    "PaperAllocationUnassignedPortion": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string",
+          "enum": [
+            "entry",
+            "exit"
+          ]
+        },
+        "lotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matchId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "unassignedQuantity": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "withheldReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "role",
+        "lotId",
+        "matchId",
+        "unassignedQuantity",
+        "withheldReason"
+      ]
+    },
+    "PaperAllocationRow": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attemptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "entry",
+            "exit"
+          ]
+        },
+        "lotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matchId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "grossRealizedPnl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "grossWithheldReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "setupId",
+        "attemptId",
+        "role",
+        "lotId",
+        "matchId",
+        "quantity",
+        "grossRealizedPnl",
+        "grossWithheldReason"
+      ]
+    },
+    "PaperAllocationRevision": {
+      "type": "object",
+      "properties": {
+        "revisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "accountingReceiptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priorRevisionId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policyVersion": {
+          "type": "string",
+          "const": "paper-wallet-fifo-attribution-v1"
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "needsReconciliation": {
+          "type": "boolean"
+        },
+        "quantityAttributionComplete": {
+          "type": "boolean"
+        },
+        "grossAssetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unassignedRetainedGraphPortions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PaperAllocationUnassignedPortion"
+          }
+        },
+        "allocations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PaperAllocationRow"
+          }
+        },
+        "feesTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "otherCostsTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "netRealizedPnl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "realizedR": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "revisionId",
+        "walletId",
+        "instrumentId",
+        "accountingReceiptId",
+        "priorRevisionId",
+        "reason",
+        "policyVersion",
+        "recordedByUserId",
+        "knownAtUtc",
+        "publicationSequence",
+        "needsReconciliation",
+        "quantityAttributionComplete",
+        "grossAssetId",
+        "unassignedRetainedGraphPortions",
+        "allocations",
+        "feesTotal",
+        "otherCostsTotal",
+        "netRealizedPnl",
+        "realizedR"
+      ]
+    }
+  }
+}

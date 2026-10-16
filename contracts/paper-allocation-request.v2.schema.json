@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-allocation-request.v2.schema.json",
+  "title": "PaperAllocationRequest",
+  "type": "object",
+  "properties": {
+    "accountingReceiptId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "priorRevisionId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    },
+    "allocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PaperAllocationInput"
+      },
+      "maxItems": 2000
+    }
+  },
+  "required": [
+    "accountingReceiptId",
+    "priorRevisionId",
+    "reason",
+    "allocations"
+  ],
+  "$defs": {
+    "PaperAllocationInput": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attemptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "entry",
+            "exit"
+          ]
+        },
+        "lotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "matchId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "setupId",
+        "attemptId",
+        "role",
+        "lotId",
+        "matchId",
+        "quantity"
+      ]
+    }
+  }
+}

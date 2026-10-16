@@ -41,6 +41,9 @@ public sealed class ContractPinTests
         "wallet-accounting-create-request.v2.schema.json",
         "wallet-accounting.v2.schema.json",
         "wallet-accounting-list.v2.schema.json",
+        "paper-allocation-request.v2.schema.json",
+        "paper-allocation.v2.schema.json",
+        "paper-allocation-list.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -164,6 +167,19 @@ public sealed class ContractPinTests
     [InlineData("samples/wallet-accounting.v2.sample.json", "bce21aa786a090cce3269921cefd914b54c7b3dbf0a05916a20f29b8cb26dd21")]
     [InlineData("samples/wallet-accounting-list.v2.sample.json", "9d4b6c243e999278503f80786cf85955e7b061412fc5dd031c8986913dbcf90c")]
     public void PaperHistoryAndWalletAccountingArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
+            .Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("paper-allocation-request.v2.schema.json", "cce47d6ff4bb7931d68efc46894bbe325cbc28fa40f866903b67fa2e0eba5782")]
+    [InlineData("paper-allocation.v2.schema.json", "bcb68e82d4d60bf26022bf0f07762c1de6ac30e529705b50b310337eb4f1099a")]
+    [InlineData("paper-allocation-list.v2.schema.json", "4eaa693d5e0a74ae4bbf401bebaca19cc153252525e48fcda7961e35fb753247")]
+    [InlineData("samples/paper-allocation-request.v2.sample.json", "1b9a7756f1a21bad45ab728e0b085a9b02760cd0cd061de1484c50ecba9dab59")]
+    [InlineData("samples/paper-allocation.v2.sample.json", "ee6a587f8f929cb67b4e2a447a8140ef1dc5857fca47b0b2ca1ea5f2be351b8a")]
+    [InlineData("samples/paper-allocation-list.v2.sample.json", "48cca7dab0f93a390464d1dca0580d9694ec6e437c437317ebf71a48fe47da37")]
+    public void PaperAllocationArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
             .Should().Be(expected);

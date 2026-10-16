@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-attempt.v2.schema.json",
+  "title": "SetupAttemptEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "setup-attempt"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/SetupExecutionAttempt"
+    },
+    "setupRevision": {
+      "type": "integer"
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data",
+    "setupRevision",
+    "publicationWatermark"
+  ],
+  "$defs": {
+    "SetupExecutionAttempt": {
+      "type": "object",
+      "properties": {
+        "attemptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "backtest"
+          ]
+        },
+        "acceptedPlanRevisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "acceptedPreviewId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decisionAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "attemptId",
+        "setupId",
+        "walletId",
+        "instrumentId",
+        "mode",
+        "acceptedPlanRevisionId",
+        "acceptedPreviewId",
+        "decisionAtUtc",
+        "knownAtUtc",
+        "publicationSequence"
+      ]
+    }
+  }
+}

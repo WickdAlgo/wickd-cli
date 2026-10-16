@@ -218,6 +218,13 @@ public static class Program
                 notes.AddCommand<SetupNoteAppendCommand>("append").WithDescription("Append a note with supersedesId null; requires current setup ETag.");
                 notes.AddCommand<SetupNoteReviseCommand>("revise").WithDescription("Revise the latest note using its supersedesId; requires current setup ETag.");
             });
+            setup.AddBranch("attempts", attempts =>
+            {
+                attempts.SetDescription("Create and inspect native paper/backtest attempts for one setup.");
+                attempts.AddCommand<SetupAttemptCreateCommand>("create").WithDescription("Create one attempt from an accepted plan; requires current setup ETag and an explicit idempotency key.");
+                attempts.AddCommand<SetupAttemptListCommand>("list").WithDescription("List attempts for this setup; --cursor pages are scoped to the selected workspace.");
+                attempts.AddCommand<SetupAttemptGetCommand>("get").WithDescription("Read one attempt for this setup, optionally frozen with --cursor from setup list or attempts list snapshotCursor.");
+            });
         });
 
         config.AddBranch("accounts", accounts =>

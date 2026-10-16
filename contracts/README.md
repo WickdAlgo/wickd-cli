@@ -31,3 +31,9 @@ Native setup attempt request, detail and list artifacts are synchronized from
 API checkpoint `e5affd7`; API follow-up `3eb0208` adds shared setup-list snapshot
 cursor compatibility. They retain setup-scoped attempt identity and admitted
 paper/backtest mode; they do not expose legacy execution or fill routes.
+
+Native paper fill create/correction requests, detail/list responses and
+synthetic samples are synchronized byte-for-byte from API checkpoint
+`08d8f8164635635e0cced48ea3b2d208aa586300`. They retain decimal strings and
+unprojected accounting metadata. The public CLI only captures and reads immutable
+evidence; it does not calculate or allocate wallet economics or place orders.

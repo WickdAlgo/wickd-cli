@@ -191,11 +191,19 @@ public static class Program
         });
         config.AddBranch("wallet", wallet =>
         {
-            wallet.SetDescription("Manage wallet identities and inspect retained opening balance basis.");
+            wallet.SetDescription("Manage paper/backtest wallet identities, retained opening basis and unassigned paper fill evidence.");
             wallet.AddCommand<WalletCreateCommand>("create");
             wallet.AddCommand<WalletListCommand>("list");
             wallet.AddCommand<WalletGetCommand>("get");
             wallet.AddCommand<WalletBalanceCommand>("balance");
+            wallet.AddBranch("fills", fills =>
+            {
+                fills.SetDescription("Capture and inspect native paper fills. These records are not executions or accounting.");
+                fills.AddCommand<PaperFillCreateCommand>("create").WithDescription("Record one explicit paper fill; no order is sent and no allocation is created.");
+                fills.AddCommand<PaperFillListCommand>("list").WithDescription("List one frozen page of unassigned paper fills for a wallet.");
+                fills.AddCommand<PaperFillGetCommand>("get").WithDescription("Read a paper fill by wallet and fill identity, optionally at a frozen cursor.");
+                fills.AddCommand<PaperFillCorrectCommand>("correct").WithDescription("Append a correction with an explicit idempotency key and the current strong wallet fills ETag.");
+            });
         });
         config.AddBranch("risk", risk =>
         {

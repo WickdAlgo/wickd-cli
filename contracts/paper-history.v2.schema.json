@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-history.v2.schema.json",
+  "title": "PaperHistoryEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "paper-history"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/PaperHistoryAttestation"
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "streamRevision": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data",
+    "publicationWatermark",
+    "snapshotCursor",
+    "streamRevision"
+  ],
+  "$defs": {
+    "PaperHistoryAttestation": {
+      "type": "object",
+      "properties": {
+        "attestationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentSpecVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openingKnownFlat": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allManualFillsRecorded": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "fromOccurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "throughOccurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "userDeclaredPaperHistory"
+          ]
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "quality": {
+          "type": "string",
+          "enum": [
+            "unknownOrIncomplete",
+            "userDeclaredComplete"
+          ]
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "rootAttestationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "replacesAttestationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "correctionReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "replacedByAttestationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "attestationId",
+        "walletId",
+        "instrumentId",
+        "instrumentSpecVersionId",
+        "openingKnownFlat",
+        "allManualFillsRecorded",
+        "fromOccurredAtUtc",
+        "throughOccurredAtUtc",
+        "source",
+        "recordedByUserId",
+        "quality",
+        "knownAtUtc",
+        "publicationSequence",
+        "rootAttestationId",
+        "revision",
+        "replacesAttestationId",
+        "correctionReason",
+        "replacedByAttestationId"
+      ]
+    }
+  }
+}

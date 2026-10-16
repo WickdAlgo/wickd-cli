@@ -91,6 +91,74 @@ public sealed class PaperFillCorrectionSettings : WriteSettings
     public string IfMatch { get; init; } = string.Empty;
 }
 
+public class WalletInstrumentSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<INSTRUMENT_ID>")]
+    public string InstrumentId { get; init; } = string.Empty;
+}
+
+public class WalletInstrumentPageSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<INSTRUMENT_ID>")]
+    public string InstrumentId { get; init; } = string.Empty;
+}
+
+public sealed class WalletAccountingListSettings : WalletInstrumentPageSettings;
+
+public class WalletInstrumentWriteSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<INSTRUMENT_ID>")]
+    public string InstrumentId { get; init; } = string.Empty;
+}
+
+public sealed class PaperHistoryCreateSettings : WalletInstrumentWriteSettings
+{
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet/instrument history list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class PaperHistoryGetSettings : WalletInstrumentSettings
+{
+    [CommandArgument(2, "<ATTESTATION_ID>")]
+    public string AttestationId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet/instrument history list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperHistoryCorrectionSettings : WalletInstrumentWriteSettings
+{
+    [CommandArgument(2, "<ATTESTATION_ID>")]
+    public string AttestationId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet/instrument history list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class WalletAccountingCreateSettings : WalletInstrumentWriteSettings;
+
+public sealed class WalletAccountingGetSettings : WalletInstrumentSettings
+{
+    [CommandArgument(2, "<RECEIPT_ID>")]
+    public string ReceiptId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet/instrument accounting list.")]
+    public string? Cursor { get; init; }
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -149,6 +217,9 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperFillListSettings fill => fill.WalletId,
                     PaperFillDetailSettings fill => fill.WalletId,
                     PaperFillCorrectionSettings fill => fill.WalletId,
+                    WalletInstrumentSettings scoped => scoped.WalletId,
+                    WalletInstrumentPageSettings scoped => scoped.WalletId,
+                    WalletInstrumentWriteSettings scoped => scoped.WalletId,
                     _ => (settings as IdentitySettings)?.Id
                 },
                 SubId: settings switch
@@ -156,6 +227,16 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     SetupAttemptDetailSettings attempt => attempt.AttemptId,
                     PaperFillDetailSettings fill => fill.FillId,
                     PaperFillCorrectionSettings fill => fill.FillId,
+                    PaperHistoryGetSettings history => history.AttestationId,
+                    PaperHistoryCorrectionSettings history => history.AttestationId,
+                    WalletAccountingGetSettings accounting => accounting.ReceiptId,
+                    _ => null
+                },
+                InstrumentId: settings switch
+                {
+                    WalletInstrumentSettings scoped => scoped.InstrumentId,
+                    WalletInstrumentPageSettings scoped => scoped.InstrumentId,
+                    WalletInstrumentWriteSettings scoped => scoped.InstrumentId,
                     _ => null
                 },
                 Request: request, IdempotencyKey: (settings as WriteSettings)?.IdempotencyKey,
@@ -164,6 +245,8 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     AmendSettings amend => amend.IfMatch,
                     SetupAttemptCreateSettings attempt => attempt.IfMatch,
                     PaperFillCorrectionSettings fill => fill.IfMatch,
+                    PaperHistoryCreateSettings history => history.IfMatch,
+                    PaperHistoryCorrectionSettings history => history.IfMatch,
                     _ => null
                 }, Limit: (settings as PageSettings)?.Limit ?? 50,
                 Cursor: settings switch
@@ -171,6 +254,8 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     SetupDetailSettings detail => detail.Cursor,
                     SetupAttemptDetailSettings attempt => attempt.Cursor,
                     PaperFillDetailSettings fill => fill.Cursor,
+                    PaperHistoryGetSettings history => history.Cursor,
+                    WalletAccountingGetSettings accounting => accounting.Cursor,
                     PageSettings page => page.Cursor,
                     _ => null
                 }), cancellationToken);
@@ -315,4 +400,39 @@ public sealed class PaperFillGetCommand(IApiClientFactory factory) : JournalComm
 public sealed class PaperFillCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperFillCorrectionSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.PaperFillCorrect;
+}
+
+public sealed class PaperHistoryCreateCommand(IApiClientFactory factory) : JournalCommand<PaperHistoryCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryCreate;
+}
+
+public sealed class PaperHistoryListCommand(IApiClientFactory factory) : JournalCommand<WalletInstrumentPageSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryList;
+}
+
+public sealed class PaperHistoryGetCommand(IApiClientFactory factory) : JournalCommand<PaperHistoryGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryGet;
+}
+
+public sealed class PaperHistoryCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperHistoryCorrectionSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryCorrect;
+}
+
+public sealed class WalletAccountingCreateCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletAccountingCreate;
+}
+
+public sealed class WalletAccountingListCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletAccountingList;
+}
+
+public sealed class WalletAccountingGetCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletAccountingGet;
 }

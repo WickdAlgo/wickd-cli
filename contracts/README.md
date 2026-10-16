@@ -21,3 +21,8 @@ Setup dispositions, note requests, setup detail and list artifacts are synchroni
 from lifecycle checkpoint `3b9fa78`. List `snapshotCursor` is required; response
 note `supersedesId` is optional to retain compatibility with earlier v2 receipts.
 The CLI forwards frozen detail cursors and never reconstructs setup history.
+
+Shared-history snapshot and coverage schemas/samples are synchronized from API
+candidate `4598d904c03871edd6d5de58ee2904ee1db1961d`. The CLI validates exact
+public wire artifacts and preserves decimal strings; source entitlement remains
+an API decision. See `docs/market-history.md` for command and refusal behavior.

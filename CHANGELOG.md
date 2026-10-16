@@ -11,6 +11,10 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add authenticated `history snapshot get` and `history series coverage` reads,
+  exact generated contract validation and safe explicit 404/503 errors. No local
+  market acquisition or financial calculations. Refs #19.
+
 - Add setup skip/missed/cancel and append/revise note commands with exact JSON
   requests, explicit keys and ETags. Support frozen detail cursors and required
   setup list snapshot metadata while retaining legacy note compatibility.

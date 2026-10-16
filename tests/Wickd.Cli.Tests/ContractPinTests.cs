@@ -34,6 +34,13 @@ public sealed class ContractPinTests
         "paper-fill-correction-request.v2.schema.json",
         "paper-fill.v2.schema.json",
         "paper-fill-list.v2.schema.json",
+        "paper-history-create-request.v2.schema.json",
+        "paper-history-correction-request.v2.schema.json",
+        "paper-history.v2.schema.json",
+        "paper-history-list.v2.schema.json",
+        "wallet-accounting-create-request.v2.schema.json",
+        "wallet-accounting.v2.schema.json",
+        "wallet-accounting-list.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -136,6 +143,27 @@ public sealed class ContractPinTests
     [InlineData("samples/paper-fill.v2.sample.json", "a225cc62a14ab97ac40389fdfc4f824853d7564006dea47dc1a273c818b5e466")]
     [InlineData("samples/paper-fill-list.v2.sample.json", "882d38a8164effb6c4f3afd080fc668ad170336ee2665213cba416d0aded62eb")]
     public void PaperFillArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
+            .Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("paper-history-create-request.v2.schema.json", "9c9a65163f3a684053cfe33a97fa4370de316867690aa60c0c5f050b1f467265")]
+    [InlineData("paper-history-correction-request.v2.schema.json", "9425a195f9a808116cbd295e6fd69bc2654cf5f2d2670f5cf380d0249f7ad8db")]
+    [InlineData("paper-history.v2.schema.json", "b8d65b41eb6e7bfddc5f0aca1c0e0ead20648c0ff473c1ab6ff9dced26dd2527")]
+    [InlineData("paper-history-list.v2.schema.json", "a5487b0bef616c62fa23d44c8b79995f25c570a6f69debb9e705d5b43f0c7920")]
+    [InlineData("wallet-accounting-create-request.v2.schema.json", "b5dc5f14f2cd12fdc7a3839c983eae71b895982ebdf723eb8c5f68791dd8b2b3")]
+    [InlineData("wallet-accounting.v2.schema.json", "932de88746e262aecfcc2c42397bead18cd80ff3abf2092febe260b67bea3450")]
+    [InlineData("wallet-accounting-list.v2.schema.json", "5c6f5d265d815a8beb1ee5956a2b4421d18bfe6d4c3bd48163b03ad0fa5ef61b")]
+    [InlineData("samples/paper-history-create-request.v2.sample.json", "6699eaa04352b454353c2e77f6624592cbceac7c7ff7327e30fd2a5c104974e9")]
+    [InlineData("samples/paper-history-correction-request.v2.sample.json", "806694b4d9ff4b101e59d5d567fd669b6f15d96596a766adc2ac0d8cc8141f5e")]
+    [InlineData("samples/paper-history.v2.sample.json", "1f5c113f11ca9ab21ff25a1b0ca1bcf706b1ac5bb1275cf17d8704febfdea243")]
+    [InlineData("samples/paper-history-list.v2.sample.json", "e148be9617219a56ca803cdfb3937c5c57481c5e8dbbad4fabeeb408a09ee47c")]
+    [InlineData("samples/wallet-accounting-create-request.v2.sample.json", "4a4989afbb1df8ea906d9eafbaac7388a59d844db97efea2b5b32a908407c7f6")]
+    [InlineData("samples/wallet-accounting.v2.sample.json", "bce21aa786a090cce3269921cefd914b54c7b3dbf0a05916a20f29b8cb26dd21")]
+    [InlineData("samples/wallet-accounting-list.v2.sample.json", "9d4b6c243e999278503f80786cf85955e7b061412fc5dd031c8986913dbcf90c")]
+    public void PaperHistoryAndWalletAccountingArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
             .Should().Be(expected);

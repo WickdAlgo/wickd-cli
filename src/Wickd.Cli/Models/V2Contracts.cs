@@ -13,12 +13,14 @@ public enum V2Operation
     RiskPreview, SetupAccept, SetupList, SetupGet, SetupAmend,
     SetupSkip, SetupMissed, SetupCancel, SetupNoteAppend, SetupNoteRevise,
     SetupAttemptCreate, SetupAttemptList, SetupAttemptGet,
-    PaperFillCreate, PaperFillList, PaperFillGet, PaperFillCorrect
+    PaperFillCreate, PaperFillList, PaperFillGet, PaperFillCorrect,
+    PaperHistoryCreate, PaperHistoryList, PaperHistoryGet, PaperHistoryCorrect,
+    WalletAccountingCreate, WalletAccountingList, WalletAccountingGet
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,
     string? IdempotencyKey = null, string? IfMatch = null, int Limit = 50, string? Cursor = null,
-    string? SubId = null);
+    string? SubId = null, string? InstrumentId = null);
 
 /// <summary>Exact server payload plus HTTP concurrency metadata. No financial parsing or calculation.</summary>
 public sealed record V2Response(int Status, string? ETag, string? Location, JsonElement Body);

@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-cost-list.v2.schema.json",
+  "title": "PaperCostListEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "paper-cost-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PaperCost"
+      }
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "streamRevision": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "nextCursor",
+    "publicationWatermark",
+    "snapshotCursor",
+    "streamRevision"
+  ],
+  "$defs": {
+    "PaperCost": {
+      "type": "object",
+      "properties": {
+        "costId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "economicEventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "commission",
+            "funding",
+            "rebate",
+            "borrowInterest",
+            "liquidation",
+            "other"
+          ]
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "occurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "rootCostId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "replacesCostId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "correctionReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replacedByCostId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reversalEconomicEventId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "userDeclaredPaperCost"
+          ]
+        },
+        "ledgerPolicyVersion": {
+          "type": "string",
+          "const": "paper-wallet-cost-ledger-v1"
+        },
+        "costCoverage": {
+          "type": "string",
+          "const": "unknown"
+        }
+      },
+      "required": [
+        "costId",
+        "walletId",
+        "economicEventId",
+        "kind",
+        "assetId",
+        "amount",
+        "occurredAtUtc",
+        "knownAtUtc",
+        "publicationSequence",
+        "rootCostId",
+        "revision",
+        "replacesCostId",
+        "correctionReason",
+        "reason",
+        "recordedByUserId",
+        "replacedByCostId",
+        "reversalEconomicEventId",
+        "source",
+        "ledgerPolicyVersion",
+        "costCoverage"
+      ]
+    }
+  }
+}

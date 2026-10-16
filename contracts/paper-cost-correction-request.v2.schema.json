@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-cost-correction-request.v2.schema.json",
+  "title": "PaperCostCorrectionRequest",
+  "type": "object",
+  "properties": {
+    "replacement": {
+      "$ref": "#/$defs/PaperCostCreateRequest"
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "replacement",
+    "reason"
+  ],
+  "$defs": {
+    "PaperCostCreateRequest": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "commission",
+            "funding",
+            "rebate",
+            "borrowInterest",
+            "liquidation",
+            "other"
+          ]
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "occurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "kind",
+        "assetId",
+        "amount",
+        "occurredAtUtc",
+        "reason"
+      ]
+    }
+  }
+}

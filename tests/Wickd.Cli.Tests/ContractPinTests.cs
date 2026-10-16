@@ -44,6 +44,10 @@ public sealed class ContractPinTests
         "paper-allocation-request.v2.schema.json",
         "paper-allocation.v2.schema.json",
         "paper-allocation-list.v2.schema.json",
+        "paper-cost-create-request.v2.schema.json",
+        "paper-cost-correction-request.v2.schema.json",
+        "paper-cost.v2.schema.json",
+        "paper-cost-list.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -180,6 +184,21 @@ public sealed class ContractPinTests
     [InlineData("samples/paper-allocation.v2.sample.json", "ee6a587f8f929cb67b4e2a447a8140ef1dc5857fca47b0b2ca1ea5f2be351b8a")]
     [InlineData("samples/paper-allocation-list.v2.sample.json", "48cca7dab0f93a390464d1dca0580d9694ec6e437c437317ebf71a48fe47da37")]
     public void PaperAllocationArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
+            .Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("paper-cost-create-request.v2.schema.json", "413dfd211069c7bba7ed81171c20e038732fb504a87e35b525d1eae2f66bce90")]
+    [InlineData("paper-cost-correction-request.v2.schema.json", "53ef0583432a808492341b2783822857b4145b69dff8c42e340bd42ac2e795fb")]
+    [InlineData("paper-cost.v2.schema.json", "7a71cd767b177da7aac43e4cc1eb2cac196d0abcae0f0814813ef7aa35238b66")]
+    [InlineData("paper-cost-list.v2.schema.json", "37e96fb83181c3b8a5b4d648f868d1dd7127729f0136a1bb791f8700bb2cd912")]
+    [InlineData("samples/paper-cost-create-request.v2.sample.json", "610ecc2a5d0f28f3f5854ae93b0eaf688b86be81c71c50f8e3522de2b4d1e3f1")]
+    [InlineData("samples/paper-cost-correction-request.v2.sample.json", "347adcceb7e96996db7695b50fa44159e2ccc849ae0d36e559fe17c46ef81d05")]
+    [InlineData("samples/paper-cost.v2.sample.json", "32f96e311c72b1110b4359276d59c3f920d0a578a41c2396ad066634f3e0c3ed")]
+    [InlineData("samples/paper-cost-list.v2.sample.json", "3ea88be15ab5bc22c2e9757ff85a79736c2b5143560b1ae3519ff68784cb209d")]
+    public void PaperCostArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
             .Should().Be(expected);

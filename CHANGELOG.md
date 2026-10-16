@@ -19,6 +19,12 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
   requests, explicit keys and ETags. Support frozen detail cursors and required
   setup list snapshot metadata while retaining legacy note compatibility.
 
+- Add native setup attempt create/list/get commands for one setup. Validate the
+  canonical paper/backtest request and response contracts, require the current
+  setup ETag and stable idempotency key for creation, and support frozen reads.
+  These commands record attempt identity only; fills and wallet economics remain
+  server-owned follow-on work. Refs #21.
+
 - Add authenticated catalog, wallet, risk preview and accepted setup commands
   with generated-schema JSON validation, explicit idempotency keys, amendment
   ETags, exact decimal transport and retained cursor/HTTP metadata.

@@ -34,6 +34,25 @@ public sealed class SetupDetailSettings : IdentitySettings
     public string? Cursor { get; init; }
 }
 
+public sealed class SetupAttemptListSettings : PageSettings
+{
+    [CommandArgument(0, "<SETUP_ID>")]
+    public string SetupId { get; init; } = string.Empty;
+}
+
+public sealed class SetupAttemptDetailSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<SETUP_ID>")]
+    public string SetupId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ATTEMPT_ID>")]
+    public string AttemptId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from setup list or setup attempts list; reconstruct detail at that frozen publication.")]
+    public string? Cursor { get; init; }
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -49,6 +68,16 @@ public sealed class AmendSettings : WriteSettings
 {
     [CommandArgument(0, "<ID>")]
     public string Id { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Exact quoted strong ETag from setup get or the preceding write.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class SetupAttemptCreateSettings : WriteSettings
+{
+    [CommandArgument(0, "<SETUP_ID>")]
+    public string SetupId { get; init; } = string.Empty;
 
     [CommandOption("--if-match <ETAG>")]
     [Description("Exact quoted strong ETag from setup get or the preceding write.")]
@@ -72,10 +101,29 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                 request = await File.ReadAllBytesAsync(write.RequestPath, cancellationToken);
             }
             var response = await factory.CreateClient(settings).SendV2Async(new V2Call(Operation,
-                Id: settings is AmendSettings amend ? amend.Id : (settings as IdentitySettings)?.Id,
+                Id: settings switch
+                {
+                    AmendSettings amend => amend.Id,
+                    SetupAttemptCreateSettings attempt => attempt.SetupId,
+                    SetupAttemptListSettings attempt => attempt.SetupId,
+                    SetupAttemptDetailSettings attempt => attempt.SetupId,
+                    _ => (settings as IdentitySettings)?.Id
+                },
+                SubId: (settings as SetupAttemptDetailSettings)?.AttemptId,
                 Request: request, IdempotencyKey: (settings as WriteSettings)?.IdempotencyKey,
-                IfMatch: (settings as AmendSettings)?.IfMatch, Limit: (settings as PageSettings)?.Limit ?? 50,
-                Cursor: (settings as PageSettings)?.Cursor ?? (settings as SetupDetailSettings)?.Cursor), cancellationToken);
+                IfMatch: settings switch
+                {
+                    AmendSettings amend => amend.IfMatch,
+                    SetupAttemptCreateSettings attempt => attempt.IfMatch,
+                    _ => null
+                }, Limit: (settings as PageSettings)?.Limit ?? 50,
+                Cursor: settings switch
+                {
+                    SetupDetailSettings detail => detail.Cursor,
+                    SetupAttemptDetailSettings attempt => attempt.Cursor,
+                    PageSettings page => page.Cursor,
+                    _ => null
+                }), cancellationToken);
             // Write machine-readable JSON directly; Spectre rendering wraps strings to terminal width.
             await AnsiConsole.Console.Profile.Out.Writer.WriteLineAsync(
                 JsonSerializer.Serialize(response, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
@@ -182,4 +230,19 @@ public sealed class SetupNoteAppendCommand(IApiClientFactory factory) : JournalC
 public sealed class SetupNoteReviseCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.SetupNoteRevise;
+}
+
+public sealed class SetupAttemptCreateCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAttemptCreate;
+}
+
+public sealed class SetupAttemptListCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAttemptList;
+}
+
+public sealed class SetupAttemptGetCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptDetailSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAttemptGet;
 }

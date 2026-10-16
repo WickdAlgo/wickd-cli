@@ -72,8 +72,10 @@ public sealed partial class WickdApiClient
         if (requestContract is not null)
         {
             HeaderToken(call.IdempotencyKey, "Idempotency-Key", 200);
-            if (call.Request is null || call.Request.Length is 0 or > 1_048_576)
-                throw new ArgumentException("A JSON request of at most 1 MiB is required.");
+            var maximumRequestBytes = call.Operation == V2Operation.PaperAllocationAssign ? 2_097_152 : 1_048_576;
+            if (call.Request is null || call.Request.Length is 0 || call.Request.Length > maximumRequestBytes)
+                throw new ArgumentException(call.Operation == V2Operation.PaperAllocationAssign
+                    ? "A JSON request of at most 2 MiB is required." : "A JSON request of at most 1 MiB is required.");
             var requestBody = V2Contracts.Validate(call.Request, requestContract);
             RequireLifecycleIntent(call.Operation, requestBody);
             request.Headers.Add("Idempotency-Key", call.IdempotencyKey);

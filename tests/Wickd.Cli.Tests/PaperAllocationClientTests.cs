@@ -190,6 +190,38 @@ public sealed class PaperAllocationClientTests
     }
 
     [Fact]
+    public async Task AssignmentCommandAcceptsLargeCanonicalRequestsWithinTheTwoMiBLimit()
+    {
+        const int requestLength = 1_500_000;
+        var request = JsonNode.Parse(Sample("paper-allocation-request"))!;
+        var row = request["allocations"]!.AsArray()[0]!.DeepClone();
+        var rows = new JsonArray();
+        for (var index = 0; index < 1_000; index++) rows.Add(row.DeepClone());
+        request["allocations"] = rows;
+        var compact = request.ToJsonString();
+        var paddingLength = requestLength - Encoding.UTF8.GetByteCount(compact);
+        paddingLength.Should().BePositive();
+        var bytes = Encoding.UTF8.GetBytes(compact + new string(' ', paddingLength));
+        bytes.Should().HaveCount(requestLength);
+
+        var file = Path.GetTempFileName();
+        try
+        {
+            await File.WriteAllBytesAsync(file, bytes);
+            var response = JsonNode.Parse(Sample("paper-allocation"))!;
+            response["data"]!["priorRevisionId"] = null;
+            var handler = new Handler(response.ToJsonString(), HttpStatusCode.Created);
+            var result = await RunCommand(handler, ["wallet", "allocations", "assign", "wallet-synthetic", "instrument-synthetic",
+                "--request", file, "--if-match", "\"current\"", "--idempotency-key", "large-allocation"]);
+
+            result.Exit.Should().Be(0, result.Output);
+            handler.Request.Should().Equal(bytes);
+            handler.Request.Should().HaveCount(1_500_000);
+        }
+        finally { File.Delete(file); }
+    }
+
+    [Fact]
     public async Task AllocationHelpExposesOnlyTheThreeScopedCommands()
     {
         var help = await RunCommand(new Handler(Encoding.UTF8.GetString(Sample("paper-allocation-list"))),

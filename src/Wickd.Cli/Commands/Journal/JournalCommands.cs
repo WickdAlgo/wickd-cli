@@ -222,7 +222,10 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
             if (settings is WriteSettings write)
             {
                 if (string.IsNullOrWhiteSpace(write.RequestPath)) throw new ArgumentException("--request is required.");
-                if (new FileInfo(write.RequestPath).Length > 1_048_576) throw new ArgumentException("Request file exceeds 1 MiB.");
+                var maximumRequestBytes = settings is PaperAllocationAssignSettings ? 2_097_152 : 1_048_576;
+                if (new FileInfo(write.RequestPath).Length > maximumRequestBytes)
+                    throw new ArgumentException(settings is PaperAllocationAssignSettings
+                        ? "Request file exceeds 2 MiB." : "Request file exceeds 1 MiB.");
                 request = await File.ReadAllBytesAsync(write.RequestPath, cancellationToken);
             }
             var response = await factory.CreateClient(settings).SendV2Async(new V2Call(Operation,

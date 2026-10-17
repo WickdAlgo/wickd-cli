@@ -106,6 +106,15 @@ public sealed class StrategyContextClientTests
     }
 
     [Fact]
+    public async Task ContextScopeGetForwardsFrozenSnapshotCursor()
+    {
+        var handler = new Handler(Text(Sample("strategy-context-scope")));
+        await Client(handler).SendV2Async(new(V2Operation.StrategyContextScopeGet,
+            Id: "strategy-version-synthetic", Cursor: "context-snapshot+/=&?"));
+        handler.Path.Should().Be("/api/v2/strategy-versions/strategy-version-synthetic/context-scope?cursor=context-snapshot%2B%2F%3D%26%3F");
+    }
+
+    [Fact]
     public async Task SetupContextReadBindsFrozenCursorAndBothFilters()
     {
         var view = Sample("setup-context-view");
@@ -165,6 +174,19 @@ public sealed class StrategyContextClientTests
         await FluentActions.Awaiting(() => Client(handler).SendV2Async(
             new(V2Operation.SessionDefinitionVersionList, Limit: 201))).Should().ThrowAsync<ArgumentException>();
         handler.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task ContextReadsRequireUserSessionAndWorkspaceBeforeNetwork()
+    {
+        var handler = new Handler(Text(Sample("session-definition-page")));
+        var call = new V2Call(V2Operation.SessionDefinitionVersionList);
+
+        await FluentActions.Awaiting(() => Client(handler, session: null).SendV2Async(call))
+            .Should().ThrowAsync<InvalidOperationException>();
+        await FluentActions.Awaiting(() => Client(handler, workspace: null).SendV2Async(call))
+            .Should().ThrowAsync<InvalidOperationException>();
+        handler.Count.Should().Be(0);
     }
 
     [Fact]
@@ -269,15 +291,29 @@ public sealed class StrategyContextClientTests
     public async Task ContextWritesEnforceSchemaAndStrict64KiBLimitBeforeNetwork()
     {
         var handler = new Handler(Text(Sample("market-condition-revision")));
-        var oversized = new byte[65_537];
+        static byte[] RequestOfLength(int length)
+        {
+            const string emptyRequest = "{\"label\":\"\",\"archived\":false}";
+            var request = "{\"label\":\"" + new string('x', length - Encoding.UTF8.GetByteCount(emptyRequest)) + "\",\"archived\":false}";
+            return Encoding.UTF8.GetBytes(request);
+        }
+
+        var maximumSize = RequestOfLength(65_536);
+        maximumSize.Length.Should().Be(65_536);
+        await Client(handler).SendV2Async(new(V2Operation.MarketConditionCreate,
+            Request: maximumSize, IdempotencyKey: "maximum-context-request"));
+        handler.Count.Should().Be(1);
+
+        var oversized = RequestOfLength(65_537);
+        oversized.Length.Should().Be(65_537);
         await FluentActions.Awaiting(() => Client(handler).SendV2Async(new(V2Operation.MarketConditionCreate,
-                Request: oversized, IdempotencyKey: "key")))
+                Request: oversized, IdempotencyKey: "oversized-context-request")))
             .Should().ThrowAsync<ArgumentException>();
         var malformed = Encoding.UTF8.GetBytes("{\"label\":\"x\",\"archived\":true}");
         await FluentActions.Awaiting(() => Client(handler).SendV2Async(new(V2Operation.SessionDefinitionCreate,
                 Request: malformed, IdempotencyKey: "key")))
             .Should().ThrowAsync<ArgumentException>();
-        handler.Count.Should().Be(0);
+        handler.Count.Should().Be(1);
     }
 
     [Theory]

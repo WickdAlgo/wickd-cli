@@ -21,8 +21,8 @@ public class CommandRegistrationTests
         help.ExitCode.Should().Be(0);
         CommandNames(help.Output).Should().Contain("run");
         CommandNames(help.Output).Should().NotContain("backtest");
+        CommandNames(help.Output).Should().Contain("strategy");
         help.Output.Should().Contain("structure engine");
-        help.Output.Should().NotContain("strategy");
     }
 
     [Fact]

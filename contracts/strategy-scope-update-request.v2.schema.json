@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-scope-update-request.v2.schema.json",
+  "title": "StrategyScopeUpdateRequest",
+  "type": "object",
+  "properties": {
+    "instruments": {
+      "$ref": "#/$defs/StrategyScopeAxis"
+    },
+    "timeframes": {
+      "$ref": "#/$defs/StrategyScopeAxis"
+    }
+  },
+  "required": [
+    "instruments",
+    "timeframes"
+  ],
+  "$defs": {
+    "StrategyScopeAxis": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": [
+            "unclassified",
+            "unrestricted",
+            "selected"
+          ]
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "classification",
+        "ids"
+      ]
+    }
+  }
+}

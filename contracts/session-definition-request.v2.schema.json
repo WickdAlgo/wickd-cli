@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/session-definition-request.v2.schema.json",
+  "title": "SessionDefinitionRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1
+    },
+    "weeklySchedule": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SessionWeeklyWindow"
+      },
+      "minItems": 1,
+      "maxItems": 64
+    },
+    "holidayCalendarId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "holidayCalendarVersion": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    }
+  },
+  "required": [
+    "name",
+    "timezone",
+    "weeklySchedule",
+    "holidayCalendarId",
+    "holidayCalendarVersion"
+  ],
+  "$defs": {
+    "SessionWeeklyWindow": {
+      "type": "object",
+      "properties": {
+        "isoWeekday": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "startMinute": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1439
+        },
+        "endMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440
+        }
+      },
+      "required": [
+        "isoWeekday",
+        "startMinute",
+        "endMinute"
+      ]
+    }
+  }
+}

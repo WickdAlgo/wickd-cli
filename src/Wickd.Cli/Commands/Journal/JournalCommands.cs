@@ -213,6 +213,44 @@ public sealed class PaperCostCorrectionSettings : PaperCostWriteSettings
     public string IfMatch { get; init; } = string.Empty;
 }
 
+public class CostAttributionPageSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ROOT_COST_ID>")]
+    public string RootCostId { get; init; } = string.Empty;
+}
+
+public sealed class CostAttributionGetSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ROOT_COST_ID>")]
+    public string RootCostId { get; init; } = string.Empty;
+
+    [CommandArgument(2, "<REVISION_ID>")]
+    public string RevisionId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this root cost's attribution list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class CostAttributionAssignSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ROOT_COST_ID>")]
+    public string RootCostId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this root cost's attribution list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
 public class WriteSettings : GlobalCommandSettings
 {
     [CommandOption("--request <PATH>")]
@@ -257,9 +295,9 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
             if (settings is WriteSettings write)
             {
                 if (string.IsNullOrWhiteSpace(write.RequestPath)) throw new ArgumentException("--request is required.");
-                var maximumRequestBytes = settings is PaperAllocationAssignSettings ? 2_097_152 : 1_048_576;
+                var maximumRequestBytes = settings is PaperAllocationAssignSettings or CostAttributionAssignSettings ? 2_097_152 : 1_048_576;
                 if (new FileInfo(write.RequestPath).Length > maximumRequestBytes)
-                    throw new ArgumentException(settings is PaperAllocationAssignSettings
+                    throw new ArgumentException(settings is PaperAllocationAssignSettings or CostAttributionAssignSettings
                         ? "Request file exceeds 2 MiB." : "Request file exceeds 1 MiB.");
                 request = await File.ReadAllBytesAsync(write.RequestPath, cancellationToken);
             }
@@ -274,6 +312,9 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperFillListSettings fill => fill.WalletId,
                     PaperFillDetailSettings fill => fill.WalletId,
                     PaperFillCorrectionSettings fill => fill.WalletId,
+                    CostAttributionPageSettings cost => cost.WalletId,
+                    CostAttributionGetSettings cost => cost.WalletId,
+                    CostAttributionAssignSettings cost => cost.WalletId,
                     PaperCostListSettings cost => cost.WalletId,
                     PaperCostGetSettings cost => cost.WalletId,
                     PaperCostWriteSettings cost => cost.WalletId,
@@ -291,8 +332,16 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryCorrectionSettings history => history.AttestationId,
                     WalletAccountingGetSettings accounting => accounting.ReceiptId,
                     PaperAllocationGetSettings allocation => allocation.RevisionId,
+                    CostAttributionGetSettings cost => cost.RevisionId,
                     PaperCostGetSettings cost => cost.CostId,
                     PaperCostCorrectionSettings cost => cost.CostId,
+                    _ => null
+                },
+                RootCostId: settings switch
+                {
+                    CostAttributionPageSettings cost => cost.RootCostId,
+                    CostAttributionGetSettings cost => cost.RootCostId,
+                    CostAttributionAssignSettings cost => cost.RootCostId,
                     _ => null
                 },
                 InstrumentId: settings switch
@@ -311,6 +360,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryCreateSettings history => history.IfMatch,
                     PaperHistoryCorrectionSettings history => history.IfMatch,
                     PaperAllocationAssignSettings allocation => allocation.IfMatch,
+                    CostAttributionAssignSettings cost => cost.IfMatch,
                     PaperCostCorrectionSettings cost => cost.IfMatch,
                     _ => null
                 }, Limit: (settings as PageSettings)?.Limit ?? 50,
@@ -322,6 +372,7 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperHistoryGetSettings history => history.Cursor,
                     WalletAccountingGetSettings accounting => accounting.Cursor,
                     PaperAllocationGetSettings allocation => allocation.Cursor,
+                    CostAttributionGetSettings cost => cost.Cursor,
                     PaperCostGetSettings cost => cost.Cursor,
                     PageSettings page => page.Cursor,
                     _ => null
@@ -537,4 +588,19 @@ public sealed class PaperCostGetCommand(IApiClientFactory factory) : JournalComm
 public sealed class PaperCostCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperCostCorrectionSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.PaperCostCorrect;
+}
+
+public sealed class CostAttributionListCommand(IApiClientFactory factory) : JournalCommand<CostAttributionPageSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CostAttributionList;
+}
+
+public sealed class CostAttributionGetCommand(IApiClientFactory factory) : JournalCommand<CostAttributionGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CostAttributionGet;
+}
+
+public sealed class CostAttributionAssignCommand(IApiClientFactory factory) : JournalCommand<CostAttributionAssignSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CostAttributionAssign;
 }

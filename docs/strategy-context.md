@@ -41,9 +41,10 @@ versions/revisions. Strategy scope history returns the cursor for a frozen
 publication; pass its `nextCursor` to the corresponding scope `get` command to
 read that frozen version. Updates apply to drafts. Setup context reads accept
 either or both filters and can use a frozen cursor. Setup context history returns append-only
-observations. Session-version and condition-revision writes return the ETag
-needed for the next version/revision write; their catalog reads do not expose a
-concurrency ETag. Session/condition IDs and cursors are opaque API values; pass
+observations. Session-version and condition-revision writes, and their record
+`get` commands, return the immutable record's ETag. A historical record's ETag
+remains historical; the API rejects it for a new write after a newer version or
+revision exists. Session/condition IDs and cursors are opaque API values; pass
 them back unchanged. Context request files are limited to 64 KiB and validated
 against the vendored API-generated schemas.
 

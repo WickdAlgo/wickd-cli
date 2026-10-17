@@ -190,6 +190,17 @@ public sealed class StrategyContextClientTests
     }
 
     [Fact]
+    public async Task ContextReadsRejectMalformedCanonicalResponses()
+    {
+        var handler = new Handler("{}");
+        var error = await FluentActions.Awaiting(() => Client(handler).SendV2Async(
+                new(V2Operation.SessionDefinitionVersionList)))
+            .Should().ThrowAsync<InvalidOperationException>();
+        error.Which.Message.Should().StartWith("Unsupported or malformed strategy-context API response:");
+        handler.Count.Should().Be(1);
+    }
+
+    [Fact]
     public async Task SetupObservationAppendUsesIndependentEtagAndExactRequest()
     {
         var observation = Sample("setup-context-observation");

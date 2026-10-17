@@ -284,3 +284,25 @@ command also checks the attempt ID. List `nextCursor` advances pagination, while
 accepts either a setup-list or attempt-list snapshot cursor so both detail panels
 can share one historical boundary. Creating an attempt records its identity and accepted preview; it does not create fills,
 place orders or change setup status. Existing v1 executions remain separate.
+
+## Paper cost attribution
+
+```
+wickd wallet cost-attributions list WALLET_ID ROOT_COST_ID [--limit 50] [--cursor CURSOR]
+wickd wallet cost-attributions get WALLET_ID ROOT_COST_ID REVISION_ID [--cursor CURSOR]
+wickd wallet cost-attributions assign WALLET_ID ROOT_COST_ID --request attribution.json --idempotency-key KEY --if-match '"ETAG"'
+```
+
+The root cost identity remains stable across cost corrections. The request names
+its current `costId`, nullable `priorRevisionId`, required `reason`, and the full
+replacement `allocations` view (`setupId`, `attemptId`, exact signed `amount`).
+Use the strong resource ETag from the root cost's attribution list or read.
+Keep request bytes and key unchanged for retries. Requests may be at most 2 MiB
+and contain at most 2,000 allocation rows. An empty allocation view explicitly
+removes attribution; an empty revision list means no attribution has been recorded.
+
+Lists and detail support frozen cursors. The CLI preserves server source and
+unassigned amounts, nulls, completeness, reconciliation and withholding reasons
+without financial calculations. Unknown source amounts differ from known zero.
+A source cost correction can require reconciliation; assigning cost ownership
+does not repost wallet ledger entries or establish full cost coverage.

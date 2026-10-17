@@ -11,6 +11,12 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add root-scoped paper cost attribution list/get/assign commands, exact request
+  retries, strong resource ETags and frozen reads. Preserve server amounts and
+  reconciliation evidence without financial calculations. Validate exact .NET
+  decimal coefficients for manual costs and attribution amounts without rounding.
+  Refs #31.
+
 - Add wallet-scoped paper cost create/list/get/correct commands with exact
   generated contract validation, idempotent request forwarding, correction
   ETags and frozen reads. Preserve signed decimal strings and nullable unknown

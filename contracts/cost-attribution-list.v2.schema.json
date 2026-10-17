@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/cost-attribution-list.v2.schema.json",
+  "title": "CostAttributionListEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "cost-attribution-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CostAttributionRevision"
+      }
+    },
+    "eTag": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "eTag",
+    "nextCursor",
+    "publicationWatermark",
+    "snapshotCursor"
+  ],
+  "$defs": {
+    "CostAttributionInput": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attemptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "setupId",
+        "attemptId",
+        "amount"
+      ]
+    },
+    "CostAttributionRevision": {
+      "type": "object",
+      "properties": {
+        "revisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rootCostId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "costId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priorRevisionId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policyVersion": {
+          "type": "string",
+          "const": "manual-paper-cost-attribution-v1"
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "needsReconciliation": {
+          "type": "boolean"
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceAmount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "unassignedAmount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "unassignedWithheldReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "amountAttributionComplete": {
+          "type": "boolean"
+        },
+        "allocations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CostAttributionInput"
+          }
+        }
+      },
+      "required": [
+        "revisionId",
+        "walletId",
+        "rootCostId",
+        "costId",
+        "priorRevisionId",
+        "reason",
+        "policyVersion",
+        "recordedByUserId",
+        "knownAtUtc",
+        "publicationSequence",
+        "needsReconciliation",
+        "assetId",
+        "sourceAmount",
+        "unassignedAmount",
+        "unassignedWithheldReason",
+        "amountAttributionComplete",
+        "allocations"
+      ]
+    }
+  }
+}

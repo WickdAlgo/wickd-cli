@@ -11,6 +11,11 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add wallet-scoped paper cost create/list/get/correct commands with exact
+  generated contract validation, idempotent request forwarding, correction
+  ETags and frozen reads. Preserve signed decimal strings and nullable unknown
+  amounts; cost coverage remains API-owned and unknown. Refs #29.
+
 - Add native paper wallet fill create/list/get/correct commands, validated against
   the API's generated contracts. Preserve exact request bytes, require explicit
   keys and a strong correction ETag, and retain workspace snapshot cursors. Fill

@@ -30,6 +30,11 @@ See [wallet/setup commands](wallet-setups.md) and the
 [v0.1.0 candidate contract](releases/v0.1.0.md). Wallet balance currently exposes
 an opening-basis receipt; it does not imply a live wallet projection.
 
+Human session, condition, strategy-scope and setup-context commands use
+API-generated v2 contracts and exact request forwarding. See
+[strategy context](strategy-context.md). The client does not classify market
+conditions or calculate financial results.
+
 Retained-history commands consume authenticated snapshot/coverage contracts and
 print the API evidence without downloads or financial calculations. See
 [retained history reads](market-history.md). Source rights and missing retained

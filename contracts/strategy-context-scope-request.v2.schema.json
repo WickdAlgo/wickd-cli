@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-context-scope-request.v2.schema.json",
+  "title": "StrategyContextScopeRequest",
+  "type": "object",
+  "properties": {
+    "sessions": {
+      "$ref": "#/$defs/StrategyScopeAxis"
+    },
+    "marketConditions": {
+      "$ref": "#/$defs/StrategyScopeAxis"
+    }
+  },
+  "required": [
+    "sessions",
+    "marketConditions"
+  ],
+  "$defs": {
+    "StrategyScopeAxis": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": [
+            "unclassified",
+            "unrestricted",
+            "selected"
+          ]
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "classification",
+        "ids"
+      ]
+    }
+  }
+}

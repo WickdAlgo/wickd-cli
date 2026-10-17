@@ -32,6 +32,25 @@ public sealed class SetupDetailSettings : IdentitySettings
     [CommandOption("--cursor <CURSOR>")]
     [Description("Opaque snapshotCursor from setup list; reconstruct detail at that frozen publication.")]
     public string? Cursor { get; init; }
+
+    [CommandOption("--session-version <VERSION_ID>")]
+    [Description("Filter setup context to an exact session-definition version.")]
+    public string? SessionDefinitionVersionId { get; init; }
+
+    [CommandOption("--condition-tag <TAG_ID>")]
+    [Description("Filter setup context to a stable market-condition tag identity.")]
+    public string? MarketConditionTagId { get; init; }
+}
+
+public sealed class SetupListSettings : PageSettings
+{
+    [CommandOption("--session-version <VERSION_ID>")]
+    [Description("Filter setups to an exact session-definition version.")]
+    public string? SessionDefinitionVersionId { get; init; }
+
+    [CommandOption("--condition-tag <TAG_ID>")]
+    [Description("Filter setups to a stable market-condition tag identity.")]
+    public string? MarketConditionTagId { get; init; }
 }
 
 public sealed class SetupAttemptListSettings : PageSettings
@@ -376,6 +395,18 @@ public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : Asy
                     PaperCostGetSettings cost => cost.Cursor,
                     PageSettings page => page.Cursor,
                     _ => null
+                },
+                SessionDefinitionVersionId: settings switch
+                {
+                    SetupListSettings setup => setup.SessionDefinitionVersionId,
+                    SetupDetailSettings setup => setup.SessionDefinitionVersionId,
+                    _ => null
+                },
+                MarketConditionTagId: settings switch
+                {
+                    SetupListSettings setup => setup.MarketConditionTagId,
+                    SetupDetailSettings setup => setup.MarketConditionTagId,
+                    _ => null
                 }), cancellationToken);
             // Write machine-readable JSON directly; Spectre rendering wraps strings to terminal width.
             await AnsiConsole.Console.Profile.Out.Writer.WriteLineAsync(
@@ -445,7 +476,7 @@ public sealed class SetupAcceptCommand(IApiClientFactory factory) : JournalComma
     protected override V2Operation Operation => V2Operation.SetupAccept;
 }
 
-public sealed class SetupListCommand(IApiClientFactory factory) : JournalCommand<PageSettings>(factory)
+public sealed class SetupListCommand(IApiClientFactory factory) : JournalCommand<SetupListSettings>(factory)
 {
     protected override V2Operation Operation => V2Operation.SetupList;
 }

@@ -18,7 +18,8 @@ wickd wallet balance wallet-id
 wickd risk preview --request preview.json --idempotency-key preview-unique-key
 wickd setup accept --request accept.json --idempotency-key acceptance-unique-key
 wickd setup list --limit 50
-wickd setup get setup-id
+wickd setup list --session-version session-version-id --condition-tag condition-tag-id
+wickd setup get setup-id --session-version session-version-id --condition-tag condition-tag-id
 wickd setup amend setup-id --request amend.json --idempotency-key amendment-unique-key --if-match '"setup-1"'
 ```
 

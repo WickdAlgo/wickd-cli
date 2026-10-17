@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-context-request.v2.schema.json",
+  "title": "SetupContextRequest",
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "humanReview"
+      ]
+    },
+    "effectiveAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sessionVersionIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "maxItems": 200,
+      "uniqueItems": true
+    },
+    "marketConditionRevisionIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "maxItems": 200,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "source",
+    "effectiveAtUtc",
+    "sessionVersionIds",
+    "marketConditionRevisionIds"
+  ]
+}

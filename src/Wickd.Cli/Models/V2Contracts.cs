@@ -21,12 +21,18 @@ public enum V2Operation
     WalletAccountingCreate, WalletAccountingList, WalletAccountingGet,
     PaperAllocationAssign, PaperAllocationList, PaperAllocationGet,
     PaperCostCreate, PaperCostList, PaperCostGet, PaperCostCorrect,
-    CostAttributionAssign, CostAttributionList, CostAttributionGet
+    CostAttributionAssign, CostAttributionList, CostAttributionGet,
+    SessionDefinitionCreate, SessionDefinitionVersionCreate, SessionDefinitionVersionList, SessionDefinitionVersionGet,
+    MarketConditionCreate, MarketConditionRevisionCreate, MarketConditionRevisionList, MarketConditionRevisionGet,
+    StrategyScopeGet, StrategyScopeUpdate, StrategyScopeList,
+    StrategyContextScopeGet, StrategyContextScopeUpdate,
+    SetupContextObservationCreate, SetupContextObservationList, SetupContextGet
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,
     string? IdempotencyKey = null, string? IfMatch = null, int Limit = 50, string? Cursor = null,
-    string? SubId = null, string? InstrumentId = null, string? RootCostId = null);
+    string? SubId = null, string? InstrumentId = null, string? RootCostId = null,
+    string? SessionDefinitionVersionId = null, string? MarketConditionTagId = null);
 
 /// <summary>Exact server payload plus HTTP concurrency metadata. No financial parsing or calculation.</summary>
 public sealed record V2Response(int Status, string? ETag, string? Location, JsonElement Body);

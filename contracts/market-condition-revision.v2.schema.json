@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/market-condition-revision.v2.schema.json",
+  "title": "MarketConditionRevisionPayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "market-condition-revision"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/MarketConditionRevision"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "MarketConditionRevision": {
+      "type": "object",
+      "properties": {
+        "tagId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revisionNumber": {
+          "type": "integer"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "archived": {
+          "type": "boolean"
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "tagId",
+        "revisionId",
+        "revisionNumber",
+        "label",
+        "archived",
+        "contentHash",
+        "publicationSequence",
+        "knownAtUtc"
+      ]
+    }
+  }
+}

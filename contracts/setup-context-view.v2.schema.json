@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-context-view.v2.schema.json",
+  "title": "SetupContextViewPayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "setup-context-view"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/SetupContextView"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "SetupContextObservation": {
+      "type": "object",
+      "properties": {
+        "observationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "manual",
+            "humanReview"
+          ]
+        },
+        "effectiveAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sessionVersionIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        },
+        "marketConditionRevisionIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "observationId",
+        "setupId",
+        "revision",
+        "source",
+        "effectiveAtUtc",
+        "sessionVersionIds",
+        "marketConditionRevisionIds",
+        "contentHash",
+        "publicationSequence",
+        "knownAtUtc"
+      ]
+    },
+    "SetupContextView": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "observation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SetupContextObservation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        },
+        "snapshotCursor": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "setupId",
+        "provenance",
+        "observation",
+        "publicationWatermark",
+        "snapshotCursor"
+      ]
+    }
+  }
+}

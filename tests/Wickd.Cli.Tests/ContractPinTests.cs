@@ -51,6 +51,21 @@ public sealed class ContractPinTests
         "cost-attribution-list.v2.schema.json",
         "cost-attribution-request.v2.schema.json",
         "cost-attribution.v2.schema.json",
+        "session-definition-page.v2.schema.json",
+        "session-definition-request.v2.schema.json",
+        "session-definition-version.v2.schema.json",
+        "market-condition-page.v2.schema.json",
+        "market-condition-request.v2.schema.json",
+        "market-condition-revision.v2.schema.json",
+        "strategy-scope-update-request.v2.schema.json",
+        "strategy-version-scope.v2.schema.json",
+        "strategy-scope-list-page.v2.schema.json",
+        "strategy-context-scope-request.v2.schema.json",
+        "strategy-context-scope.v2.schema.json",
+        "setup-context-request.v2.schema.json",
+        "setup-context-observation.v2.schema.json",
+        "setup-context-observation-page.v2.schema.json",
+        "setup-context-view.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -204,6 +219,43 @@ public sealed class ContractPinTests
     public void PaperCostArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
+            .Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("contracts/market-condition-page.v2.schema.json", "9de2d09fba187f1ecc1c004ae4b65a506a0931a1515061642897082b622c23fd")]
+    [InlineData("contracts/market-condition-request.v2.schema.json", "f8cf0b87297d4b44bd83763843d16315f714e1b8d30ab797fb46243e4e7e79e9")]
+    [InlineData("contracts/market-condition-revision.v2.schema.json", "c23bc7309975e01899cce9aa0d558dc279ea88ec3925d7541cc7c958fe5994dd")]
+    [InlineData("contracts/session-definition-page.v2.schema.json", "0677d2846c4d5fa8639d5ad1b646674f020cc736188c93198af9ba0924c4faf6")]
+    [InlineData("contracts/session-definition-request.v2.schema.json", "8e8decc0b37b7a47dda62a7195dc939832d4ed48037f593828cc7d7837b89343")]
+    [InlineData("contracts/session-definition-version.v2.schema.json", "02e32afc62ce14d3d8b86f50329d8435ea30f131d23e79173014f8bf8ee48247")]
+    [InlineData("contracts/strategy-context-scope-request.v2.schema.json", "ef827fd9ed380698711eaa7b1f3989bbc7f3876139dce2795ab2228e00c175fa")]
+    [InlineData("contracts/strategy-context-scope.v2.schema.json", "3ce2ee9b9a9e6c056cd4b67615347f5de40d4b8d439feced2a3876a843202955")]
+    [InlineData("contracts/strategy-scope-list-page.v2.schema.json", "f8f3a1588e3a2f5d183c9b632885689f8a0b366b527bffc8c36d3a3636c740ae")]
+    [InlineData("contracts/strategy-scope-update-request.v2.schema.json", "ff6afe8c38fba96cc367d4655945b269786511a3a68fe1df79caf9e9e1e783d7")]
+    [InlineData("contracts/strategy-version-scope.v2.schema.json", "73bda30422b5808d75dee69ba741db60f25d907ea915f640414749e3fa193211")]
+    [InlineData("contracts/setup-context-observation-page.v2.schema.json", "cd803c37cbf821fb41ec6cfa6b28bd2e340e1582034a113c8e88f2866d983529")]
+    [InlineData("contracts/setup-context-observation.v2.schema.json", "499e52b2336048a1a4bd41f0b79d7c1e47953ca79ee292cb5bba1c16854110e2")]
+    [InlineData("contracts/setup-context-request.v2.schema.json", "5f06d5885ac88995030e32c8d240ae993eaa6ebde6220f5c2e4528ee99e91b1b")]
+    [InlineData("contracts/setup-context-view.v2.schema.json", "4f6444decb01eb054e9400e24aed122667c7fbd0e2085f4193920c6c4c97973e")]
+    [InlineData("contracts/samples/market-condition-page.v2.sample.json", "b929d62a5746548fae614fc31cecbbc0a2b78310dd1cd1c251b7336246a623c4")]
+    [InlineData("contracts/samples/market-condition-request.v2.sample.json", "932d84206266c7fe2796b9898196896a972881f34fcf34180439b29289ad34eb")]
+    [InlineData("contracts/samples/market-condition-revision.v2.sample.json", "4b836f46cc1f1c52588544a8c66d341344442acf725b62cf64b2d3823bf7809b")]
+    [InlineData("contracts/samples/session-definition-page.v2.sample.json", "29ead8a51e9ea69de87433005bf552c2eeb954fd0046ddfd5e54dff620fbddbd")]
+    [InlineData("contracts/samples/session-definition-request.v2.sample.json", "a0c154d39207ee3914607624d617f68c46ac4f05ce1a3b379236b623634ae02b")]
+    [InlineData("contracts/samples/session-definition-version.v2.sample.json", "c2da376dcf2f0175e2eee25a033322912cc027add2d880b30044bb37a16be82b")]
+    [InlineData("contracts/samples/strategy-context-scope-request.v2.sample.json", "a2d6246ed2cb8ec24fba0aca6b06a71b02f0d24ac3ffd88d52d53cac6d4bb859")]
+    [InlineData("contracts/samples/strategy-context-scope.v2.sample.json", "24f3d806e6b60385e471be2c7e008984a79073a34c9595a9d378b461e37ccb62")]
+    [InlineData("contracts/samples/strategy-scope-list-page.v2.sample.json", "feda43367b6cde6611106f3654f992b1f3465971c6a1286eb84dccdbd25fb0a7")]
+    [InlineData("contracts/samples/strategy-scope-update-request.v2.sample.json", "ecf941438b9a121f82eb8285c1768661ec2fd3b3ca2b2fc82ae315c750b3887c")]
+    [InlineData("contracts/samples/strategy-version-scope.v2.sample.json", "05778017c57e279f2cdc7bbdba1dffac7c0bda5624d9436912da74d530369abc")]
+    [InlineData("contracts/samples/setup-context-observation-page.v2.sample.json", "3928c8010380773da906c61603e58d008e91e096536a38477f9666f2bf5391bc")]
+    [InlineData("contracts/samples/setup-context-observation.v2.sample.json", "27213d52546982105db67f43b7010a2b94845281c0cf189933db33b39c1c494f")]
+    [InlineData("contracts/samples/setup-context-request.v2.sample.json", "ae38d1787adff2ba65eecc512916e2c17f9387594cc101c5f8229c96c68e52bb")]
+    [InlineData("contracts/samples/setup-context-view.v2.sample.json", "fd07867cd396b655ecf18e10b7b3bf452c1c2afd65144e5e407f132bc984dd36")]
+    public void StrategyContextArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative["contracts/".Length..]))))
             .Should().Be(expected);
     }
 

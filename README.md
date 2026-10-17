@@ -2,6 +2,8 @@
 
 Wallet and setup commands: [request files, retries and ETags](docs/wallet-setups.md).
 
+Human session, condition, strategy scope, and setup context commands: [strategy context](docs/strategy-context.md).
+
 Repository scope, current-versus-target behavior, and documentation routing: [client boundary](docs/client-boundary.md).
 
 [![CI](https://github.com/WickdAlgo/wickd-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/WickdAlgo/wickd-cli/actions/workflows/ci.yml)

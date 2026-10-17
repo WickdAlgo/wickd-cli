@@ -10,6 +10,7 @@ using Wickd.Cli.Commands.Fetch;
 using Wickd.Cli.Commands.Manage;
 using Wickd.Cli.Commands.MarketHistory;
 using Wickd.Cli.Commands.Journal;
+using Wickd.Cli.Commands.StrategyContext;
 using Wickd.Cli.Commands.Strategies;
 using Wickd.Cli.Commands.Trades;
 using Wickd.Cli.Commands.Workspaces;
@@ -125,6 +126,43 @@ public static class Program
                 strategies.SetDescription("Browse the selected workspace strategy book.");
                 strategies.AddCommand<StrategyListCommand>("list").WithDescription("List strategies in the selected workspace.");
                 strategies.AddCommand<StrategyGetCommand>("get").WithDescription("Get a strategy and its metadata.");
+            });
+        });
+
+        config.AddBranch("context", context =>
+        {
+            context.SetDescription("Read and retain human session definitions and market-condition labels.");
+            context.AddBranch("sessions", sessions =>
+            {
+                sessions.SetDescription("Create and inspect immutable session-definition versions.");
+                sessions.AddCommand<SessionDefinitionCreateCommand>("create");
+                sessions.AddCommand<SessionDefinitionVersionCreateCommand>("revise");
+                sessions.AddCommand<SessionDefinitionVersionListCommand>("list");
+                sessions.AddCommand<SessionDefinitionVersionGetCommand>("get");
+            });
+            context.AddBranch("conditions", conditions =>
+            {
+                conditions.SetDescription("Create and inspect immutable market-condition label revisions.");
+                conditions.AddCommand<MarketConditionCreateCommand>("create");
+                conditions.AddCommand<MarketConditionRevisionCreateCommand>("revise");
+                conditions.AddCommand<MarketConditionRevisionListCommand>("list");
+                conditions.AddCommand<MarketConditionRevisionGetCommand>("get");
+            });
+        });
+
+        config.AddBranch("strategy", strategy =>
+        {
+            strategy.SetDescription("Read and update human suitability scopes for strategy versions.");
+            strategy.AddBranch("scope", scope =>
+            {
+                scope.AddCommand<StrategyScopeGetCommand>("get").WithDescription("Read instrument/timeframe scope at current or frozen publication.");
+                scope.AddCommand<StrategyScopeUpdateCommand>("update").WithDescription("Replace instrument/timeframe scope on a draft using its current ETag.");
+                scope.AddCommand<StrategyScopeListCommand>("history").WithDescription("List retained scope versions for a strategy.");
+            });
+            strategy.AddBranch("context", context =>
+            {
+                context.AddCommand<StrategyContextScopeGetCommand>("get").WithDescription("Read session/condition suitability at current or frozen publication.");
+                context.AddCommand<StrategyContextScopeUpdateCommand>("update").WithDescription("Replace contextual suitability on a draft using its shared draft ETag.");
             });
         });
 
@@ -269,6 +307,13 @@ public static class Program
                 attempts.AddCommand<SetupAttemptCreateCommand>("create").WithDescription("Create one attempt from an accepted plan; requires current setup ETag and an explicit idempotency key.");
                 attempts.AddCommand<SetupAttemptListCommand>("list").WithDescription("List attempts for this setup; --cursor pages are scoped to the selected workspace.");
                 attempts.AddCommand<SetupAttemptGetCommand>("get").WithDescription("Read one attempt for this setup, optionally frozen with --cursor from setup list or attempts list snapshotCursor.");
+            });
+            setup.AddBranch("context", context =>
+            {
+                context.SetDescription("Read and append retained human setup context observations.");
+                context.AddCommand<SetupContextGetCommand>("get").WithDescription("Read the latest context at current or frozen publication, optionally filtered by session version and condition tag.");
+                context.AddCommand<SetupContextObservationCreateCommand>("append").WithDescription("Append a complete context observation with its independent context ETag.");
+                context.AddCommand<SetupContextObservationListCommand>("history").WithDescription("List the frozen, append-only context observation history.");
             });
         });
 

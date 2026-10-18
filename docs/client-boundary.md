@@ -30,6 +30,14 @@ See [wallet/setup commands](wallet-setups.md) and the
 [v0.1.0 candidate contract](releases/v0.1.0.md). Wallet balance currently exposes
 an opening-basis receipt; it does not imply a live wallet projection.
 
+Native setup-review commands append and inspect immutable human assessments for
+the exact accepted strategy version. They retain each explicit rule assessment,
+including `unknown`, and distinguish no recorded review from a review that
+records uncertainty. They forward exact request bytes, the independent review
+ETag and review-stream cursors; the CLI does not infer compliance or calculate
+financial results. Legacy trade review commands retain their existing behavior.
+See [wallet/setup commands](wallet-setups.md).
+
 Human session, condition, strategy-scope and setup-context commands use
 API-generated v2 contracts and exact request forwarding. See
 [strategy context](strategy-context.md). The client does not classify market

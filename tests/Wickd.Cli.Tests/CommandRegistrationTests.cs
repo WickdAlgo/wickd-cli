@@ -65,6 +65,15 @@ public class CommandRegistrationTests
     }
 
     [Fact]
+    public async Task SetupReviewCommandsAreRegistered()
+    {
+        var help = await CaptureAsync(app => app.RunAsync(["setup", "review", "--help"]));
+
+        help.ExitCode.Should().Be(0);
+        help.Output.Should().Contain("get").And.Contain("append").And.Contain("revision").And.Contain("history");
+    }
+
+    [Fact]
     public async Task WorkspaceUseVerifiesMembershipBeforeSavingSelection()
     {
         var factory = new FakeApiClientFactory();

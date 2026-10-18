@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-review-page.v2.schema.json",
+  "title": "SetupReviewPagePayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "setup-review-page"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/SetupReviewPage"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "SetupRuleAssessment": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assessment": {
+          "type": "string",
+          "enum": [
+            "followed",
+            "violated",
+            "notApplicable",
+            "unknown"
+          ]
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "ruleId",
+        "assessment",
+        "explanation"
+      ]
+    },
+    "SetupReviewMistake": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "label",
+        "explanation"
+      ]
+    },
+    "SetupReviewRevision": {
+      "type": "object",
+      "properties": {
+        "reviewId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "supersedesReviewId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "assessedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "lessons": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 8000
+        },
+        "ruleAssessments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupRuleAssessment"
+          },
+          "maxItems": 200
+        },
+        "mistakes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupReviewMistake"
+          },
+          "maxItems": 50
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "reviewId",
+        "setupId",
+        "strategyVersionId",
+        "revision",
+        "supersedesReviewId",
+        "assessedAtUtc",
+        "summary",
+        "lessons",
+        "ruleAssessments",
+        "mistakes",
+        "contentHash",
+        "publicationSequence",
+        "knownAtUtc"
+      ]
+    },
+    "SetupReviewPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupReviewRevision"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        },
+        "snapshotCursor": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "publicationWatermark",
+        "snapshotCursor"
+      ]
+    }
+  }
+}

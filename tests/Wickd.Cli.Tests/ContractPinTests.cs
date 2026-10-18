@@ -66,6 +66,10 @@ public sealed class ContractPinTests
         "setup-context-observation.v2.schema.json",
         "setup-context-observation-page.v2.schema.json",
         "setup-context-view.v2.schema.json",
+        "setup-review-page.v2.schema.json",
+        "setup-review-request.v2.schema.json",
+        "setup-review-revision.v2.schema.json",
+        "setup-review-view.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -238,6 +242,10 @@ public sealed class ContractPinTests
     [InlineData("contracts/setup-context-observation.v2.schema.json", "499e52b2336048a1a4bd41f0b79d7c1e47953ca79ee292cb5bba1c16854110e2")]
     [InlineData("contracts/setup-context-request.v2.schema.json", "5f06d5885ac88995030e32c8d240ae993eaa6ebde6220f5c2e4528ee99e91b1b")]
     [InlineData("contracts/setup-context-view.v2.schema.json", "4f6444decb01eb054e9400e24aed122667c7fbd0e2085f4193920c6c4c97973e")]
+    [InlineData("contracts/setup-review-page.v2.schema.json", "efdcb2059c7e0a5c60fe2d73720d90713f61904ef95c41b4ae4ddf8fd7e37f76")]
+    [InlineData("contracts/setup-review-request.v2.schema.json", "fc63005bd3aa5abba3c796279f171c1827b5e336c09cb63fe12964e67265520c")]
+    [InlineData("contracts/setup-review-revision.v2.schema.json", "8d316f52c27937155948a7c1d54a02a85ad56151ad7b41dbf4dacd09fac7b53b")]
+    [InlineData("contracts/setup-review-view.v2.schema.json", "493754e0b85aacca4afaa2900680567df1fb45a64436b4b9130688b4457527d8")]
     [InlineData("contracts/samples/market-condition-page.v2.sample.json", "b929d62a5746548fae614fc31cecbbc0a2b78310dd1cd1c251b7336246a623c4")]
     [InlineData("contracts/samples/market-condition-request.v2.sample.json", "932d84206266c7fe2796b9898196896a972881f34fcf34180439b29289ad34eb")]
     [InlineData("contracts/samples/market-condition-revision.v2.sample.json", "4b836f46cc1f1c52588544a8c66d341344442acf725b62cf64b2d3823bf7809b")]
@@ -253,6 +261,10 @@ public sealed class ContractPinTests
     [InlineData("contracts/samples/setup-context-observation.v2.sample.json", "27213d52546982105db67f43b7010a2b94845281c0cf189933db33b39c1c494f")]
     [InlineData("contracts/samples/setup-context-request.v2.sample.json", "ae38d1787adff2ba65eecc512916e2c17f9387594cc101c5f8229c96c68e52bb")]
     [InlineData("contracts/samples/setup-context-view.v2.sample.json", "fd07867cd396b655ecf18e10b7b3bf452c1c2afd65144e5e407f132bc984dd36")]
+    [InlineData("contracts/samples/setup-review-page.v2.sample.json", "27d9c1b8f843551adf79b0a23edbb2219833bd1cb9330941750280af49b86383")]
+    [InlineData("contracts/samples/setup-review-request.v2.sample.json", "743dfb422ba61fc260fd3b89c5ddb1fea4159308b0c92a5c1ba0c36bb8004929")]
+    [InlineData("contracts/samples/setup-review-revision.v2.sample.json", "b20e44982a41d401c2e4bf66d993d1179c310739529fb33d30b7037bc1c88f97")]
+    [InlineData("contracts/samples/setup-review-view.v2.sample.json", "9553821b99183120463ca7195024cf09435500d67517fae594f86345964a80b0")]
     public void StrategyContextArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative["contracts/".Length..]))))

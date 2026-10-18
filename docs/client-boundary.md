@@ -47,3 +47,8 @@ Retained-history commands consume authenticated snapshot/coverage contracts and
 print the API evidence without downloads or financial calculations. See
 [retained history reads](market-history.md). Source rights and missing retained
 objects remain explicit API decisions.
+
+Strategy illustration commands retain API-declared `humanIllustrative`
+associations with an exact published version and owner-private retained source.
+The client verifies identities and renders the API evidence; it does not run a
+strategy or infer producer matching. See [illustration commands](strategy-examples.md).

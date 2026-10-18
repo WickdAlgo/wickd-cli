@@ -8,6 +8,8 @@ public sealed partial class WickdApiClient
 {
     public async Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default)
     {
+        if (IsStrategyExampleOperation(call.Operation))
+            return await SendStrategyExampleAsync(call, cancellationToken);
         if (IsSetupReviewOperation(call.Operation))
             return await SendSetupReviewAsync(call, cancellationToken);
         if (IsStrategyContextOperation(call.Operation))

@@ -2,6 +2,10 @@ using System.Net;
 using System.Text;
 using System.Text.Json.Nodes;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
+using Wickd.Cli.Commands.Settings;
+using Wickd.Cli.Common;
 using Wickd.Cli.Configuration;
 using Wickd.Cli.Models;
 using Wickd.Cli.Services;
@@ -120,6 +124,43 @@ public sealed class SetupReviewClientTests
         await FluentActions.Awaiting(() => Client(new Handler(page.ToJsonString())).SendV2Async(
             new(V2Operation.SetupReviewHistory, Id: "setup-synthetic")))
             .Should().ThrowAsync<InvalidOperationException>().WithMessage("*different setup*");
+
+        var nested = JsonNode.Parse(Sample("setup-review-view"))!;
+        nested["data"]!["review"]!["setupId"] = "foreign-setup";
+        await FluentActions.Awaiting(() => Client(new Handler(nested.ToJsonString())).SendV2Async(
+            new(V2Operation.SetupReviewGet, Id: "setup-synthetic")))
+            .Should().ThrowAsync<InvalidOperationException>().WithMessage("*identity*");
+    }
+
+    [Fact]
+    public async Task LatestAppendAndRevisionRequireStrongResponseEtags()
+    {
+        var appendSample = JsonNode.Parse(Sample("setup-review-revision"))!;
+        var appendCall = new V2Call(V2Operation.SetupReviewAppend, Id: "setup-synthetic",
+            Request: Encoding.UTF8.GetBytes(Sample("setup-review-request")), IdempotencyKey: "key", IfMatch: "\"setup-review-2\"");
+        var latestCall = new V2Call(V2Operation.SetupReviewGet, Id: "setup-synthetic");
+        var revisionCall = new V2Call(V2Operation.SetupReviewRevisionGet, Id: "setup-synthetic", SubId: "review-synthetic");
+
+        foreach (var call in new[] { appendCall, latestCall, revisionCall })
+        foreach (var responseEtag in new string?[] { null, "W/\"setup-review-2\"" })
+            await FluentActions.Awaiting(() => Client(new Handler(call.Operation == V2Operation.SetupReviewGet
+                ? Sample("setup-review-view") : appendSample.ToJsonString(),
+                call.Operation == V2Operation.SetupReviewAppend ? HttpStatusCode.Created : HttpStatusCode.OK,
+                responseEtag)).SendV2Async(call)).Should().ThrowAsync<InvalidOperationException>().WithMessage("*strong review-stream ETag*");
+    }
+
+    [Fact]
+    public async Task MalformedReviewResponsesFailClosed()
+    {
+        await FluentActions.Awaiting(() => Client(new Handler("{}"))
+            .SendV2Async(new(V2Operation.SetupReviewGet, Id: "setup")))
+            .Should().ThrowAsync<InvalidOperationException>().WithMessage("Unsupported or malformed setup-review API response*");
+
+        var wrongContract = JsonNode.Parse(Sample("setup-review-view"))!;
+        wrongContract["contract"] = "setup-review-page";
+        await FluentActions.Awaiting(() => Client(new Handler(wrongContract.ToJsonString()))
+            .SendV2Async(new(V2Operation.SetupReviewGet, Id: "setup-synthetic")))
+            .Should().ThrowAsync<InvalidOperationException>().WithMessage("Unsupported or malformed setup-review API response*");
     }
 
     [Fact]
@@ -134,5 +175,51 @@ public sealed class SetupReviewClientTests
         await FluentActions.Awaiting(() => Client(handler).SendV2Async(call with { IdempotencyKey = null })).Should().ThrowAsync<ArgumentException>();
         await FluentActions.Awaiting(() => Client(handler).SendV2Async(call with { Request = new byte[65_537] })).Should().ThrowAsync<ArgumentException>();
         handler.Count.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task CommandMapsInvalidFilesAndLimitsToExitTwoAndHttpRefusalsToExitOne()
+    {
+        var file = Path.GetTempFileName();
+        try
+        {
+            await File.WriteAllBytesAsync(file, new byte[65_537]);
+            var tooLarge = await Run(new Handler(Sample("setup-review-revision")), ["setup", "review", "append", "setup-synthetic",
+                "--request", file, "--idempotency-key", "key", "--if-match", "\"setup-review-0\""]);
+            tooLarge.Exit.Should().Be(2, tooLarge.Output);
+
+            var invalidLimit = await Run(new Handler(Sample("setup-review-page")), ["setup", "review", "history", "setup-synthetic", "--limit", "201"]);
+            invalidLimit.Exit.Should().Be(2, invalidLimit.Output);
+
+            await File.WriteAllTextAsync(file, Sample("setup-review-request"));
+            var refused = await Run(new Handler("{}", HttpStatusCode.PreconditionFailed), ["setup", "review", "append", "setup-synthetic",
+                "--request", file, "--idempotency-key", "key", "--if-match", "\"setup-review-0\""]);
+            refused.Exit.Should().Be(1, refused.Output);
+        }
+        finally { File.Delete(file); }
+    }
+
+    private sealed class Factory(Handler handler) : IApiClientFactory
+    {
+        public IWickdApiClient CreateClient(GlobalCommandSettings settings) => Client(handler);
+        public WickdCliConfig GetEffectiveConfig(GlobalCommandSettings settings) => new();
+    }
+
+    private static async Task<(int Exit, string Output)> Run(Handler handler, string[] args)
+    {
+        using var output = new StringWriter();
+        var console = AnsiConsole.Create(new AnsiConsoleSettings { Ansi = AnsiSupport.No, ColorSystem = ColorSystemSupport.NoColors,
+            Interactive = InteractionSupport.No, Out = new AnsiConsoleOutput(output) });
+        console.Profile.Width = 500;
+        var services = new ServiceCollection();
+        services.AddSingleton<IApiClientFactory>(new Factory(handler));
+        var prior = AnsiConsole.Console;
+        try
+        {
+            AnsiConsole.Console = console;
+            var app = Program.CreateCommandApp(new TypeRegistrar(services), console);
+            return (await app.RunAsync(args), output.ToString());
+        }
+        finally { AnsiConsole.Console = prior; }
     }
 }

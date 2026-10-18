@@ -26,7 +26,8 @@ public enum V2Operation
     MarketConditionCreate, MarketConditionRevisionCreate, MarketConditionRevisionList, MarketConditionRevisionGet,
     StrategyScopeGet, StrategyScopeUpdate, StrategyScopeList,
     StrategyContextScopeGet, StrategyContextScopeUpdate,
-    SetupContextObservationCreate, SetupContextObservationList, SetupContextGet
+    SetupContextObservationCreate, SetupContextObservationList, SetupContextGet,
+    SetupReviewAppend, SetupReviewGet, SetupReviewRevisionGet, SetupReviewHistory
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,

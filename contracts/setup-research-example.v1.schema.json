@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-research-example.v1.schema.json",
+  "title": "SetupResearchExample",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "contract": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshotId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "observation": {
+      "$ref": "#/$defs/ResearchObservation"
+    },
+    "firstCandleId": {
+      "type": "integer"
+    },
+    "candles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "openTimeUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "marketId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "exchangeId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timeframe": {
+            "type": "string",
+            "minLength": 1
+          },
+          "open": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+            "description": "An exact decimal, carried as an invariant-culture string."
+          },
+          "high": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+            "description": "An exact decimal, carried as an invariant-culture string."
+          },
+          "low": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+            "description": "An exact decimal, carried as an invariant-culture string."
+          },
+          "close": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+            "description": "An exact decimal, carried as an invariant-culture string."
+          },
+          "volume": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+            "description": "An exact decimal, carried as an invariant-culture string."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "historical",
+              "backtest",
+              "live"
+            ]
+          },
+          "runId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "default": null,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "openTimeUtc",
+          "marketId",
+          "exchangeId",
+          "timeframe",
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "source"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "sourceEvidenceJson": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "snapshotId",
+    "observation",
+    "firstCandleId",
+    "candles",
+    "sourceEvidenceJson"
+  ],
+  "$defs": {
+    "ResearchObservation": {
+      "type": "object",
+      "properties": {
+        "observationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "datasetRevisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalizedContentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "runId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "marketId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exchangeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decisionCandleId": {
+          "type": "integer"
+        },
+        "decisionAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "decisionEventSequence": {
+          "type": "integer"
+        },
+        "sourceEventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "side": {
+          "type": "string",
+          "minLength": 1
+        },
+        "armedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "gapLow": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "gapHigh": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "stopPrice": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "targetPrice": {
+          "type": "string",
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+          "description": "An exact decimal, carried as an invariant-culture string."
+        },
+        "features": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "required": [
+        "observationId",
+        "datasetRevisionId",
+        "normalizedContentHash",
+        "runId",
+        "marketId",
+        "exchangeId",
+        "timeframe",
+        "strategyVersion",
+        "setupId",
+        "decisionCandleId",
+        "decisionAtUtc",
+        "decisionEventSequence",
+        "sourceEventId",
+        "side",
+        "armedAtUtc",
+        "gapLow",
+        "gapHigh",
+        "stopPrice",
+        "targetPrice",
+        "features"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Wickd.Cli.Tests" />
+    <EmbeddedResource Include="../../contracts/setup-research-example.v1.schema.json" LogicalName="Contracts.%(Filename)%(Extension)" />
     <EmbeddedResource Include="../../contracts/*.v2.schema.json" LogicalName="Contracts.%(Filename)%(Extension)" />
   </ItemGroup>
 

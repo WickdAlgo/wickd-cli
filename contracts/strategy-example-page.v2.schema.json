@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-example-page.v2.schema.json",
+  "title": "StrategyExamplePagePayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "strategy-example-page"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/StrategyExamplePage"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "StrategyExampleReference": {
+      "type": "object",
+      "properties": {
+        "exampleId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "snapshotId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "observationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "association": {
+          "type": "string",
+          "const": "humanIllustrative"
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "decisionOnly",
+            "outcomeExample"
+          ]
+        },
+        "annotation": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "exampleId",
+        "strategyId",
+        "versionId",
+        "snapshotId",
+        "observationId",
+        "association",
+        "category",
+        "annotation",
+        "contentHash",
+        "publicationSequence",
+        "knownAtUtc"
+      ]
+    },
+    "StrategyExamplePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StrategyExampleReference"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        },
+        "snapshotCursor": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "publicationWatermark",
+        "snapshotCursor"
+      ]
+    }
+  }
+}

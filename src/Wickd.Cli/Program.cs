@@ -1,3 +1,4 @@
+using Wickd.Cli.Commands.WalletCapital;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -248,6 +249,13 @@ public static class Program
             wallet.AddCommand<WalletListCommand>("list");
             wallet.AddCommand<WalletGetCommand>("get");
             wallet.AddCommand<WalletBalanceCommand>("balance");
+            wallet.AddBranch("capital", capital =>
+            {
+                capital.SetDescription("Record and inspect declared paper-wallet deposits and withdrawals.");
+                capital.AddCommand<WalletCapitalCreateCommand>("create").WithDescription("Send a capital evidence file with a stable idempotency key.");
+                capital.AddCommand<WalletCapitalListCommand>("list").WithDescription("List a frozen page of immutable capital movements.");
+                capital.AddCommand<WalletCapitalGetCommand>("get").WithDescription("Read one capital movement, optionally at its frozen snapshot.");
+            });
             wallet.AddBranch("history", history =>
             {
                 history.SetDescription("Record and inspect user-declared paper trading history coverage.");

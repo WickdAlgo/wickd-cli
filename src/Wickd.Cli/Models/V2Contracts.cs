@@ -29,7 +29,8 @@ public enum V2Operation
     SetupContextObservationCreate, SetupContextObservationList, SetupContextGet,
     SetupReviewAppend, SetupReviewGet, SetupReviewRevisionGet, SetupReviewHistory,
     StrategyExampleCreate, StrategyExampleList, StrategyExampleGet, StrategyExampleEvidence,
-    PerformanceReportCreate, PerformanceReportGet, PerformanceReportRevise
+    PerformanceReportCreate, PerformanceReportGet, PerformanceReportRevise,
+    WalletCapitalCreate, WalletCapitalList, WalletCapitalGet
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,
@@ -56,7 +57,8 @@ public static class V2Contracts
             return JsonSchema.FromText(reader.ReadToEnd());
         });
         if (contract is "paper-cost-create-request" or "paper-cost-correction-request" or "paper-cost" or "paper-cost-list"
-            or "cost-attribution-request" or "cost-attribution" or "cost-attribution-list")
+            or "cost-attribution-request" or "cost-attribution" or "cost-attribution-list"
+            or "wallet-capital-create-request" or "wallet-capital" or "wallet-capital-list")
             RejectInvalidPaperCostAmounts(document.RootElement);
         if (!schema.Evaluate(document.RootElement, new EvaluationOptions { RequireFormatValidation = true }).IsValid)
             throw new ArgumentException($"JSON does not satisfy the {contract} v{version} contract. Check required properties, enum values, dates and decimal strings.");

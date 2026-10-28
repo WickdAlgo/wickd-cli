@@ -4,9 +4,14 @@ namespace Wickd.Cli.Services;
 
 public interface IWickdApiClient
 {
+    Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default);
     Task<FetchResultDto> FetchCandlesAsync(FetchHistoricalCandlesRequest request, CancellationToken cancellationToken = default);
     Task<SupportedInstrumentsPayload> GetSupportedInstrumentsAsync(CancellationToken cancellationToken = default);
     Task<BacktestResultDto> RunBacktestAsync(BacktestRequest request, CancellationToken cancellationToken = default);
+    Task<WorkspaceListPayloadDto> GetWorkspacesAsync(CancellationToken cancellationToken = default);
+    Task<WorkspaceDetailPayloadDto> GetWorkspaceAsync(string workspaceId, CancellationToken cancellationToken = default);
+    Task<StrategyListPayloadDto> GetStrategiesAsync(CancellationToken cancellationToken = default);
+    Task<StrategyDetailPayloadDto> GetStrategyAsync(string strategyId, CancellationToken cancellationToken = default);
     Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default);
     Task<List<DatasetAliasDto>> GetDatasetAliasesAsync(CancellationToken cancellationToken = default);
     Task<DatasetAliasDto> SaveDatasetAliasAsync(SaveDatasetAliasRequest request, CancellationToken cancellationToken = default);

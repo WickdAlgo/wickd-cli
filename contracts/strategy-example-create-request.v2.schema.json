@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-example-create-request.v2.schema.json",
+  "title": "StrategyExampleCreateRequest",
+  "type": "object",
+  "properties": {
+    "versionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "snapshotId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "observationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "decisionOnly",
+        "outcomeExample"
+      ]
+    },
+    "annotation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    }
+  },
+  "required": [
+    "versionId",
+    "snapshotId",
+    "observationId",
+    "category",
+    "annotation"
+  ]
+}

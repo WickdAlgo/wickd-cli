@@ -1,0 +1,637 @@
+using System.ComponentModel;
+using System.Text.Json;
+using Spectre.Console;
+using Spectre.Console.Cli;
+using Wickd.Cli.Commands.Settings;
+using Wickd.Cli.Common;
+using Wickd.Cli.Models;
+using Wickd.Cli.Services;
+
+namespace Wickd.Cli.Commands.Journal;
+
+public class PageSettings : GlobalCommandSettings
+{
+    [CommandOption("--limit <COUNT>")]
+    [Description("Maximum page size (1–100); nextCursor is returned unchanged.")]
+    [DefaultValue(50)]
+    public int Limit { get; init; } = 50;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque nextCursor from the preceding page in this workspace.")]
+    public string? Cursor { get; init; }
+}
+
+public class IdentitySettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<ID>")]
+    public string Id { get; init; } = string.Empty;
+}
+
+public sealed class SetupDetailSettings : IdentitySettings
+{
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from setup list; reconstruct detail at that frozen publication.")]
+    public string? Cursor { get; init; }
+
+    [CommandOption("--session-version <VERSION_ID>")]
+    [Description("Filter setup context to an exact session-definition version.")]
+    public string? SessionDefinitionVersionId { get; init; }
+
+    [CommandOption("--condition-tag <TAG_ID>")]
+    [Description("Filter setup context to a stable market-condition tag identity.")]
+    public string? MarketConditionTagId { get; init; }
+}
+
+public sealed class SetupListSettings : PageSettings
+{
+    [CommandOption("--session-version <VERSION_ID>")]
+    [Description("Filter setups to an exact session-definition version.")]
+    public string? SessionDefinitionVersionId { get; init; }
+
+    [CommandOption("--condition-tag <TAG_ID>")]
+    [Description("Filter setups to a stable market-condition tag identity.")]
+    public string? MarketConditionTagId { get; init; }
+}
+
+public sealed class SetupAttemptListSettings : PageSettings
+{
+    [CommandArgument(0, "<SETUP_ID>")]
+    public string SetupId { get; init; } = string.Empty;
+}
+
+public sealed class SetupAttemptDetailSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<SETUP_ID>")]
+    public string SetupId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ATTEMPT_ID>")]
+    public string AttemptId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from setup list or setup attempts list; reconstruct detail at that frozen publication.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperFillCreateSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperFillListSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperFillDetailSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<FILL_ID>")]
+    public string FillId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet's fills list; reads the fill at that frozen publication.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperFillCorrectionSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<FILL_ID>")]
+    public string FillId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Exact quoted strong ETag from this wallet's fills read or preceding write.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public class WalletInstrumentSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<INSTRUMENT_ID>")]
+    public string InstrumentId { get; init; } = string.Empty;
+}
+
+public class WalletInstrumentPageSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<INSTRUMENT_ID>")]
+    public string InstrumentId { get; init; } = string.Empty;
+}
+
+public sealed class WalletAccountingListSettings : WalletInstrumentPageSettings;
+
+public class WalletInstrumentWriteSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<INSTRUMENT_ID>")]
+    public string InstrumentId { get; init; } = string.Empty;
+}
+
+public sealed class PaperHistoryCreateSettings : WalletInstrumentWriteSettings
+{
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet/instrument history list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class PaperHistoryGetSettings : WalletInstrumentSettings
+{
+    [CommandArgument(2, "<ATTESTATION_ID>")]
+    public string AttestationId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet/instrument history list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperHistoryCorrectionSettings : WalletInstrumentWriteSettings
+{
+    [CommandArgument(2, "<ATTESTATION_ID>")]
+    public string AttestationId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet/instrument history list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class WalletAccountingCreateSettings : WalletInstrumentWriteSettings;
+
+public sealed class WalletAccountingGetSettings : WalletInstrumentSettings
+{
+    [CommandArgument(2, "<RECEIPT_ID>")]
+    public string ReceiptId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet/instrument accounting list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperAllocationListSettings : WalletInstrumentPageSettings;
+
+public sealed class PaperAllocationGetSettings : WalletInstrumentSettings
+{
+    [CommandArgument(2, "<REVISION_ID>")]
+    public string RevisionId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet/instrument allocation list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class PaperAllocationAssignSettings : WalletInstrumentWriteSettings
+{
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet/instrument allocation list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class PaperCostListSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperCostGetSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<COST_ID>")]
+    public string CostId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this wallet's costs list.")]
+    public string? Cursor { get; init; }
+}
+
+public class PaperCostWriteSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+}
+
+public sealed class PaperCostCorrectionSettings : PaperCostWriteSettings
+{
+    [CommandArgument(1, "<COST_ID>")]
+    public string CostId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this wallet's paper costs list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public class CostAttributionPageSettings : PageSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ROOT_COST_ID>")]
+    public string RootCostId { get; init; } = string.Empty;
+}
+
+public sealed class CostAttributionGetSettings : GlobalCommandSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ROOT_COST_ID>")]
+    public string RootCostId { get; init; } = string.Empty;
+
+    [CommandArgument(2, "<REVISION_ID>")]
+    public string RevisionId { get; init; } = string.Empty;
+
+    [CommandOption("--cursor <CURSOR>")]
+    [Description("Opaque snapshotCursor from this root cost's attribution list.")]
+    public string? Cursor { get; init; }
+}
+
+public sealed class CostAttributionAssignSettings : WriteSettings
+{
+    [CommandArgument(0, "<WALLET_ID>")]
+    public string WalletId { get; init; } = string.Empty;
+
+    [CommandArgument(1, "<ROOT_COST_ID>")]
+    public string RootCostId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Current strong ETag from this root cost's attribution list or read.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public class WriteSettings : GlobalCommandSettings
+{
+    [CommandOption("--request <PATH>")]
+    [Description("UTF-8 JSON request file; keep the original file unchanged for retries.")]
+    public string RequestPath { get; init; } = string.Empty;
+
+    [CommandOption("--idempotency-key <KEY>")]
+    [Description("Explicit stable key for this logical write; reuse with the same request on retry.")]
+    public string IdempotencyKey { get; init; } = string.Empty;
+}
+
+public sealed class AmendSettings : WriteSettings
+{
+    [CommandArgument(0, "<ID>")]
+    public string Id { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Exact quoted strong ETag from setup get or the preceding write.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public sealed class SetupAttemptCreateSettings : WriteSettings
+{
+    [CommandArgument(0, "<SETUP_ID>")]
+    public string SetupId { get; init; } = string.Empty;
+
+    [CommandOption("--if-match <ETAG>")]
+    [Description("Exact quoted strong ETag from setup get or the preceding write.")]
+    public string IfMatch { get; init; } = string.Empty;
+}
+
+public abstract class JournalCommand<TSettings>(IApiClientFactory factory) : AsyncCommand<TSettings>
+    where TSettings : GlobalCommandSettings
+{
+    protected abstract V2Operation Operation { get; }
+
+    protected override async Task<int> ExecuteAsync(CommandContext context, TSettings settings, CancellationToken cancellationToken)
+    {
+        try
+        {
+            byte[]? request = null;
+            if (settings is WriteSettings write)
+            {
+                if (string.IsNullOrWhiteSpace(write.RequestPath)) throw new ArgumentException("--request is required.");
+                var maximumRequestBytes = settings is PaperAllocationAssignSettings or CostAttributionAssignSettings ? 2_097_152 : 1_048_576;
+                if (new FileInfo(write.RequestPath).Length > maximumRequestBytes)
+                    throw new ArgumentException(settings is PaperAllocationAssignSettings or CostAttributionAssignSettings
+                        ? "Request file exceeds 2 MiB." : "Request file exceeds 1 MiB.");
+                request = await File.ReadAllBytesAsync(write.RequestPath, cancellationToken);
+            }
+            var response = await factory.CreateClient(settings).SendV2Async(new V2Call(Operation,
+                Id: settings switch
+                {
+                    AmendSettings amend => amend.Id,
+                    SetupAttemptCreateSettings attempt => attempt.SetupId,
+                    SetupAttemptListSettings attempt => attempt.SetupId,
+                    SetupAttemptDetailSettings attempt => attempt.SetupId,
+                    PaperFillCreateSettings fill => fill.WalletId,
+                    PaperFillListSettings fill => fill.WalletId,
+                    PaperFillDetailSettings fill => fill.WalletId,
+                    PaperFillCorrectionSettings fill => fill.WalletId,
+                    CostAttributionPageSettings cost => cost.WalletId,
+                    CostAttributionGetSettings cost => cost.WalletId,
+                    CostAttributionAssignSettings cost => cost.WalletId,
+                    PaperCostListSettings cost => cost.WalletId,
+                    PaperCostGetSettings cost => cost.WalletId,
+                    PaperCostWriteSettings cost => cost.WalletId,
+                    WalletInstrumentSettings scoped => scoped.WalletId,
+                    WalletInstrumentPageSettings scoped => scoped.WalletId,
+                    WalletInstrumentWriteSettings scoped => scoped.WalletId,
+                    _ => (settings as IdentitySettings)?.Id
+                },
+                SubId: settings switch
+                {
+                    SetupAttemptDetailSettings attempt => attempt.AttemptId,
+                    PaperFillDetailSettings fill => fill.FillId,
+                    PaperFillCorrectionSettings fill => fill.FillId,
+                    PaperHistoryGetSettings history => history.AttestationId,
+                    PaperHistoryCorrectionSettings history => history.AttestationId,
+                    WalletAccountingGetSettings accounting => accounting.ReceiptId,
+                    PaperAllocationGetSettings allocation => allocation.RevisionId,
+                    CostAttributionGetSettings cost => cost.RevisionId,
+                    PaperCostGetSettings cost => cost.CostId,
+                    PaperCostCorrectionSettings cost => cost.CostId,
+                    _ => null
+                },
+                RootCostId: settings switch
+                {
+                    CostAttributionPageSettings cost => cost.RootCostId,
+                    CostAttributionGetSettings cost => cost.RootCostId,
+                    CostAttributionAssignSettings cost => cost.RootCostId,
+                    _ => null
+                },
+                InstrumentId: settings switch
+                {
+                    WalletInstrumentSettings scoped => scoped.InstrumentId,
+                    WalletInstrumentPageSettings scoped => scoped.InstrumentId,
+                    WalletInstrumentWriteSettings scoped => scoped.InstrumentId,
+                    _ => null
+                },
+                Request: request, IdempotencyKey: (settings as WriteSettings)?.IdempotencyKey,
+                IfMatch: settings switch
+                {
+                    AmendSettings amend => amend.IfMatch,
+                    SetupAttemptCreateSettings attempt => attempt.IfMatch,
+                    PaperFillCorrectionSettings fill => fill.IfMatch,
+                    PaperHistoryCreateSettings history => history.IfMatch,
+                    PaperHistoryCorrectionSettings history => history.IfMatch,
+                    PaperAllocationAssignSettings allocation => allocation.IfMatch,
+                    CostAttributionAssignSettings cost => cost.IfMatch,
+                    PaperCostCorrectionSettings cost => cost.IfMatch,
+                    _ => null
+                }, Limit: (settings as PageSettings)?.Limit ?? 50,
+                Cursor: settings switch
+                {
+                    SetupDetailSettings detail => detail.Cursor,
+                    SetupAttemptDetailSettings attempt => attempt.Cursor,
+                    PaperFillDetailSettings fill => fill.Cursor,
+                    PaperHistoryGetSettings history => history.Cursor,
+                    WalletAccountingGetSettings accounting => accounting.Cursor,
+                    PaperAllocationGetSettings allocation => allocation.Cursor,
+                    CostAttributionGetSettings cost => cost.Cursor,
+                    PaperCostGetSettings cost => cost.Cursor,
+                    PageSettings page => page.Cursor,
+                    _ => null
+                },
+                SessionDefinitionVersionId: settings switch
+                {
+                    SetupListSettings setup => setup.SessionDefinitionVersionId,
+                    SetupDetailSettings setup => setup.SessionDefinitionVersionId,
+                    _ => null
+                },
+                MarketConditionTagId: settings switch
+                {
+                    SetupListSettings setup => setup.MarketConditionTagId,
+                    SetupDetailSettings setup => setup.MarketConditionTagId,
+                    _ => null
+                }), cancellationToken);
+            // Write machine-readable JSON directly; Spectre rendering wraps strings to terminal width.
+            await AnsiConsole.Console.Profile.Out.Writer.WriteLineAsync(
+                JsonSerializer.Serialize(response, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true }));
+            return ExitCodes.Success;
+        }
+        catch (Exception error) when (error is ArgumentException or JsonException or IOException or UnauthorizedAccessException)
+        {
+            AnsiConsole.MarkupLine($"[red]Invalid request: {Markup.Escape(error.Message)}[/]");
+            return ExitCodes.ValidationError;
+        }
+        catch (Exception error)
+        {
+            AnsiConsole.MarkupLine($"[red]API request failed: {Markup.Escape(error.Message)}[/]");
+            return ExitCodes.Error;
+        }
+    }
+}
+
+public sealed class CatalogAssetsCommand(IApiClientFactory factory) : JournalCommand<GlobalCommandSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CatalogAssets;
+}
+
+public sealed class CatalogInstrumentsCommand(IApiClientFactory factory) : JournalCommand<GlobalCommandSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CatalogInstruments;
+}
+
+public sealed class CatalogSpecsCommand(IApiClientFactory factory) : JournalCommand<GlobalCommandSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CatalogSpecs;
+}
+
+public sealed class CatalogTimeframesCommand(IApiClientFactory factory) : JournalCommand<GlobalCommandSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CatalogTimeframes;
+}
+
+public sealed class WalletCreateCommand(IApiClientFactory factory) : JournalCommand<WriteSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletCreate;
+}
+
+public sealed class WalletListCommand(IApiClientFactory factory) : JournalCommand<PageSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletList;
+}
+
+public sealed class WalletGetCommand(IApiClientFactory factory) : JournalCommand<IdentitySettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletGet;
+}
+
+public sealed class WalletBalanceCommand(IApiClientFactory factory) : JournalCommand<IdentitySettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletBalance;
+}
+
+public sealed class RiskPreviewCommand(IApiClientFactory factory) : JournalCommand<WriteSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.RiskPreview;
+}
+
+public sealed class SetupAcceptCommand(IApiClientFactory factory) : JournalCommand<WriteSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAccept;
+}
+
+public sealed class SetupListCommand(IApiClientFactory factory) : JournalCommand<SetupListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupList;
+}
+
+public sealed class SetupGetCommand(IApiClientFactory factory) : JournalCommand<SetupDetailSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupGet;
+}
+
+public sealed class SetupAmendCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAmend;
+}
+
+public sealed class SetupSkipCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupSkip;
+}
+
+public sealed class SetupMissedCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupMissed;
+}
+
+public sealed class SetupCancelCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupCancel;
+}
+
+public sealed class SetupNoteAppendCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupNoteAppend;
+}
+
+public sealed class SetupNoteReviseCommand(IApiClientFactory factory) : JournalCommand<AmendSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupNoteRevise;
+}
+
+public sealed class SetupAttemptCreateCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAttemptCreate;
+}
+
+public sealed class SetupAttemptListCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAttemptList;
+}
+
+public sealed class SetupAttemptGetCommand(IApiClientFactory factory) : JournalCommand<SetupAttemptDetailSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.SetupAttemptGet;
+}
+
+public sealed class PaperFillCreateCommand(IApiClientFactory factory) : JournalCommand<PaperFillCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillCreate;
+}
+
+public sealed class PaperFillListCommand(IApiClientFactory factory) : JournalCommand<PaperFillListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillList;
+}
+
+public sealed class PaperFillGetCommand(IApiClientFactory factory) : JournalCommand<PaperFillDetailSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillGet;
+}
+
+public sealed class PaperFillCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperFillCorrectionSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperFillCorrect;
+}
+
+public sealed class PaperHistoryCreateCommand(IApiClientFactory factory) : JournalCommand<PaperHistoryCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryCreate;
+}
+
+public sealed class PaperHistoryListCommand(IApiClientFactory factory) : JournalCommand<WalletInstrumentPageSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryList;
+}
+
+public sealed class PaperHistoryGetCommand(IApiClientFactory factory) : JournalCommand<PaperHistoryGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryGet;
+}
+
+public sealed class PaperHistoryCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperHistoryCorrectionSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperHistoryCorrect;
+}
+
+public sealed class WalletAccountingCreateCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingCreateSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletAccountingCreate;
+}
+
+public sealed class WalletAccountingListCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletAccountingList;
+}
+
+public sealed class WalletAccountingGetCommand(IApiClientFactory factory) : JournalCommand<WalletAccountingGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.WalletAccountingGet;
+}
+
+public sealed class PaperAllocationAssignCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationAssignSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperAllocationAssign;
+}
+
+public sealed class PaperAllocationListCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperAllocationList;
+}
+
+public sealed class PaperAllocationGetCommand(IApiClientFactory factory) : JournalCommand<PaperAllocationGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperAllocationGet;
+}
+
+public sealed class PaperCostCreateCommand(IApiClientFactory factory) : JournalCommand<PaperCostWriteSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostCreate;
+}
+
+public sealed class PaperCostListCommand(IApiClientFactory factory) : JournalCommand<PaperCostListSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostList;
+}
+
+public sealed class PaperCostGetCommand(IApiClientFactory factory) : JournalCommand<PaperCostGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostGet;
+}
+
+public sealed class PaperCostCorrectCommand(IApiClientFactory factory) : JournalCommand<PaperCostCorrectionSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.PaperCostCorrect;
+}
+
+public sealed class CostAttributionListCommand(IApiClientFactory factory) : JournalCommand<CostAttributionPageSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CostAttributionList;
+}
+
+public sealed class CostAttributionGetCommand(IApiClientFactory factory) : JournalCommand<CostAttributionGetSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CostAttributionGet;
+}
+
+public sealed class CostAttributionAssignCommand(IApiClientFactory factory) : JournalCommand<CostAttributionAssignSettings>(factory)
+{
+    protected override V2Operation Operation => V2Operation.CostAttributionAssign;
+}

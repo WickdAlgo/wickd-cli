@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/wallet-create-request.v2.schema.json",
+  "title": "WalletCreateRequest",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "paper",
+        "backtest",
+        "live"
+      ]
+    },
+    "baseAssetId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "openingQuantity": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+      "description": "An exact decimal, carried as an invariant-culture string.",
+      "maxLength": 60
+    },
+    "openingAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "name",
+    "kind",
+    "baseAssetId",
+    "openingQuantity",
+    "openingAtUtc"
+  ]
+}

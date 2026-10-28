@@ -23,3 +23,32 @@ Package boundary verification uses scripts/verify-package.sh with an existing
 nupkg path. A successful package check is not proof of a live authenticated server.
 The repository's CI builds/tests/packs and smoke-tests the tool. Publication and
 service availability are separate release facts.
+
+The catalog/wallet/setup command candidate uses generated API v2 schemas and
+retains decimal strings in JSON without client-side financial calculations.
+See [wallet/setup commands](wallet-setups.md) and the
+[v0.1.0 candidate contract](releases/v0.1.0.md). Wallet balance currently exposes
+an opening-basis receipt; it does not imply a live wallet projection.
+
+Native setup-review commands append and inspect immutable human assessments for
+the exact accepted strategy version. They retain each explicit rule assessment,
+including `unknown`, and distinguish no recorded review from a review that
+records uncertainty. They forward exact request bytes, the independent review
+ETag and review-stream cursors; the CLI does not infer compliance or calculate
+financial results. Legacy trade review commands retain their existing behavior.
+See [wallet/setup commands](wallet-setups.md).
+
+Human session, condition, strategy-scope and setup-context commands use
+API-generated v2 contracts and exact request forwarding. See
+[strategy context](strategy-context.md). The client does not classify market
+conditions or calculate financial results.
+
+Retained-history commands consume authenticated snapshot/coverage contracts and
+print the API evidence without downloads or financial calculations. See
+[retained history reads](market-history.md). Source rights and missing retained
+objects remain explicit API decisions.
+
+Strategy illustration commands retain API-declared `humanIllustrative`
+associations with an exact published version and owner-private retained source.
+The client verifies identities and renders the API evidence; it does not run a
+strategy or infer producer matching. See [illustration commands](strategy-examples.md).

@@ -1,0 +1,1 @@
+{"schemaVersion":2,"contract":"wallet-list","requestId":"request-synthetic","asOf":"2026-10-14T08:00:00+00:00","items":[{"walletId":"wallet-synthetic","name":"Synthetic paper","kind":"paper","baseAssetId":"asset-usdt-synthetic","baseAssetCode":"USDT","createdAtUtc":"2026-10-14T08:00:00+00:00","archivedAtUtc":null}],"nextCursor":null,"publicationWatermark":1}

@@ -51,6 +51,7 @@ public class CommandValidationTests
 
     private class FakeApiClient : IWickdApiClient
     {
+        public Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public FetchHistoricalCandlesRequest? FetchRequest { get; private set; }
         public SaveDatasetAliasRequest? AliasRequest { get; private set; }
         public BacktestRequest? BacktestRequest { get; private set; }
@@ -78,6 +79,11 @@ public class CommandValidationTests
 
         public Task<BacktestResultDto> RunBacktestAsync(BacktestRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(CaptureBacktest(request));
+
+        public Task<WorkspaceListPayloadDto> GetWorkspacesAsync(CancellationToken cancellationToken = default) => Task.FromResult(new WorkspaceListPayloadDto());
+        public Task<WorkspaceDetailPayloadDto> GetWorkspaceAsync(string workspaceId, CancellationToken cancellationToken = default) => Task.FromResult(new WorkspaceDetailPayloadDto { Workspace = new WorkspaceDto { WorkspaceId = workspaceId, Name = "Test" } });
+        public Task<StrategyListPayloadDto> GetStrategiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(new StrategyListPayloadDto());
+        public Task<StrategyDetailPayloadDto> GetStrategyAsync(string strategyId, CancellationToken cancellationToken = default) => Task.FromResult(new StrategyDetailPayloadDto());
 
         public Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(CaptureVwap(request));

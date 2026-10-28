@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-fill-list.v2.schema.json",
+  "title": "PaperFillListEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "paper-fill-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/PaperFill"
+      }
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "streamRevision": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "nextCursor",
+    "publicationWatermark",
+    "snapshotCursor",
+    "streamRevision"
+  ],
+  "$defs": {
+    "PaperFill": {
+      "type": "object",
+      "properties": {
+        "fillId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "economicEventId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentSpecVersionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "side": {
+          "type": "string",
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "positionSide": {
+          "type": "string",
+          "enum": [
+            "net",
+            "hedgeLong",
+            "hedgeShort"
+          ]
+        },
+        "price": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "occurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "rootFillId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "replacesFillId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "correctionReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "replacedByFillId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "accounting": {
+          "type": "string",
+          "enum": [
+            "unprojectedIncomplete"
+          ]
+        }
+      },
+      "required": [
+        "fillId",
+        "walletId",
+        "economicEventId",
+        "instrumentId",
+        "instrumentSpecVersionId",
+        "side",
+        "positionSide",
+        "price",
+        "quantity",
+        "occurredAtUtc",
+        "knownAtUtc",
+        "publicationSequence",
+        "rootFillId",
+        "revision",
+        "replacesFillId",
+        "correctionReason",
+        "replacedByFillId",
+        "accounting"
+      ]
+    }
+  }
+}

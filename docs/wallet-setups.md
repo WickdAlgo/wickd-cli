@@ -350,3 +350,30 @@ is illustrative. `reason.json` is an object such as
 and idempotency key when retrying an uncertain write. For a 412 response, read
 the current result before deciding whether to submit a new revision. Requests
 are limited to 64 KiB. Generated examples and schemas are in `contracts/`.
+
+## Paper-wallet capital movements
+
+Record a deposit or withdrawal with a canonical request file and stable retry
+identity. The configured API owns the immutable ledger receipt; these commands
+do not infer wallet balance or trading PnL.
+
+```sh
+wickd wallet capital create WALLET_ID --request capital.json --idempotency-key capital-key
+wickd wallet capital list WALLET_ID --limit 50
+wickd wallet capital list WALLET_ID --cursor NEXT_CURSOR
+wickd wallet capital get WALLET_ID MOVEMENT_ID --cursor SNAPSHOT_CURSOR
+```
+
+A request contains `kind` (`deposit` or `withdrawal`), the wallet's exact base
+`assetId`, a positive invariant decimal-string `amount`, `occurredAtUtc`, and a
+`reason`. Copy and edit `contracts/samples/wallet-capital-create-request.v2.sample.json`
+for a complete example. The occurrence timestamp supports at most six fractional
+digits and must be exactly representable at microsecond precision. The request
+file is limited to 64 KiB. Keep its bytes and key unchanged after an uncertain
+write; a different movement needs a new key.
+
+List responses preserve an opaque `nextCursor` for paging and `snapshotCursor`
+for frozen detail reads. Page size is 1–200. Current session/workspace access is
+required on every read, including historical reads. The API currently admits
+only native-paper base-asset deposits/withdrawals; transfers and live account
+imports are separate operations.

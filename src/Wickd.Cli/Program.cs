@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using Wickd.Cli.Commands.Performance;
 using Wickd.Cli.Commands.Accounts;
 using Wickd.Cli.Commands.Analyze;
 using Wickd.Cli.Commands.Auth;
@@ -83,6 +84,12 @@ public static class Program
         config.AddCommand<BacktestCommand>("run")
             .WithDescription("Run the structure engine over a cached dataset or market range.");
 
+        config.AddBranch("performance", performance => performance.AddBranch("report", report =>
+        {
+            report.AddCommand<PerformanceReportCreateCommand>("create").WithDescription("Retain a server-owned setup performance query from a complete request file.");
+            report.AddCommand<PerformanceReportGetCommand>("get").WithDescription("Read an exact retained performance result.");
+            report.AddCommand<PerformanceReportReviseCommand>("revise").WithDescription("Retain an explicit reasoned revision using a strong If-Match receipt.");
+        }));
         config.AddBranch("analyze", analyze =>
         {
             analyze.SetDescription("Perform quantitative and market structure analysis.");

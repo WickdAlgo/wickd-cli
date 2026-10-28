@@ -28,7 +28,8 @@ public enum V2Operation
     StrategyContextScopeGet, StrategyContextScopeUpdate,
     SetupContextObservationCreate, SetupContextObservationList, SetupContextGet,
     SetupReviewAppend, SetupReviewGet, SetupReviewRevisionGet, SetupReviewHistory,
-    StrategyExampleCreate, StrategyExampleList, StrategyExampleGet, StrategyExampleEvidence
+    StrategyExampleCreate, StrategyExampleList, StrategyExampleGet, StrategyExampleEvidence,
+    PerformanceReportCreate, PerformanceReportGet, PerformanceReportRevise
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,

@@ -11,6 +11,9 @@ public sealed class ContractPinTests
 {
     private static readonly string[] ExpectedContracts =
     [
+        "setup-performance-query-request.v2.schema.json",
+        "setup-performance-report.v2.schema.json",
+        "setup-performance-report-revision-request.v2.schema.json",
         "market-history.v2.schema.json",
         "market-coverage.v2.schema.json",
         "catalog-assets.v2.schema.json",
@@ -101,6 +104,20 @@ public sealed class ContractPinTests
     ];
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    // Canonical API producer bfeae39c45103d246f14a64fab538a0378040d7b; no locally generated financial contracts.
+    [Theory]
+    [InlineData("setup-performance-query-request.v2.schema.json", "ac3787c52f1f0b92c49fe76b21c23ac5102329a88ca3102357ca2cf97d2ddd62")]
+    [InlineData("samples/setup-performance-query-request.v2.sample.json", "73ba492c5a2bf93c3919f7063efec3d7e085022da96e5e19558fe4f25adb9031")]
+    [InlineData("setup-performance-report.v2.schema.json", "8b956232a85198d23bba9d89ad0430a4ddc9f503725182cf4c5c72f6d9e3630a")]
+    [InlineData("samples/setup-performance-report.v2.sample.json", "79e332ef9a662d2c32754f30c186860d83bd896f6bea9e275efd734bed4b070c")]
+    [InlineData("setup-performance-report-revision-request.v2.schema.json", "42987a33bedc2808628ea423737d4a861b8571de419232316d3569724e603d9b")]
+    [InlineData("samples/setup-performance-report-revision-request.v2.sample.json", "ffc82684f017c4ac6c48c051d3cddf9432d49a70e16324f9a92ea46810ffada1")]
+    public void SetupPerformanceProducerArtifactsRemainByteIdentical(string relativePath, string sha256)
+    {
+        var bytes = File.ReadAllBytes(Path.Combine(ContractsRoot(), relativePath));
+        Convert.ToHexStringLower(SHA256.HashData(bytes)).Should().Be(sha256);
+    }
 
     [Fact]
     public void TheVendoredContractSetIsExact()

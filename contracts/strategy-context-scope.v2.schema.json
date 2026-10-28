@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-context-scope.v2.schema.json",
+  "title": "StrategyContextScopePayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "strategy-context-scope"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/StrategyContextScope"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "StrategyScopeAxis": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": [
+            "unclassified",
+            "unrestricted",
+            "selected"
+          ]
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "classification",
+        "ids"
+      ]
+    },
+    "StrategyContextScope": {
+      "type": "object",
+      "properties": {
+        "versionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionRevision": {
+          "type": "integer"
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "contentHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "knownAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "sessions": {
+          "$ref": "#/$defs/StrategyScopeAxis"
+        },
+        "marketConditions": {
+          "$ref": "#/$defs/StrategyScopeAxis"
+        },
+        "snapshotCursor": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "versionId",
+        "versionRevision",
+        "provenance",
+        "revision",
+        "contentHash",
+        "publicationSequence",
+        "knownAtUtc",
+        "sessions",
+        "marketConditions",
+        "snapshotCursor"
+      ]
+    }
+  }
+}

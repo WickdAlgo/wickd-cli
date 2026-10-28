@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-review-request.v2.schema.json",
+  "title": "SetupReviewRequest",
+  "type": "object",
+  "properties": {
+    "assessedAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "lessons": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 8000
+    },
+    "ruleAssessments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SetupRuleAssessment"
+      },
+      "maxItems": 200
+    },
+    "mistakes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SetupReviewMistake"
+      },
+      "maxItems": 50
+    }
+  },
+  "required": [
+    "assessedAtUtc",
+    "summary",
+    "lessons",
+    "ruleAssessments",
+    "mistakes"
+  ],
+  "$defs": {
+    "SetupRuleAssessment": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assessment": {
+          "type": "string",
+          "enum": [
+            "followed",
+            "violated",
+            "notApplicable",
+            "unknown"
+          ]
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "ruleId",
+        "assessment",
+        "explanation"
+      ]
+    },
+    "SetupReviewMistake": {
+      "type": "object",
+      "properties": {
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 4000
+        }
+      },
+      "required": [
+        "label",
+        "explanation"
+      ]
+    }
+  }
+}

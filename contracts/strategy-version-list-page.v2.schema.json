@@ -1,0 +1,173 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-version-list-page.v2.schema.json",
+  "title": "StrategyVersionListPagePayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "strategy-version-list-page"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/StrategyVersionListPage"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "StrategyRule": {
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ruleKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ordinal": {
+          "type": "integer"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1
+        },
+        "required": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ruleId",
+        "category",
+        "ruleKey",
+        "ordinal",
+        "text",
+        "required"
+      ]
+    },
+    "StrategyVersion": {
+      "type": "object",
+      "properties": {
+        "versionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionNumber": {
+          "type": "integer"
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "parentVersionId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 0
+        },
+        "hypothesis": {
+          "type": "string",
+          "minLength": 0
+        },
+        "contentHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "createdAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publishedAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StrategyRule"
+          }
+        }
+      },
+      "required": [
+        "versionId",
+        "strategyId",
+        "versionNumber",
+        "state",
+        "parentVersionId",
+        "definition",
+        "hypothesis",
+        "contentHash",
+        "revision",
+        "createdAtUtc",
+        "publishedAtUtc",
+        "rules"
+      ]
+    },
+    "StrategyVersionListPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StrategyVersion"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "publicationWatermark"
+      ]
+    }
+  }
+}

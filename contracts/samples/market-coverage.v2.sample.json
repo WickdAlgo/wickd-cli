@@ -1,0 +1,1 @@
+{"schemaVersion":2,"contract":"market-coverage","requestId":"request-synthetic","asOf":"2026-10-14T08:00:00+00:00","seriesId":"synthetic-series","items":[{"startUtc":"2026-10-14T08:00:00+00:00","endUtc":"2026-10-14T08:01:00+00:00","state":"unknown","limitation":"synthetic fixture only","checkedAtUtc":"2026-10-14T08:00:00+00:00"}]}

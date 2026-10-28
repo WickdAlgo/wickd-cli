@@ -17,6 +17,8 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="Wickd.Cli.Tests" />
+    <EmbeddedResource Include="../../contracts/setup-research-example.v1.schema.json" LogicalName="Contracts.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../contracts/*.v2.schema.json" LogicalName="Contracts.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="JsonSchema.Net" Version="9.4.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.11" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.11" />
     <PackageReference Include="Spectre.Console" Version="0.57.2" />

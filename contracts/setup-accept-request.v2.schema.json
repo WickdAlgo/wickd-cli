@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-accept-request.v2.schema.json",
+  "title": "SetupAcceptRequest",
+  "type": "object",
+  "properties": {
+    "previewId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "strategyVersionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "primaryTimeframeId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "mentor",
+        "self",
+        "wickdCore",
+        "wickdAi",
+        "external"
+      ]
+    },
+    "correlationId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1
+    },
+    "invalidation": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "previewId",
+    "strategyVersionId",
+    "primaryTimeframeId",
+    "source",
+    "correlationId",
+    "rationale",
+    "invalidation"
+  ]
+}

@@ -10,6 +10,9 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 ## Unreleased
 
 ### Added
+- Add authenticated `wallet declarations create|correct|list|get` commands for
+  raw zero-only paper wallet assertions. Responses must restate the submitted
+  claims and the server's explicit non-valuation limitations. Refs #43.
 - Add authenticated `wallet capital create|list|get` commands for declared
   paper-wallet deposits and withdrawals, preserving exact retries and frozen
   history without deriving balance or trading results. Refs #41.

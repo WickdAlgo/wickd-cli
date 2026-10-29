@@ -1,4 +1,5 @@
 using Wickd.Cli.Commands.WalletCapital;
+using Wickd.Cli.Commands.WalletDeclarations;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -255,6 +256,14 @@ public static class Program
                 capital.AddCommand<WalletCapitalCreateCommand>("create").WithDescription("Send a capital evidence file with a stable idempotency key.");
                 capital.AddCommand<WalletCapitalListCommand>("list").WithDescription("List a frozen page of immutable capital movements.");
                 capital.AddCommand<WalletCapitalGetCommand>("get").WithDescription("Read one capital movement, optionally at its frozen snapshot.");
+            });
+            wallet.AddBranch("declarations", declarations =>
+            {
+                declarations.SetDescription("Record and inspect raw zero-only paper wallet assertions; never a valuation.");
+                declarations.AddCommand<WalletDeclarationCreateCommand>("create").WithDescription("Send a declaration file with a stable idempotency key and the list's stream ETag.");
+                declarations.AddCommand<WalletDeclarationCorrectCommand>("correct").WithDescription("Append a full replacement of the current declaration with an explanation.");
+                declarations.AddCommand<WalletDeclarationListCommand>("list").WithDescription("List a frozen page of declarations with source reconciliation.");
+                declarations.AddCommand<WalletDeclarationGetCommand>("get").WithDescription("Read one declaration, optionally at its frozen snapshot.");
             });
             wallet.AddBranch("history", history =>
             {

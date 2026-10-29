@@ -30,7 +30,8 @@ public enum V2Operation
     SetupReviewAppend, SetupReviewGet, SetupReviewRevisionGet, SetupReviewHistory,
     StrategyExampleCreate, StrategyExampleList, StrategyExampleGet, StrategyExampleEvidence,
     PerformanceReportCreate, PerformanceReportGet, PerformanceReportRevise,
-    WalletCapitalCreate, WalletCapitalList, WalletCapitalGet
+    WalletCapitalCreate, WalletCapitalList, WalletCapitalGet,
+    WalletDeclarationCreate, WalletDeclarationCorrect, WalletDeclarationList, WalletDeclarationGet
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,

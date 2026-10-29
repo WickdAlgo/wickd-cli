@@ -377,3 +377,26 @@ for frozen detail reads. Page size is 1–200. Current session/workspace access 
 required on every read, including historical reads. The API currently admits
 only native-paper base-asset deposits/withdrawals; transfers and live account
 imports are separate operations.
+
+## Raw paper wallet declarations
+
+Record what you assert about a paper wallet from its opening through an
+economic instant. These are user claims only: the API keeps them with an
+immutable manifest of the wallet's native sources, but never turns them into a
+verified inventory, a balance or an equity value.
+
+```sh
+wickd wallet declarations list WALLET_ID --limit 10
+wickd wallet declarations create WALLET_ID --request declaration.json --idempotency-key decl-key --if-match STREAM_ETAG
+wickd wallet declarations correct WALLET_ID DECLARATION_ID --request correction.json --idempotency-key fix-key --if-match STREAM_ETAG
+wickd wallet declarations get WALLET_ID DECLARATION_ID --cursor SNAPSHOT_CURSOR
+```
+
+Take `STREAM_ETAG` from the `etag` of a list response. Each of the five claims
+must be present as `true`, `false` or `null` (unknown); `throughOccurredAtUtc`
+supports at most six fractional digits. Copy
+`contracts/samples/paper-wallet-declaration-create-request.v2.sample.json` or the
+correction sample. Keep the request bytes and key unchanged after an uncertain
+write. Reads show `reconciliation.sourceManifestMatches`, which only says whether
+the wallet's native sources changed since the declaration; it is not a
+completeness or valuation result.

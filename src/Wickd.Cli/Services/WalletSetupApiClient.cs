@@ -10,6 +10,9 @@ public sealed partial class WickdApiClient
     {
         if (call.Operation is V2Operation.WalletCapitalCreate or V2Operation.WalletCapitalList or V2Operation.WalletCapitalGet)
             return await SendWalletCapitalAsync(call, cancellationToken);
+        if (call.Operation is V2Operation.WalletDeclarationCreate or V2Operation.WalletDeclarationCorrect
+            or V2Operation.WalletDeclarationList or V2Operation.WalletDeclarationGet)
+            return await SendPaperWalletDeclarationAsync(call, cancellationToken);
         if (call.Operation is V2Operation.PerformanceReportCreate or V2Operation.PerformanceReportGet or V2Operation.PerformanceReportRevise)
             return await SendPerformanceReportAsync(call, cancellationToken);
         if (IsStrategyExampleOperation(call.Operation))

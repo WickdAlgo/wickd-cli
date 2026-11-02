@@ -10,6 +10,12 @@ public sealed class WickdCliConfig
     [JsonPropertyName("apiToken")]
     public string? ApiToken { get; set; }
 
+    [JsonPropertyName("sessionToken")]
+    public string? SessionToken { get; set; }
+
+    [JsonPropertyName("workspaceId")]
+    public string? WorkspaceId { get; set; }
+
     [JsonPropertyName("defaultExchange")]
     public string DefaultExchange { get; set; } = "binance";
 

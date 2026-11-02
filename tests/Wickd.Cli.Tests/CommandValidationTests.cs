@@ -79,6 +79,11 @@ public class CommandValidationTests
         public Task<BacktestResultDto> RunBacktestAsync(BacktestRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(CaptureBacktest(request));
 
+        public Task<WorkspaceListPayloadDto> GetWorkspacesAsync(CancellationToken cancellationToken = default) => Task.FromResult(new WorkspaceListPayloadDto());
+        public Task<WorkspaceDetailPayloadDto> GetWorkspaceAsync(string workspaceId, CancellationToken cancellationToken = default) => Task.FromResult(new WorkspaceDetailPayloadDto { Workspace = new WorkspaceDto { WorkspaceId = workspaceId, Name = "Test" } });
+        public Task<StrategyListPayloadDto> GetStrategiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(new StrategyListPayloadDto());
+        public Task<StrategyDetailPayloadDto> GetStrategyAsync(string strategyId, CancellationToken cancellationToken = default) => Task.FromResult(new StrategyDetailPayloadDto());
+
         public Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(CaptureVwap(request));
 

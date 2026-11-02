@@ -65,6 +65,8 @@ public class ConfigManagerTests : IDisposable
         {
             ApiUrl = "https://custom.wickd.io",
             ApiToken = "test-token-12345",
+            SessionToken = "user-session-secret",
+            WorkspaceId = "workspace-7",
             DefaultMarket = "ETH_USDT_PERP",
             DefaultTimeframe = "1h",
             Structure = new StructureConfig { PivotStrength = 5 },
@@ -77,6 +79,8 @@ public class ConfigManagerTests : IDisposable
         loaded.Should().NotBeNull();
         loaded.ApiUrl.Should().Be("https://custom.wickd.io");
         loaded.ApiToken.Should().Be("test-token-12345");
+        loaded.SessionToken.Should().Be("user-session-secret");
+        loaded.WorkspaceId.Should().Be("workspace-7");
         loaded.DefaultMarket.Should().Be("ETH_USDT_PERP");
         loaded.DefaultTimeframe.Should().Be("1h");
         loaded.Structure.PivotStrength.Should().Be(5);

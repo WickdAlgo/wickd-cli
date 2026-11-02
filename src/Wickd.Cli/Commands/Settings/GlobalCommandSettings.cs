@@ -17,6 +17,14 @@ public class GlobalCommandSettings : CommandSettings
     [CommandOption("--token <TOKEN>")]
     public string? Token { get; init; }
 
+    [Description("Override the Wickd user session token for v2 workspace operations.")]
+    [CommandOption("--session-token <TOKEN>")]
+    public string? SessionToken { get; init; }
+
+    [Description("Override the selected workspace for v2 workspace operations.")]
+    [CommandOption("--workspace-id <ID>")]
+    public string? WorkspaceId { get; init; }
+
     [Description("Output response data as raw JSON.")]
     [CommandOption("--json")]
     public bool Json { get; init; }

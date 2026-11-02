@@ -11,19 +11,27 @@ for name in \
   backtest.v1.schema.json \
   dataset-alias-request.v1.schema.json \
   dataset-alias.v1.schema.json \
+  dataset-listing.v1.schema.json \
   fetch.v1.schema.json \
   inspection-dataset.v1.schema.json \
   run-listing.v1.schema.json \
+  run-request.v1.schema.json \
+  run.v1.schema.json \
   supported-instruments.v1.schema.json \
   trade-detail.v1.schema.json \
   trade-summary.v1.schema.json \
+  workspace-list.v2.schema.json \
+  workspace-detail.v2.schema.json \
+  strategy-list-page.v2.schema.json \
+  strategy-detail.v2.schema.json \
+  strategy-version-list-page.v2.schema.json \
   vwap-analysis-request.v1.schema.json \
   vwap-analysis.v1.schema.json
 do
   cp "$api_root/contracts/$name" "$cli_root/contracts/$name"
 done
 
-for name in fetch.v1.sample.json backtest.v1.sample.json vwap-analysis.v1.sample.json
+for name in fetch.v1.sample.json backtest.v1.sample.json run-request.v1.sample.json run.v1.sample.json vwap-analysis.v1.sample.json
 do
   cp "$api_root/contracts/samples/$name" "$cli_root/contracts/samples/$name"
 done

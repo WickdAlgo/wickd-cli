@@ -43,6 +43,43 @@ public class CommandRegistrationTests
     }
 
     [Fact]
+    public async Task WorkspaceAndStrategyCommandsAreRegistered()
+    {
+        var workspace = await CaptureAsync(app => app.RunAsync(["workspace", "--help"]));
+        var strategies = await CaptureAsync(app => app.RunAsync(["manage", "strategies", "--help"]));
+
+        workspace.ExitCode.Should().Be(0);
+        workspace.Output.Should().Contain("list").And.Contain("use");
+        strategies.ExitCode.Should().Be(0);
+        strategies.Output.Should().Contain("list").And.Contain("get");
+    }
+
+    [Fact]
+    public async Task WorkspaceUseVerifiesMembershipBeforeSavingSelection()
+    {
+        var factory = new FakeApiClientFactory();
+        var configPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".json");
+        try
+        {
+            var selected = await CaptureAsync(app => app.RunAsync(["workspace", "use", "workspace-1", "--config", configPath]), factory);
+            selected.ExitCode.Should().Be(0);
+            factory.Client.WorkspaceIdsSeen.Should().ContainSingle().Which.Should().Be("workspace-1");
+            new ConfigManager().LoadConfig(configPath).WorkspaceId.Should().Be("workspace-1");
+
+            factory.Client.WorkspaceIdsSeen.Clear();
+            factory.Client.WorkspaceFailure = new HttpRequestException("denied");
+            var rejected = await CaptureAsync(app => app.RunAsync(["workspace", "use", "workspace-2", "--config", configPath]), factory);
+            rejected.ExitCode.Should().NotBe(0);
+            factory.Client.WorkspaceIdsSeen.Should().ContainSingle().Which.Should().Be("workspace-2");
+            new ConfigManager().LoadConfig(configPath).WorkspaceId.Should().Be("workspace-1");
+        }
+        finally
+        {
+            if (File.Exists(configPath)) File.Delete(configPath);
+        }
+    }
+
+    [Fact]
     public async Task RunDatasetAliasSendsTheStructurePipelineRequest()
     {
         var factory = new FakeApiClientFactory();
@@ -164,6 +201,8 @@ public class CommandRegistrationTests
     private sealed class FakeApiClient : IWickdApiClient
     {
         public BacktestRequest? BacktestRequest { get; private set; }
+        public List<string> WorkspaceIdsSeen { get; } = [];
+        public Exception? WorkspaceFailure { get; set; }
 
         public Task<FetchResultDto> FetchCandlesAsync(FetchHistoricalCandlesRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(new FetchResultDto());
@@ -190,6 +229,16 @@ public class CommandRegistrationTests
             BacktestRequest = request;
             return Task.FromResult(new BacktestResultDto { RunId = request.RunId });
         }
+
+        public Task<WorkspaceListPayloadDto> GetWorkspacesAsync(CancellationToken cancellationToken = default) => Task.FromResult(new WorkspaceListPayloadDto());
+        public Task<WorkspaceDetailPayloadDto> GetWorkspaceAsync(string workspaceId, CancellationToken cancellationToken = default)
+        {
+            WorkspaceIdsSeen.Add(workspaceId);
+            if (WorkspaceFailure is not null) throw WorkspaceFailure;
+            return Task.FromResult(new WorkspaceDetailPayloadDto { Workspace = new WorkspaceDto { WorkspaceId = workspaceId, Name = "Test" } });
+        }
+        public Task<StrategyListPayloadDto> GetStrategiesAsync(CancellationToken cancellationToken = default) => Task.FromResult(new StrategyListPayloadDto());
+        public Task<StrategyDetailPayloadDto> GetStrategyAsync(string strategyId, CancellationToken cancellationToken = default) => Task.FromResult(new StrategyDetailPayloadDto());
 
         public Task<VwapAnalysisResultDto> AnalyzeVwapAsync(VwapAnalysisRequest request, CancellationToken cancellationToken = default) =>
             Task.FromResult(new VwapAnalysisResultDto());

@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/run-request.v1.schema.json",
+  "title": "StructureRunRequest",
+  "type": "object",
+  "properties": {
+    "runId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "dataset": {
+      "$ref": "#/$defs/CachedDatasetSelector"
+    },
+    "pivotStrength": {
+      "type": "integer",
+      "default": 2,
+      "minimum": 1
+    }
+  },
+  "required": [
+    "runId",
+    "dataset"
+  ],
+  "$defs": {
+    "CachedDatasetSelector": {
+      "type": "object",
+      "properties": {
+        "alias": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "marketId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "exchangeId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "exchangeSymbol": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "timeframe": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "fromUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "toUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "alias",
+        "marketId",
+        "exchangeId",
+        "exchangeSymbol",
+        "timeframe",
+        "fromUtc",
+        "toUtc"
+      ]
+    }
+  }
+}

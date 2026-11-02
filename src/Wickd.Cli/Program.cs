@@ -8,6 +8,7 @@ using Wickd.Cli.Commands.Backtest;
 using Wickd.Cli.Commands.Config;
 using Wickd.Cli.Commands.Fetch;
 using Wickd.Cli.Commands.Manage;
+using Wickd.Cli.Commands.MarketHistory;
 using Wickd.Cli.Commands.Journal;
 using Wickd.Cli.Commands.Strategies;
 using Wickd.Cli.Commands.Trades;
@@ -124,6 +125,21 @@ public static class Program
                 strategies.SetDescription("Browse the selected workspace strategy book.");
                 strategies.AddCommand<StrategyListCommand>("list").WithDescription("List strategies in the selected workspace.");
                 strategies.AddCommand<StrategyGetCommand>("get").WithDescription("Get a strategy and its metadata.");
+            });
+        });
+
+        config.AddBranch("history", history =>
+        {
+            history.SetDescription("Read retained market evidence authorized for the selected workspace.");
+            history.AddBranch("snapshot", snapshots =>
+            {
+                snapshots.AddCommand<MarketSnapshotGetCommand>("get")
+                    .WithDescription("Read an exact immutable snapshot, its series provenance and decimal-string candles.");
+            });
+            history.AddBranch("series", series =>
+            {
+                series.AddCommand<MarketSeriesCoverageCommand>("coverage")
+                    .WithDescription("Read checked coverage and explicit unavailable-history limitations for a series.");
             });
         });
 

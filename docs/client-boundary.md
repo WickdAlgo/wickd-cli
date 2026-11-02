@@ -29,3 +29,8 @@ retains decimal strings in JSON without client-side financial calculations.
 See [wallet/setup commands](wallet-setups.md) and the
 [v0.1.0 candidate contract](releases/v0.1.0.md). Wallet balance currently exposes
 an opening-basis receipt; it does not imply a live wallet projection.
+
+Retained-history commands consume authenticated snapshot/coverage contracts and
+print the API evidence without downloads or financial calculations. See
+[retained history reads](market-history.md). Source rights and missing retained
+objects remain explicit API decisions.

@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/market-history.v2.schema.json",
+  "title": "MarketHistoryPayload",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "market-history"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/MarketSnapshotRead"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "MarketSeries": {
+      "type": "object",
+      "properties": {
+        "seriesId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timeframeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "priceKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalizationVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entitlementId": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "seriesId",
+        "instrumentId",
+        "timeframeId",
+        "source",
+        "priceKind",
+        "normalizationVersion",
+        "entitlementId"
+      ]
+    },
+    "MarketSegment": {
+      "type": "object",
+      "properties": {
+        "ordinal": {
+          "type": "integer"
+        },
+        "openAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "objectHash": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "ordinal",
+        "openAtUtc",
+        "revision",
+        "objectHash"
+      ]
+    },
+    "MarketSnapshot": {
+      "type": "object",
+      "properties": {
+        "snapshotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seriesId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "manifestHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rangeStartUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "rangeEndUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "coverage": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bootstrap": {
+          "type": "string",
+          "minLength": 1
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MarketSegment"
+          }
+        }
+      },
+      "required": [
+        "snapshotId",
+        "seriesId",
+        "manifestHash",
+        "contentHash",
+        "rangeStartUtc",
+        "rangeEndUtc",
+        "coverage",
+        "bootstrap",
+        "segments"
+      ]
+    },
+    "MarketCandle": {
+      "type": "object",
+      "properties": {
+        "openAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "closeAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "open": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]\u002B)?(?![\\s\\S])",
+          "maxLength": 256
+        },
+        "high": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]\u002B)?(?![\\s\\S])",
+          "maxLength": 256
+        },
+        "low": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]\u002B)?(?![\\s\\S])",
+          "maxLength": 256
+        },
+        "close": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]\u002B)?(?![\\s\\S])",
+          "maxLength": 256
+        },
+        "volume": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]\u002B)?(?![\\s\\S])",
+          "maxLength": 256
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceEventId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "openAtUtc",
+        "closeAtUtc",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "state",
+        "sourceEventId"
+      ]
+    },
+    "MarketSnapshotRead": {
+      "type": "object",
+      "properties": {
+        "series": {
+          "$ref": "#/$defs/MarketSeries"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/MarketSnapshot"
+        },
+        "candles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MarketCandle"
+          }
+        }
+      },
+      "required": [
+        "series",
+        "snapshot",
+        "candles"
+      ]
+    }
+  }
+}

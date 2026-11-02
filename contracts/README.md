@@ -26,3 +26,8 @@ Shared-history snapshot and coverage schemas/samples are synchronized from API
 candidate `4598d904c03871edd6d5de58ee2904ee1db1961d`. The CLI validates exact
 public wire artifacts and preserves decimal strings; source entitlement remains
 an API decision. See `docs/market-history.md` for command and refusal behavior.
+
+Native setup attempt request, detail and list artifacts are synchronized from
+API checkpoint `e5affd7`; API follow-up `3eb0208` adds shared setup-list snapshot
+cursor compatibility. They retain setup-scoped attempt identity and admitted
+paper/backtest mode; they do not expose legacy execution or fill routes.

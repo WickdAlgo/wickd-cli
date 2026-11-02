@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-attempt-create-request.v2.schema.json",
+  "title": "SetupAttemptCreateRequest",
+  "type": "object",
+  "properties": {
+    "acceptedPlanRevisionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "paper",
+        "backtest"
+      ]
+    },
+    "decisionAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "acceptedPlanRevisionId",
+    "mode",
+    "decisionAtUtc"
+  ]
+}

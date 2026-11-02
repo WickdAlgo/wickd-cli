@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Security.Cryptography;
 using FluentAssertions;
 using Wickd.Cli.Models;
 using Xunit;
@@ -26,6 +27,9 @@ public sealed class ContractPinTests
         "setup-note-request.v2.schema.json",
         "setup-accept-request.v2.schema.json",
         "setup-amend-request.v2.schema.json",
+        "setup-attempt-create-request.v2.schema.json",
+        "setup-attempt.v2.schema.json",
+        "setup-attempt-list.v2.schema.json",
         "journal-setup.v2.schema.json",
         "journal-setup-list.v2.schema.json",
         "account-risk.v1.schema.json",
@@ -103,6 +107,19 @@ public sealed class ContractPinTests
 
         resultKeys.Should().Contain(["exchangeSymbol", "candleCount", "cacheHit"]);
         resultKeys.Should().NotContain(["alias", "force", "candlesFetched", "cachePath"]);
+    }
+
+    [Theory]
+    [InlineData("setup-attempt-create-request.v2.schema.json", "0ecd2dce76110ec38652636f591d8ae4601300ede0e76cac17750bfefd1c9079")]
+    [InlineData("setup-attempt.v2.schema.json", "2435ba41f2134115a1a023c7c44ea76ca034d7929a8cd82bb8ed9bd9836117e6")]
+    [InlineData("setup-attempt-list.v2.schema.json", "30e939d2844eaa4e151c7fd6d1ee8c011952220843310eb7b0d5af596521f66b")]
+    [InlineData("samples/setup-attempt-create-request.v2.sample.json", "7e1dc0f8b5fff5fd131a497116aefbfe1f76fd0573559a77ad67abffd4f287f9")]
+    [InlineData("samples/setup-attempt.v2.sample.json", "8ea9bfe31c2c362c54d017820b80418656d2791771a876ece3413d7a761db341")]
+    [InlineData("samples/setup-attempt-list.v2.sample.json", "8c14f8bc32c643e04cc11b5a2a75b5fe515ef63cac96c9241ba09291c7410180")]
+    public void SetupAttemptArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
+            .Should().Be(expected);
     }
 
     [Fact]

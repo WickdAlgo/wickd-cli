@@ -29,19 +29,26 @@ public sealed partial class WickdApiClient
                 ($"setups/{Segment(call.Id)}/dispositions", "journal-setup", "setup-disposition-request"),
             V2Operation.SetupNoteAppend or V2Operation.SetupNoteRevise =>
                 ($"setups/{Segment(call.Id)}/notes", "journal-setup", "setup-note-request"),
+            V2Operation.SetupAttemptCreate =>
+                ($"setups/{Segment(call.Id)}/attempts", "setup-attempt", "setup-attempt-create-request"),
+            V2Operation.SetupAttemptList =>
+                ($"setups/{Segment(call.Id)}/attempts", "setup-attempt-list", null),
+            V2Operation.SetupAttemptGet =>
+                ($"setups/{Segment(call.Id)}/attempts/{Segment(call.SubId)}", "setup-attempt", null),
             _ => throw new ArgumentException("Unknown v2 operation.")
         };
         RequireV2Credentials(requireWorkspace: !path.StartsWith("catalog/", StringComparison.Ordinal));
-        if (call.Operation is V2Operation.WalletList or V2Operation.SetupList)
+        if (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupAttemptList)
         {
             if (call.Limit is < 1 or > 100) throw new ArgumentException("Page limit must be between 1 and 100.");
             path += $"?limit={call.Limit}";
         }
-        if (call.Cursor is not null && (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupGet))
+        if (call.Cursor is not null && (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupGet
+            or V2Operation.SetupAttemptList or V2Operation.SetupAttemptGet))
         {
             if (string.IsNullOrWhiteSpace(call.Cursor) || call.Cursor.Trim() != call.Cursor || call.Cursor.Any(char.IsControl))
                 throw new ArgumentException("Cursor must be a nonempty opaque value without surrounding whitespace or control characters.");
-            path += (call.Operation == V2Operation.SetupGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
+            path += (call.Operation is V2Operation.SetupGet or V2Operation.SetupAttemptGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
         }
         using var request = new HttpRequestMessage(requestContract is null ? HttpMethod.Get : HttpMethod.Post, "api/v2/" + path);
         if (requestContract is not null)
@@ -63,6 +70,13 @@ public sealed partial class WickdApiClient
                 throw new ArgumentException("If-Match must be the exact strong ETag returned by the setup API.");
             request.Headers.IfMatch.Add(tag);
         }
+        if (call.Operation == V2Operation.SetupAttemptCreate)
+        {
+            HeaderToken(call.IfMatch, "If-Match", 200);
+            if (!EntityTagHeaderValue.TryParse(call.IfMatch, out var tag) || tag.IsWeak || tag.Tag == "*")
+                throw new ArgumentException("If-Match must be the exact strong ETag returned by the setup API.");
+            request.Headers.IfMatch.Add(tag);
+        }
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
@@ -77,6 +91,18 @@ public sealed partial class WickdApiClient
         catch (Exception error) when (error is ArgumentException or JsonException) { throw new InvalidOperationException("Unsupported or malformed API response: " + error.Message, error); }
         if (body.GetProperty("schemaVersion").GetInt32() != 2 || body.GetProperty("contract").GetString() != responseContract)
             throw new InvalidOperationException($"Unsupported API contract; expected {responseContract} v2.");
+        if (call.Operation is V2Operation.SetupAttemptCreate or V2Operation.SetupAttemptGet)
+        {
+            var attempt = body.GetProperty("data");
+            if (!string.Equals(attempt.GetProperty("setupId").GetString(), call.Id, StringComparison.Ordinal)
+                || (call.Operation == V2Operation.SetupAttemptGet
+                    && !string.Equals(attempt.GetProperty("attemptId").GetString(), call.SubId, StringComparison.Ordinal)))
+                throw new InvalidOperationException("Setup attempt response does not match the requested setup and attempt identities.");
+        }
+        else if (call.Operation == V2Operation.SetupAttemptList
+            && body.GetProperty("items").EnumerateArray().Any(item =>
+                !string.Equals(item.GetProperty("setupId").GetString(), call.Id, StringComparison.Ordinal)))
+            throw new InvalidOperationException("Setup attempt list contains an item from another setup.");
         return new V2Response((int)response.StatusCode, response.Headers.ETag?.ToString(), response.Headers.Location?.ToString(), body);
     }
 

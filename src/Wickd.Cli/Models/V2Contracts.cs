@@ -9,7 +9,8 @@ public enum V2Operation
 {
     CatalogAssets, CatalogInstruments, CatalogSpecs, CatalogTimeframes,
     WalletCreate, WalletList, WalletGet, WalletBalance,
-    RiskPreview, SetupAccept, SetupList, SetupGet, SetupAmend
+    RiskPreview, SetupAccept, SetupList, SetupGet, SetupAmend,
+    SetupSkip, SetupMissed, SetupCancel, SetupNoteAppend, SetupNoteRevise
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/timeframe-definitions.v2.schema.json",
+  "title": "TimeframeDefinitionsPayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "timeframe-definitions"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/TimeframeDefinitionList"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "TimeframeDefinition": {
+      "type": "object",
+      "properties": {
+        "timeframeId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "token": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "count": {
+          "type": "integer"
+        },
+        "intervalKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fixedDurationSeconds": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "calendarId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "boundaryTimezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policyVersion": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "timeframeId",
+        "token",
+        "unit",
+        "count",
+        "intervalKind",
+        "fixedDurationSeconds",
+        "calendarId",
+        "boundaryTimezone",
+        "policyVersion"
+      ]
+    },
+    "TimeframeDefinitionList": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TimeframeDefinition"
+          }
+        }
+      },
+      "required": [
+        "items"
+      ]
+    }
+  }
+}

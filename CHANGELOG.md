@@ -11,6 +11,10 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add authenticated catalog, wallet, risk preview and accepted setup commands
+  with generated-schema JSON validation, explicit idempotency keys, amendment
+  ETags, exact decimal transport and retained cursor/HTTP metadata.
+
 - Add separate user session/workspace configuration, membership-verified workspace
   selection and paginated StrategyBook reads. Keep host authentication separate.
 - Align structure runs with the canonical `/api/runs` contract and resolve

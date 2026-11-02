@@ -23,3 +23,9 @@ Package boundary verification uses scripts/verify-package.sh with an existing
 nupkg path. A successful package check is not proof of a live authenticated server.
 The repository's CI builds/tests/packs and smoke-tests the tool. Publication and
 service availability are separate release facts.
+
+The catalog/wallet/setup command candidate uses generated API v2 schemas and
+retains decimal strings in JSON without client-side financial calculations.
+See [wallet/setup commands](wallet-setups.md) and the
+[v0.1.0 candidate contract](releases/v0.1.0.md). Wallet balance currently exposes
+an opening-basis receipt; it does not imply a live wallet projection.

@@ -6,7 +6,7 @@ using Wickd.Cli.Models;
 
 namespace Wickd.Cli.Services;
 
-public sealed class WickdApiClient : IWickdApiClient
+public sealed partial class WickdApiClient : IWickdApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly WickdCliConfig _config;

@@ -1,5 +1,7 @@
 # Wickd CLI (`wickd`)
 
+Wallet and setup commands: [request files, retries and ETags](docs/wallet-setups.md).
+
 Repository scope, current-versus-target behavior, and documentation routing: [client boundary](docs/client-boundary.md).
 
 [![CI](https://github.com/WickdAlgo/wickd-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/WickdAlgo/wickd-cli/actions/workflows/ci.yml)

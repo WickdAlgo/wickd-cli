@@ -55,6 +55,16 @@ public class CommandRegistrationTests
     }
 
     [Fact]
+    public async Task WalletPaperFillCommandsAreExplicitlyEvidenceOnly()
+    {
+        var help = await CaptureAsync(app => app.RunAsync(["wallet", "fills", "--help"]));
+
+        help.ExitCode.Should().Be(0);
+        help.Output.Should().Contain("create").And.Contain("list").And.Contain("get").And.Contain("correct");
+        help.Output.Should().Contain("paper").And.Contain("no order is").And.Contain("not executions or").And.Contain("accounting");
+    }
+
+    [Fact]
     public async Task WorkspaceUseVerifiesMembershipBeforeSavingSelection()
     {
         var factory = new FakeApiClientFactory();

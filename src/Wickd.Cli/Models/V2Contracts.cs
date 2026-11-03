@@ -12,7 +12,8 @@ public enum V2Operation
     WalletCreate, WalletList, WalletGet, WalletBalance,
     RiskPreview, SetupAccept, SetupList, SetupGet, SetupAmend,
     SetupSkip, SetupMissed, SetupCancel, SetupNoteAppend, SetupNoteRevise,
-    SetupAttemptCreate, SetupAttemptList, SetupAttemptGet
+    SetupAttemptCreate, SetupAttemptList, SetupAttemptGet,
+    PaperFillCreate, PaperFillList, PaperFillGet, PaperFillCorrect
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,

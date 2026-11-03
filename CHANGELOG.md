@@ -11,6 +11,12 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add native paper wallet fill create/list/get/correct commands, validated against
+  the API's generated contracts. Preserve exact request bytes, require explicit
+  keys and a strong correction ETag, and retain workspace snapshot cursors. Fill
+  evidence remains unassigned and `unprojectedIncomplete`; the CLI does not
+  calculate accounting, allocate fills, or place orders. Refs #23.
+
 - Add authenticated `history snapshot get` and `history series coverage` reads,
   exact generated contract validation and safe explicit 404/503 errors. No local
   market acquisition or financial calculations. Refs #19.

@@ -53,11 +53,14 @@ public sealed partial class WickdApiClient
             V2Operation.PaperCostList => ($"wallets/{Segment(call.Id)}/costs", "paper-cost-list", null),
             V2Operation.PaperCostGet => ($"wallets/{Segment(call.Id)}/costs/{Segment(call.SubId)}", "paper-cost", null),
             V2Operation.PaperCostCorrect => ($"wallets/{Segment(call.Id)}/costs/{Segment(call.SubId)}/corrections", "paper-cost", "paper-cost-correction-request"),
+            V2Operation.CostAttributionAssign => (CostAttributionPath(call), "cost-attribution", "cost-attribution-request"),
+            V2Operation.CostAttributionList => (CostAttributionPath(call), "cost-attribution-list", null),
+            V2Operation.CostAttributionGet => (CostAttributionPath(call) + $"/{Segment(call.SubId)}", "cost-attribution", null),
             _ => throw new ArgumentException("Unknown v2 operation.")
         };
         RequireV2Credentials(requireWorkspace: !path.StartsWith("catalog/", StringComparison.Ordinal));
         if (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupAttemptList or V2Operation.PaperFillList
-            or V2Operation.PaperHistoryList or V2Operation.WalletAccountingList or V2Operation.PaperAllocationList or V2Operation.PaperCostList)
+            or V2Operation.PaperHistoryList or V2Operation.WalletAccountingList or V2Operation.PaperAllocationList or V2Operation.PaperCostList or V2Operation.CostAttributionList)
         {
             if (call.Limit is < 1 or > 100) throw new ArgumentException("Page limit must be between 1 and 100.");
             path += $"?limit={call.Limit}";
@@ -65,20 +68,20 @@ public sealed partial class WickdApiClient
         if (call.Cursor is not null && (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupGet
             or V2Operation.SetupAttemptList or V2Operation.SetupAttemptGet or V2Operation.PaperFillList or V2Operation.PaperFillGet
             or V2Operation.PaperHistoryList or V2Operation.PaperHistoryGet or V2Operation.WalletAccountingList or V2Operation.WalletAccountingGet
-            or V2Operation.PaperAllocationList or V2Operation.PaperAllocationGet or V2Operation.PaperCostList or V2Operation.PaperCostGet))
+            or V2Operation.PaperAllocationList or V2Operation.PaperAllocationGet or V2Operation.PaperCostList or V2Operation.PaperCostGet or V2Operation.CostAttributionList or V2Operation.CostAttributionGet))
         {
             if (string.IsNullOrWhiteSpace(call.Cursor) || call.Cursor.Trim() != call.Cursor || call.Cursor.Any(char.IsControl))
                 throw new ArgumentException("Cursor must be a nonempty opaque value without surrounding whitespace or control characters.");
             path += (call.Operation is V2Operation.SetupGet or V2Operation.SetupAttemptGet or V2Operation.PaperFillGet
-                or V2Operation.PaperHistoryGet or V2Operation.WalletAccountingGet or V2Operation.PaperAllocationGet or V2Operation.PaperCostGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
+                or V2Operation.PaperHistoryGet or V2Operation.WalletAccountingGet or V2Operation.PaperAllocationGet or V2Operation.PaperCostGet or V2Operation.CostAttributionGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
         }
         using var request = new HttpRequestMessage(requestContract is null ? HttpMethod.Get : HttpMethod.Post, "api/v2/" + path);
         if (requestContract is not null)
         {
             HeaderToken(call.IdempotencyKey, "Idempotency-Key", 200);
-            var maximumRequestBytes = call.Operation == V2Operation.PaperAllocationAssign ? 2_097_152 : 1_048_576;
+            var maximumRequestBytes = call.Operation is V2Operation.PaperAllocationAssign or V2Operation.CostAttributionAssign ? 2_097_152 : 1_048_576;
             if (call.Request is null || call.Request.Length is 0 || call.Request.Length > maximumRequestBytes)
-                throw new ArgumentException(call.Operation == V2Operation.PaperAllocationAssign
+                throw new ArgumentException(call.Operation is V2Operation.PaperAllocationAssign or V2Operation.CostAttributionAssign
                     ? "A JSON request of at most 2 MiB is required." : "A JSON request of at most 1 MiB is required.");
             var requestBody = V2Contracts.Validate(call.Request, requestContract);
             RequireLifecycleIntent(call.Operation, requestBody);
@@ -122,6 +125,13 @@ public sealed partial class WickdApiClient
                 throw new ArgumentException("If-Match must be the exact strong ETag returned by the wallet/instrument allocations API.");
             request.Headers.IfMatch.Add(tag);
         }
+        if (call.Operation == V2Operation.CostAttributionAssign)
+        {
+            HeaderToken(call.IfMatch, "If-Match", 200);
+            if (!EntityTagHeaderValue.TryParse(call.IfMatch, out var tag) || tag.IsWeak || tag.Tag == "*")
+                throw new ArgumentException("If-Match must be the exact strong ETag returned by this root cost's attribution list or read.");
+            request.Headers.IfMatch.Add(tag);
+        }
         if (call.Operation == V2Operation.PaperCostCorrect)
         {
             HeaderToken(call.IfMatch, "If-Match", 200);
@@ -144,6 +154,8 @@ public sealed partial class WickdApiClient
                 throw PaperAllocationFailure(response, call.Operation);
             if (call.Operation is V2Operation.PaperCostCreate or V2Operation.PaperCostList or V2Operation.PaperCostGet or V2Operation.PaperCostCorrect)
                 throw PaperCostFailure(response, call.Operation);
+            if (call.Operation is V2Operation.CostAttributionAssign or V2Operation.CostAttributionList or V2Operation.CostAttributionGet)
+                throw CostAttributionFailure(response);
             await HandleResponseAsync<JsonElement>(response, path, cancellationToken);
             throw new InvalidOperationException("Unreachable response.");
         }
@@ -243,6 +255,29 @@ public sealed partial class WickdApiClient
             && body.GetProperty("items").EnumerateArray().Any(item =>
                 !string.Equals(item.GetProperty("walletId").GetString(), call.Id, StringComparison.Ordinal)))
             throw new InvalidOperationException("Paper cost list contains an item from another wallet.");
+        else if (call.Operation is V2Operation.CostAttributionAssign or V2Operation.CostAttributionGet)
+        {
+            var revision = body.GetProperty("data");
+            if (!MatchesCostAttributionIdentity(revision, call))
+                throw new InvalidOperationException("Cost attribution response does not match the requested wallet/root cost identity.");
+            if (call.Operation == V2Operation.CostAttributionGet
+                && revision.GetProperty("revisionId").GetString() != call.SubId)
+                throw new InvalidOperationException("Cost attribution response does not match the requested revision identity.");
+            if (call.Operation == V2Operation.CostAttributionAssign)
+            {
+                using var requestDocument = JsonDocument.Parse(call.Request!);
+                foreach (var property in new[] { "costId", "priorRevisionId" })
+                {
+                    var expected = requestDocument.RootElement.GetProperty(property);
+                    var actual = revision.GetProperty(property);
+                    if (expected.ValueKind != actual.ValueKind || expected.GetString() != actual.GetString())
+                        throw new InvalidOperationException("Cost attribution response does not match the requested cost/predecessor revision identity.");
+                }
+            }
+        }
+        else if (call.Operation == V2Operation.CostAttributionList
+            && body.GetProperty("items").EnumerateArray().Any(item => !MatchesCostAttributionIdentity(item, call)))
+            throw new InvalidOperationException("Cost attribution list contains an item outside the requested wallet/root cost scope.");
         return new V2Response((int)response.StatusCode, response.Headers.ETag?.ToString(), response.Headers.Location?.ToString(), body);
     }
 
@@ -349,6 +384,31 @@ public sealed partial class WickdApiClient
             _ => "The server refused the paper cost request."
         };
         return new HttpRequestException($"Paper cost request failed with HTTP {status}. {explanation}", null, response.StatusCode);
+    }
+
+    private static string CostAttributionPath(V2Call call) =>
+        $"wallets/{Segment(call.Id)}/costs/{Segment(call.RootCostId)}/attributions";
+
+    private static bool MatchesCostAttributionIdentity(JsonElement item, V2Call call) =>
+        item.GetProperty("walletId").GetString() == call.Id
+        && item.GetProperty("rootCostId").GetString() == call.RootCostId;
+
+    private static HttpRequestException CostAttributionFailure(HttpResponseMessage response)
+    {
+        var status = (int)response.StatusCode;
+        var explanation = status switch
+        {
+            401 => "A current user session is required.",
+            403 => "The current user cannot access this wallet in the selected workspace.",
+            404 => "The wallet, root cost or attribution revision is unavailable in the selected workspace or frozen snapshot.",
+            409 => "The assignment conflicts with the current cost, prior revision or idempotency key; retry unchanged bytes with the same key, or read current cost attribution before a new assignment.",
+            412 => "The root cost attribution ETag is stale; read current attribution before assigning again.",
+            422 => "The server cannot validate this attribution against the retained paper cost.",
+            428 => "A strong If-Match value is required for an attribution write.",
+            503 => "The paper cost attribution service is unavailable; the server must configure its required persistence.",
+            _ => "The server refused the paper cost attribution request."
+        };
+        return new HttpRequestException($"Cost attribution request failed with HTTP {status}. {explanation}", null, response.StatusCode);
     }
 
     private static string WalletInstrumentPath(V2Call call, string suffix) =>

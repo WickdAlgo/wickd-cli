@@ -196,6 +196,21 @@ public static class Program
             wallet.AddCommand<WalletListCommand>("list");
             wallet.AddCommand<WalletGetCommand>("get");
             wallet.AddCommand<WalletBalanceCommand>("balance");
+            wallet.AddBranch("history", history =>
+            {
+                history.SetDescription("Record and inspect user-declared paper trading history coverage.");
+                history.AddCommand<PaperHistoryCreateCommand>("create").WithDescription("Record the declared opening and manual-fill coverage for one wallet instrument; no imported history or opening cash is created.");
+                history.AddCommand<PaperHistoryListCommand>("list").WithDescription("List one frozen page of paper history attestations for one wallet instrument.");
+                history.AddCommand<PaperHistoryGetCommand>("get").WithDescription("Read one paper history attestation, optionally at a frozen cursor.");
+                history.AddCommand<PaperHistoryCorrectCommand>("correct").WithDescription("Append a paper history correction with the current strong wallet/instrument history ETag.");
+            });
+            wallet.AddBranch("accounting", accounting =>
+            {
+                accounting.SetDescription("Create and inspect retained paper FIFO projection receipts from captured fills and explicit history declarations.");
+                accounting.AddCommand<WalletAccountingCreateCommand>("create").WithDescription("Request a retained paper FIFO projection receipt for one wallet instrument; the API derives it from current evidence.");
+                accounting.AddCommand<WalletAccountingListCommand>("list").WithDescription("List one frozen page of retained accounting receipts for one wallet instrument.");
+                accounting.AddCommand<WalletAccountingGetCommand>("get").WithDescription("Read one retained accounting receipt, optionally at a frozen cursor.");
+            });
             wallet.AddBranch("fills", fills =>
             {
                 fills.SetDescription("Capture and inspect native paper fills. These records are not executions or accounting.");

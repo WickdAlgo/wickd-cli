@@ -1,0 +1,422 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/wallet-accounting-list.v2.schema.json",
+  "title": "WalletAccountingListEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "wallet-accounting-list"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/WalletAccountingReceipt"
+      }
+    },
+    "nextCursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "minLength": 1
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "items",
+    "nextCursor",
+    "publicationWatermark",
+    "snapshotCursor"
+  ],
+  "$defs": {
+    "WalletAccountingHistoryReference": {
+      "type": "object",
+      "properties": {
+        "attestationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openingKnownFlat": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allManualFillsRecorded": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "fromOccurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "throughOccurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "attestationId",
+        "source",
+        "recordedByUserId",
+        "openingKnownFlat",
+        "allManualFillsRecorded",
+        "fromOccurredAtUtc",
+        "throughOccurredAtUtc"
+      ]
+    },
+    "WalletFifoScope": {
+      "type": "object",
+      "properties": {
+        "workspaceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletCurrency": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "workspaceId",
+        "walletId",
+        "instrumentId",
+        "walletCurrency"
+      ]
+    },
+    "WalletFifoWatermark": {
+      "type": "object",
+      "properties": {
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "knownAtUtc",
+        "publicationSequence"
+      ]
+    },
+    "WalletFifoLot": {
+      "type": "object",
+      "properties": {
+        "lotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openingFillId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "specId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "positionSide": {
+          "type": "string",
+          "enum": [
+            "net",
+            "long",
+            "short"
+          ]
+        },
+        "direction": {
+          "type": "integer"
+        },
+        "originalQuantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "remainingQuantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "price": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "lotId",
+        "openingFillId",
+        "specId",
+        "positionSide",
+        "direction",
+        "originalQuantity",
+        "remainingQuantity",
+        "price"
+      ]
+    },
+    "WalletFifoMatch": {
+      "type": "object",
+      "properties": {
+        "matchId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "lotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openingFillId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "closingFillId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "positionSide": {
+          "type": "string",
+          "enum": [
+            "net",
+            "long",
+            "short"
+          ]
+        },
+        "quantity": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "grossRealizedPnl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "matchId",
+        "lotId",
+        "openingFillId",
+        "closingFillId",
+        "positionSide",
+        "quantity",
+        "grossRealizedPnl"
+      ]
+    },
+    "WalletAccountingProjection": {
+      "type": "object",
+      "properties": {
+        "policyVersion": {
+          "type": "string",
+          "const": "paper-wallet-fifo-receipt-v1"
+        },
+        "enginePolicyVersion": {
+          "type": "string",
+          "const": "wallet-fifo-projection-v2"
+        },
+        "receiptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "$ref": "#/$defs/WalletFifoScope"
+        },
+        "watermark": {
+          "$ref": "#/$defs/WalletFifoWatermark"
+        },
+        "inputIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "historyComplete": {
+          "type": "boolean"
+        },
+        "economicsSupported": {
+          "type": "boolean"
+        },
+        "costsComplete": {
+          "type": "boolean"
+        },
+        "grossRealizedPnl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "feesTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "otherCostsTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "netRealizedPnl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "lots": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WalletFifoLot"
+          }
+        },
+        "matches": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WalletFifoMatch"
+          }
+        }
+      },
+      "required": [
+        "policyVersion",
+        "enginePolicyVersion",
+        "receiptId",
+        "inputHash",
+        "scope",
+        "watermark",
+        "inputIds",
+        "historyComplete",
+        "economicsSupported",
+        "costsComplete",
+        "grossRealizedPnl",
+        "feesTotal",
+        "otherCostsTotal",
+        "netRealizedPnl",
+        "issues",
+        "lots",
+        "matches"
+      ]
+    },
+    "WalletAccountingReceipt": {
+      "type": "object",
+      "properties": {
+        "receiptId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instrumentId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "historyDeclaration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WalletAccountingHistoryReference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "projection": {
+          "$ref": "#/$defs/WalletAccountingProjection"
+        }
+      },
+      "required": [
+        "receiptId",
+        "walletId",
+        "instrumentId",
+        "recordedByUserId",
+        "knownAtUtc",
+        "publicationSequence",
+        "historyDeclaration",
+        "projection"
+      ]
+    }
+  }
+}

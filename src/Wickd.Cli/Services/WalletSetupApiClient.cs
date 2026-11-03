@@ -39,20 +39,30 @@ public sealed partial class WickdApiClient
             V2Operation.PaperFillList => ($"wallets/{Segment(call.Id)}/fills", "paper-fill-list", null),
             V2Operation.PaperFillGet => ($"wallets/{Segment(call.Id)}/fills/{Segment(call.SubId)}", "paper-fill", null),
             V2Operation.PaperFillCorrect => ($"wallets/{Segment(call.Id)}/fills/{Segment(call.SubId)}/corrections", "paper-fill", "paper-fill-correction-request"),
+            V2Operation.PaperHistoryCreate => (WalletInstrumentPath(call, "history-attestations"), "paper-history", "paper-history-create-request"),
+            V2Operation.PaperHistoryList => (WalletInstrumentPath(call, "history-attestations"), "paper-history-list", null),
+            V2Operation.PaperHistoryGet => (WalletInstrumentPath(call, $"history-attestations/{Segment(call.SubId)}"), "paper-history", null),
+            V2Operation.PaperHistoryCorrect => (WalletInstrumentPath(call, $"history-attestations/{Segment(call.SubId)}/corrections"), "paper-history", "paper-history-correction-request"),
+            V2Operation.WalletAccountingCreate => (WalletInstrumentPath(call, "accounting-receipts"), "wallet-accounting", "wallet-accounting-create-request"),
+            V2Operation.WalletAccountingList => (WalletInstrumentPath(call, "accounting-receipts"), "wallet-accounting-list", null),
+            V2Operation.WalletAccountingGet => (WalletInstrumentPath(call, $"accounting-receipts/{Segment(call.SubId)}"), "wallet-accounting", null),
             _ => throw new ArgumentException("Unknown v2 operation.")
         };
         RequireV2Credentials(requireWorkspace: !path.StartsWith("catalog/", StringComparison.Ordinal));
-        if (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupAttemptList or V2Operation.PaperFillList)
+        if (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupAttemptList or V2Operation.PaperFillList
+            or V2Operation.PaperHistoryList or V2Operation.WalletAccountingList)
         {
             if (call.Limit is < 1 or > 100) throw new ArgumentException("Page limit must be between 1 and 100.");
             path += $"?limit={call.Limit}";
         }
         if (call.Cursor is not null && (call.Operation is V2Operation.WalletList or V2Operation.SetupList or V2Operation.SetupGet
-            or V2Operation.SetupAttemptList or V2Operation.SetupAttemptGet or V2Operation.PaperFillList or V2Operation.PaperFillGet))
+            or V2Operation.SetupAttemptList or V2Operation.SetupAttemptGet or V2Operation.PaperFillList or V2Operation.PaperFillGet
+            or V2Operation.PaperHistoryList or V2Operation.PaperHistoryGet or V2Operation.WalletAccountingList or V2Operation.WalletAccountingGet))
         {
             if (string.IsNullOrWhiteSpace(call.Cursor) || call.Cursor.Trim() != call.Cursor || call.Cursor.Any(char.IsControl))
                 throw new ArgumentException("Cursor must be a nonempty opaque value without surrounding whitespace or control characters.");
-            path += (call.Operation is V2Operation.SetupGet or V2Operation.SetupAttemptGet or V2Operation.PaperFillGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
+            path += (call.Operation is V2Operation.SetupGet or V2Operation.SetupAttemptGet or V2Operation.PaperFillGet
+                or V2Operation.PaperHistoryGet or V2Operation.WalletAccountingGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
         }
         using var request = new HttpRequestMessage(requestContract is null ? HttpMethod.Get : HttpMethod.Post, "api/v2/" + path);
         if (requestContract is not null)
@@ -88,6 +98,13 @@ public sealed partial class WickdApiClient
                 throw new ArgumentException("If-Match must be the exact strong ETag returned by the wallet paper fills API.");
             request.Headers.IfMatch.Add(tag);
         }
+        if (call.Operation is V2Operation.PaperHistoryCreate or V2Operation.PaperHistoryCorrect)
+        {
+            HeaderToken(call.IfMatch, "If-Match", 200);
+            if (!EntityTagHeaderValue.TryParse(call.IfMatch, out var tag) || tag.IsWeak || tag.Tag == "*")
+                throw new ArgumentException("If-Match must be the exact strong ETag returned by the wallet/instrument paper history API.");
+            request.Headers.IfMatch.Add(tag);
+        }
         using var response = await _httpClient.SendAsync(request, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
@@ -95,6 +112,10 @@ public sealed partial class WickdApiClient
                 throw MarketHistoryFailure(response);
             if (call.Operation is V2Operation.PaperFillCreate or V2Operation.PaperFillList or V2Operation.PaperFillGet or V2Operation.PaperFillCorrect)
                 throw PaperFillFailure(response);
+            if (call.Operation is V2Operation.PaperHistoryCreate or V2Operation.PaperHistoryList or V2Operation.PaperHistoryGet or V2Operation.PaperHistoryCorrect)
+                throw PaperHistoryFailure(response, call.Operation);
+            if (call.Operation is V2Operation.WalletAccountingCreate or V2Operation.WalletAccountingList or V2Operation.WalletAccountingGet)
+                throw WalletAccountingFailure(response);
             await HandleResponseAsync<JsonElement>(response, path, cancellationToken);
             throw new InvalidOperationException("Unreachable response.");
         }
@@ -132,6 +153,31 @@ public sealed partial class WickdApiClient
             && body.GetProperty("items").EnumerateArray().Any(item =>
                 !string.Equals(item.GetProperty("walletId").GetString(), call.Id, StringComparison.Ordinal)))
             throw new InvalidOperationException("Paper fill list contains an item from another wallet.");
+        else if (call.Operation is V2Operation.PaperHistoryCreate or V2Operation.PaperHistoryGet or V2Operation.PaperHistoryCorrect)
+        {
+            var history = body.GetProperty("data");
+            RequireWalletInstrumentIdentity(history, call, "Paper history");
+            if (call.Operation == V2Operation.PaperHistoryGet
+                && !string.Equals(history.GetProperty("attestationId").GetString(), call.SubId, StringComparison.Ordinal))
+                throw new InvalidOperationException("Paper history response does not match the requested attestation identity.");
+            if (call.Operation == V2Operation.PaperHistoryCorrect
+                && !string.Equals(history.GetProperty("replacesAttestationId").GetString(), call.SubId, StringComparison.Ordinal))
+                throw new InvalidOperationException("Paper history correction response does not match the requested predecessor attestation identity.");
+        }
+        else if (call.Operation == V2Operation.PaperHistoryList
+            && body.GetProperty("items").EnumerateArray().Any(item => !MatchesWalletInstrumentIdentity(item, call)))
+            throw new InvalidOperationException("Paper history list contains an item outside the requested wallet/instrument scope.");
+        else if (call.Operation is V2Operation.WalletAccountingCreate or V2Operation.WalletAccountingGet)
+        {
+            var receipt = body.GetProperty("data");
+            RequireWalletInstrumentIdentity(receipt, call, "Wallet accounting");
+            if (call.Operation == V2Operation.WalletAccountingGet
+                && !string.Equals(receipt.GetProperty("receiptId").GetString(), call.SubId, StringComparison.Ordinal))
+                throw new InvalidOperationException("Wallet accounting response does not match the requested receipt identity.");
+        }
+        else if (call.Operation == V2Operation.WalletAccountingList
+            && body.GetProperty("items").EnumerateArray().Any(item => !MatchesWalletInstrumentIdentity(item, call)))
+            throw new InvalidOperationException("Wallet accounting list contains an item outside the requested wallet/instrument scope.");
         return new V2Response((int)response.StatusCode, response.Headers.ETag?.ToString(), response.Headers.Location?.ToString(), body);
     }
 
@@ -166,6 +212,54 @@ public sealed partial class WickdApiClient
             _ => "The server refused the paper fill request."
         };
         return new HttpRequestException($"Paper fill request failed with HTTP {status}. {explanation}", null, response.StatusCode);
+    }
+
+    private static HttpRequestException PaperHistoryFailure(HttpResponseMessage response, V2Operation operation)
+    {
+        var status = (int)response.StatusCode;
+        var explanation = status switch
+        {
+            401 => "A current user session is required.",
+            403 => "The current user cannot access this wallet/instrument history in the selected workspace.",
+            404 => "The wallet, instrument or attestation is unavailable in the selected workspace.",
+            409 when operation == V2Operation.PaperHistoryCorrect
+                => "History changed or this declaration already has a correction; read current history before starting another correction.",
+            409 => "The history stream changed or already has a declaration. Read current history; if a declaration exists, use wallet history correct with its current ETag and an explicit reason.",
+            412 => "The paper history ETag is stale; read current history before starting a new write.",
+            428 => "A strong If-Match value is required for a history write.",
+            503 => "The paper history service is unavailable; the server must configure its required persistence.",
+            _ => "The server refused the paper history request."
+        };
+        return new HttpRequestException($"Paper history request failed with HTTP {status}. {explanation}", null, response.StatusCode);
+    }
+
+    private static HttpRequestException WalletAccountingFailure(HttpResponseMessage response)
+    {
+        var status = (int)response.StatusCode;
+        var explanation = status switch
+        {
+            401 => "A current user session is required.",
+            403 => "The current user cannot access this wallet/instrument in the selected workspace.",
+            404 => "The wallet, instrument or accounting receipt is unavailable in the selected workspace.",
+            409 => "The accounting command conflicts with the prior use of this idempotency key; retry with the original request bytes and key, or use a new key for a different command.",
+            422 => "The server cannot produce an accounting receipt from the currently retained evidence.",
+            503 => "The wallet accounting service is unavailable; the server must configure its required persistence.",
+            _ => "The server refused the wallet accounting request."
+        };
+        return new HttpRequestException($"Wallet accounting request failed with HTTP {status}. {explanation}", null, response.StatusCode);
+    }
+
+    private static string WalletInstrumentPath(V2Call call, string suffix) =>
+        $"wallets/{Segment(call.Id)}/instruments/{Segment(call.InstrumentId)}/{suffix}";
+
+    private static bool MatchesWalletInstrumentIdentity(JsonElement item, V2Call call) =>
+        string.Equals(item.GetProperty("walletId").GetString(), call.Id, StringComparison.Ordinal)
+        && string.Equals(item.GetProperty("instrumentId").GetString(), call.InstrumentId, StringComparison.Ordinal);
+
+    private static void RequireWalletInstrumentIdentity(JsonElement item, V2Call call, string label)
+    {
+        if (!MatchesWalletInstrumentIdentity(item, call))
+            throw new InvalidOperationException($"{label} response does not match the requested wallet/instrument identity.");
     }
 
     private static void RequireLifecycleIntent(V2Operation operation, JsonElement body)

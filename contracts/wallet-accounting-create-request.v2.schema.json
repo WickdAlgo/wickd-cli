@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/wallet-accounting-create-request.v2.schema.json",
+  "title": "WalletAccountingCreateRequest",
+  "type": "object",
+  "properties": {
+    "policyVersion": {
+      "type": "string",
+      "const": "wallet-fifo-projection-v2"
+    }
+  },
+  "required": [
+    "policyVersion"
+  ]
+}

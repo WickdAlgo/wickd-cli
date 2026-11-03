@@ -44,6 +44,28 @@ A wallet opening request is explicit about its population and opening capital:
 {"name":"Research paper","kind":"paper","baseAssetId":"asset-id","openingQuantity":"10000","openingAtUtc":"2026-10-14T08:00:00Z"}
 ```
 
+## Paper wallet costs
+
+Cost commands record user-declared cost evidence against one wallet. Amounts
+are signed decimal strings or null when unknown; the string "0" means a declared
+zero amount. The API keeps cost coverage unknown, so these entries do not
+establish complete costs or net/R results. The CLI forwards the response and
+does no financial calculation or import.
+
+```sh
+wickd wallet costs create wallet-id --request cost.json --idempotency-key cost-key
+wickd wallet costs list wallet-id --limit 50
+wickd wallet costs list wallet-id --cursor 'nextCursor-from-prior-page'
+wickd wallet costs get wallet-id cost-id --cursor 'snapshotCursor-from-list'
+wickd wallet costs correct wallet-id cost-id --request correction.json --if-match '"paper-costs-wallet-revision"' --idempotency-key correction-key
+```
+
+Create requests declare a kind, denomination asset, amount, occurrence time
+and reason. A correction supplies a replacement and correction reason; it
+retains the preceding cost as history and requires the current wallet cost
+ETag. Keep request bytes and the idempotency key unchanged for retries. A null
+amount is distinct from zero and is preserved exactly through the API.
+
 A risk preview contains the complete plan, including every target:
 
 ```json

@@ -37,3 +37,8 @@ synthetic samples are synchronized byte-for-byte from API checkpoint
 `08d8f8164635635e0cced48ea3b2d208aa586300`. They retain decimal strings and
 unprojected accounting metadata. The public CLI only captures and reads immutable
 evidence; it does not calculate or allocate wallet economics or place orders.
+
+Paper wallet cost create/correction requests, detail/list responses and
+synthetic samples are pinned byte-for-byte from API checkpoint `75702ef`.
+Nullable signed amounts remain exact strings when present; a null amount stays
+unknown. The API owns cost coverage and all ledger effects.

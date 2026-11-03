@@ -218,6 +218,14 @@ public static class Program
                 allocations.AddCommand<PaperAllocationGetCommand>("get").WithDescription("Read one allocation revision, optionally at a frozen cursor.");
                 allocations.AddCommand<PaperAllocationAssignCommand>("assign").WithDescription("Append a complete paper activity allocation view with an explicit idempotency key and current strong ETag.");
             });
+            wallet.AddBranch("costs", costs =>
+            {
+                costs.SetDescription("Record and inspect user-declared paper wallet costs; amount and cost coverage remain server-owned.");
+                costs.AddCommand<PaperCostCreateCommand>("create").WithDescription("Record one manual cost with an explicit idempotency key; amount may be null when unknown.");
+                costs.AddCommand<PaperCostListCommand>("list").WithDescription("List one frozen page of retained paper wallet cost revisions.");
+                costs.AddCommand<PaperCostGetCommand>("get").WithDescription("Read one cost revision, optionally at a frozen cursor.");
+                costs.AddCommand<PaperCostCorrectCommand>("correct").WithDescription("Append a cost correction with the current strong wallet cost ETag and an explicit idempotency key.");
+            });
             wallet.AddBranch("fills", fills =>
             {
                 fills.SetDescription("Capture and inspect native paper fills. These records are not executions or accounting.");

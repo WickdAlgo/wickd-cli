@@ -11,6 +11,12 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add session-definition and market-condition catalogs, draft strategy
+  instrument/timeframe and context scopes, and append-only setup context
+  observations. Add exact session-version and stable condition-tag filters to
+  setup list/detail/context reads. Validate API-generated contracts, forward
+  exact request bytes, and preserve strong ETags and frozen cursors. Refs #33.
+
 - Add root-scoped paper cost attribution list/get/assign commands, exact request
   retries, strong resource ETags and frozen reads. Preserve server amounts and
   reconciliation evidence without financial calculations. Validate exact .NET

@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/strategy-scope-list-page.v2.schema.json",
+  "title": "StrategyScopeListPagePayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "strategy-scope-list-page"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/StrategyScopeListPage"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "StrategyScopeAxis": {
+      "type": "object",
+      "properties": {
+        "classification": {
+          "type": "string",
+          "enum": [
+            "unclassified",
+            "unrestricted",
+            "selected"
+          ]
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 200,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "classification",
+        "ids"
+      ]
+    },
+    "StrategyVersionScope": {
+      "type": "object",
+      "properties": {
+        "versionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "strategyId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionNumber": {
+          "type": "integer"
+        },
+        "state": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionRevision": {
+          "type": "integer"
+        },
+        "provenance": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scopeRevision": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "recordedPublicationSequence": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "recordedAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "scopeContentHash": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "instruments": {
+          "$ref": "#/$defs/StrategyScopeAxis"
+        },
+        "timeframes": {
+          "$ref": "#/$defs/StrategyScopeAxis"
+        }
+      },
+      "required": [
+        "versionId",
+        "strategyId",
+        "versionNumber",
+        "state",
+        "versionRevision",
+        "provenance",
+        "scopeRevision",
+        "recordedPublicationSequence",
+        "recordedAtUtc",
+        "scopeContentHash",
+        "instruments",
+        "timeframes"
+      ]
+    },
+    "StrategyScopeListPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/StrategyVersionScope"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "publicationWatermark"
+      ]
+    }
+  }
+}

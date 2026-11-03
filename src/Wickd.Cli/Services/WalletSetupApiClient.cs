@@ -8,6 +8,9 @@ public sealed partial class WickdApiClient
 {
     public async Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default)
     {
+        if (IsStrategyContextOperation(call.Operation))
+            return await SendStrategyContextAsync(call, cancellationToken);
+
         var (path, responseContract, requestContract) = call.Operation switch
         {
             V2Operation.MarketSnapshotGet => ($"market-history/snapshots/{Segment(call.Id)}", "market-history", (string?)null),
@@ -75,6 +78,8 @@ public sealed partial class WickdApiClient
             path += (call.Operation is V2Operation.SetupGet or V2Operation.SetupAttemptGet or V2Operation.PaperFillGet
                 or V2Operation.PaperHistoryGet or V2Operation.WalletAccountingGet or V2Operation.PaperAllocationGet or V2Operation.PaperCostGet or V2Operation.CostAttributionGet ? "?cursor=" : "&cursor=") + Uri.EscapeDataString(call.Cursor);
         }
+        if (call.Operation is V2Operation.SetupList or V2Operation.SetupGet)
+            path = AppendSetupContextFilters(path, call.SessionDefinitionVersionId, call.MarketConditionTagId);
         using var request = new HttpRequestMessage(requestContract is null ? HttpMethod.Get : HttpMethod.Post, "api/v2/" + path);
         if (requestContract is not null)
         {

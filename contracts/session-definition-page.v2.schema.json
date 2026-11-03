@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/session-definition-page.v2.schema.json",
+  "title": "SessionDefinitionPagePayload",
+  "type": "object",
+  "properties": {
+    "contract": {
+      "type": "string",
+      "const": "session-definition-page"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/SessionDefinitionPage"
+    }
+  },
+  "required": [
+    "contract",
+    "schemaVersion",
+    "requestId",
+    "asOf",
+    "data"
+  ],
+  "$defs": {
+    "SessionWeeklyWindow": {
+      "type": "object",
+      "properties": {
+        "isoWeekday": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7
+        },
+        "startMinute": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1439
+        },
+        "endMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1440
+        }
+      },
+      "required": [
+        "isoWeekday",
+        "startMinute",
+        "endMinute"
+      ]
+    },
+    "SessionDefinitionRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "weeklySchedule": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SessionWeeklyWindow"
+          },
+          "minItems": 1,
+          "maxItems": 64
+        },
+        "holidayCalendarId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "holidayCalendarVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        }
+      },
+      "required": [
+        "name",
+        "timezone",
+        "weeklySchedule",
+        "holidayCalendarId",
+        "holidayCalendarVersion"
+      ],
+      "minLength": 0
+    },
+    "SessionDefinitionVersion": {
+      "type": "object",
+      "properties": {
+        "sessionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionNumber": {
+          "type": "integer"
+        },
+        "definition": {
+          "$ref": "#/$defs/SessionDefinitionRequest"
+        },
+        "contentHash": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "sessionId",
+        "versionId",
+        "versionNumber",
+        "definition",
+        "contentHash",
+        "publicationSequence",
+        "knownAtUtc"
+      ]
+    },
+    "SessionDefinitionPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SessionDefinitionVersion"
+          }
+        },
+        "nextCursor": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "items",
+        "nextCursor",
+        "publicationWatermark"
+      ]
+    }
+  }
+}

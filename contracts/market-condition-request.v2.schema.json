@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/market-condition-request.v2.schema.json",
+  "title": "MarketConditionRequest",
+  "type": "object",
+  "properties": {
+    "label": {
+      "type": "string",
+      "minLength": 1
+    },
+    "archived": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "label",
+    "archived"
+  ]
+}

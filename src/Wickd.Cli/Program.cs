@@ -152,7 +152,14 @@ public static class Program
 
         config.AddBranch("strategy", strategy =>
         {
-            strategy.SetDescription("Read and update human suitability scopes for strategy versions.");
+            strategy.SetDescription("Read human strategy scopes and owner-private retained illustrations.");
+            strategy.AddBranch("example", examples =>
+            {
+                examples.AddCommand<StrategyExampleCreateCommand>("create").WithDescription("Retain an owner-private human illustration using exact existing evidence.");
+                examples.AddCommand<StrategyExampleListCommand>("list").WithDescription("List exact retained illustration references; decisionOnly is the default.");
+                examples.AddCommand<StrategyExampleGetCommand>("get").WithDescription("Read an exact illustration reference at its own receipt.");
+                examples.AddCommand<StrategyExampleEvidenceCommand>("evidence").WithDescription("Read the server-owned decision evidence for an exact decisionOnly reference.");
+            });
             strategy.AddBranch("scope", scope =>
             {
                 scope.AddCommand<StrategyScopeGetCommand>("get").WithDescription("Read instrument/timeframe scope at current or frozen publication.");

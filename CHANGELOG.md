@@ -10,6 +10,10 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 ## Unreleased
 
 ### Added
+- Add authenticated owner-private `strategy example create|list|get|evidence`
+  commands with canonical API validation, exact request retries and frozen
+  cursors. Decision-only references are the default; outcome references require
+  explicit selection, and evidence verifies the exact retained source. CLI #37.
 
 - Add native setup review append/latest/revision/history commands using the
   API-generated immutable review contracts. Preserve explicit version-specific

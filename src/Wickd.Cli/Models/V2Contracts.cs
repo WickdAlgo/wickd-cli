@@ -27,13 +27,14 @@ public enum V2Operation
     StrategyScopeGet, StrategyScopeUpdate, StrategyScopeList,
     StrategyContextScopeGet, StrategyContextScopeUpdate,
     SetupContextObservationCreate, SetupContextObservationList, SetupContextGet,
-    SetupReviewAppend, SetupReviewGet, SetupReviewRevisionGet, SetupReviewHistory
+    SetupReviewAppend, SetupReviewGet, SetupReviewRevisionGet, SetupReviewHistory,
+    StrategyExampleCreate, StrategyExampleList, StrategyExampleGet, StrategyExampleEvidence
 }
 
 public sealed record V2Call(V2Operation Operation, string? Id = null, byte[]? Request = null,
     string? IdempotencyKey = null, string? IfMatch = null, int Limit = 50, string? Cursor = null,
     string? SubId = null, string? InstrumentId = null, string? RootCostId = null,
-    string? SessionDefinitionVersionId = null, string? MarketConditionTagId = null);
+    string? SessionDefinitionVersionId = null, string? MarketConditionTagId = null, string? ExampleCategory = null);
 
 /// <summary>Exact server payload plus HTTP concurrency metadata. No financial parsing or calculation.</summary>
 public sealed record V2Response(int Status, string? ETag, string? Location, JsonElement Body);
@@ -43,12 +44,12 @@ public static class V2Contracts
     private static readonly ConcurrentDictionary<string, JsonSchema> Schemas = new(StringComparer.Ordinal);
     private static readonly Regex PaperCostAmount = new(@"\A-?(?:0|[1-9][0-9]*)(?:\.[0-9]{1,28})?\z", RegexOptions.CultureInvariant);
 
-    public static JsonElement Validate(ReadOnlyMemory<byte> bytes, string contract)
+    public static JsonElement Validate(ReadOnlyMemory<byte> bytes, string contract, int version = 2)
     {
         using var document = JsonDocument.Parse(bytes);
-        var schema = Schemas.GetOrAdd(contract, name =>
+        var schema = Schemas.GetOrAdd(contract + ".v" + version.ToString(CultureInfo.InvariantCulture), name =>
         {
-            using var stream = typeof(V2Contracts).Assembly.GetManifestResourceStream($"Contracts.{name}.v2.schema.json")
+            using var stream = typeof(V2Contracts).Assembly.GetManifestResourceStream($"Contracts.{name}.schema.json")
                 ?? throw new InvalidOperationException($"Missing bundled contract {name}.");
             using var reader = new StreamReader(stream);
             return JsonSchema.FromText(reader.ReadToEnd());
@@ -57,7 +58,7 @@ public static class V2Contracts
             or "cost-attribution-request" or "cost-attribution" or "cost-attribution-list")
             RejectInvalidPaperCostAmounts(document.RootElement);
         if (!schema.Evaluate(document.RootElement, new EvaluationOptions { RequireFormatValidation = true }).IsValid)
-            throw new ArgumentException($"JSON does not satisfy the {contract} v2 contract. Check required properties, enum values, dates and decimal strings.");
+            throw new ArgumentException($"JSON does not satisfy the {contract} v{version} contract. Check required properties, enum values, dates and decimal strings.");
         RejectDuplicateProperties(document.RootElement);
         return document.RootElement.Clone();
     }

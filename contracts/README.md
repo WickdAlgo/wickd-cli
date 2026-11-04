@@ -42,3 +42,7 @@ Paper wallet cost create/correction requests, detail/list responses and
 synthetic samples are pinned byte-for-byte from API checkpoint `75702ef`.
 Nullable signed amounts remain exact strings when present; a null amount stays
 unknown. The API owns cost coverage and all ledger effects.
+
+Strategy illustrations add the three API105 v2 schema/sample families and the
+existing v1 `setup-research-example` schema/sample from source `c63c1ed`. Evidence
+keeps its canonical v1 wire contract; the CLI validates that version explicitly.

@@ -307,3 +307,25 @@ unassigned amounts, nulls, completeness, reconciliation and withholding reasons
 without financial calculations. Unknown source amounts differ from known zero.
 A source cost correction can require reconciliation; assigning cost ownership
 does not repost wallet ledger entries or establish full cost coverage.
+
+## Native setup reviews
+
+Native reviews are complete immutable human snapshots for the accepted
+strategy-version identity. Supply one explicit assessment for each version-local
+rule (`followed`, `violated`, `notApplicable` or `unknown`); the CLI keeps those
+values and explanations unchanged. `noReview` means no assessment was recorded,
+while an explicit `unknown` is retained as a review. The command reads the
+independent review ETag before appending and keeps review cursors separate from
+setup, attempt and context cursors:
+
+```sh
+wickd setup review get setup-id
+wickd setup review append setup-id --request review.json --idempotency-key review-key --if-match '"setup-review-0"'
+wickd setup review history setup-id --limit 50
+wickd setup review revision setup-id review-id --cursor 'snapshotCursor-from-review-history'
+```
+
+Keep the exact request file, key and ETag for an ambiguous retry. Later
+assessments append a new full revision; history retains earlier summaries,
+lessons and mistake-label snapshots. These commands do not alter the legacy
+trade-review endpoint or calculate performance or financial results.

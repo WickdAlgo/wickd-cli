@@ -11,6 +11,12 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 
 ### Added
 
+- Add native setup review append/latest/revision/history commands using the
+  API-generated immutable review contracts. Preserve explicit version-specific
+  rule assessments, no-review state, exact request retries, review ETags and
+  review-stream cursors without client inference or financial calculations.
+  Refs #35.
+
 - Add session-definition and market-condition catalogs, draft strategy
   instrument/timeframe and context scopes, and append-only setup context
   observations. Add exact session-version and stable condition-tag filters to

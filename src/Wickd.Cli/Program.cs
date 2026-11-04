@@ -315,6 +315,14 @@ public static class Program
                 context.AddCommand<SetupContextObservationCreateCommand>("append").WithDescription("Append a complete context observation with its independent context ETag.");
                 context.AddCommand<SetupContextObservationListCommand>("history").WithDescription("List the frozen, append-only context observation history.");
             });
+            setup.AddBranch("review", review =>
+            {
+                review.SetDescription("Append and inspect immutable human reviews of accepted setups.");
+                review.AddCommand<SetupReviewGetCommand>("get").WithDescription("Read the latest review or explicit noReview state with its independent review ETag.");
+                review.AddCommand<SetupReviewAppendCommand>("append").WithDescription("Append a complete review snapshot with the current review ETag and stable idempotency key.");
+                review.AddCommand<SetupReviewRevisionCommand>("revision").WithDescription("Read one exact retained review revision, optionally frozen with a review-stream cursor.");
+                review.AddCommand<SetupReviewHistoryCommand>("history").WithDescription("List ascending immutable review revisions in a frozen review-stream page.");
+            });
         });
 
         config.AddBranch("accounts", accounts =>

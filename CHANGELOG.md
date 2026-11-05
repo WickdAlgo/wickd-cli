@@ -10,6 +10,10 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 ## Unreleased
 
 ### Added
+- Add authenticated `wallet capital create|list|get` commands for declared
+  paper-wallet deposits and withdrawals, preserving exact retries and frozen
+  history without deriving balance or trading results. Refs #41.
+
 - Add authenticated `performance report create|get|revise` commands for retained
   native-paper setup reports, preserving request bytes, idempotency keys, strong
   ETags and server-reported metrics. Refs #39; requires API #133.

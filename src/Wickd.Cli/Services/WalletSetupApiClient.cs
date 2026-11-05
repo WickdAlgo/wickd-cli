@@ -8,6 +8,8 @@ public sealed partial class WickdApiClient
 {
     public async Task<V2Response> SendV2Async(V2Call call, CancellationToken cancellationToken = default)
     {
+        if (call.Operation is V2Operation.WalletCapitalCreate or V2Operation.WalletCapitalList or V2Operation.WalletCapitalGet)
+            return await SendWalletCapitalAsync(call, cancellationToken);
         if (call.Operation is V2Operation.PerformanceReportCreate or V2Operation.PerformanceReportGet or V2Operation.PerformanceReportRevise)
             return await SendPerformanceReportAsync(call, cancellationToken);
         if (IsStrategyExampleOperation(call.Operation))

@@ -44,6 +44,9 @@ public sealed class ContractPinTests
         "wallet-accounting-create-request.v2.schema.json",
         "wallet-accounting.v2.schema.json",
         "wallet-accounting-list.v2.schema.json",
+        "wallet-capital-create-request.v2.schema.json",
+        "wallet-capital.v2.schema.json",
+        "wallet-capital-list.v2.schema.json",
         "paper-allocation-request.v2.schema.json",
         "paper-allocation.v2.schema.json",
         "paper-allocation-list.v2.schema.json",
@@ -289,6 +292,19 @@ public sealed class ContractPinTests
     public void StrategyContextArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative["contracts/".Length..]))))
+            .Should().Be(expected);
+    }
+
+    [Theory]
+    [InlineData("wallet-capital-create-request.v2.schema.json", "76e53ba566de5a676b516d8ff9ca6da48d50535e5d240c869528597c5a2aac2f")]
+    [InlineData("samples/wallet-capital-create-request.v2.sample.json", "ba7bb781308ba03080a0d792f581e5df2290ad534d6644942193c8160ffb03bc")]
+    [InlineData("wallet-capital.v2.schema.json", "64fccc47e41f15a0e3dfbe26394244386427dd38778b994e9c3ec17b6c65db6a")]
+    [InlineData("samples/wallet-capital.v2.sample.json", "38cb96dea46877b35edb841f91867723f9c73be46ced1c34caac393356d7ca9a")]
+    [InlineData("wallet-capital-list.v2.schema.json", "03fd257a1b8f50713db7bdaab2b47748ec63c33c18f937c1d33611b38b2d8f18")]
+    [InlineData("samples/wallet-capital-list.v2.sample.json", "3abb38a70fc862bbde6931ae59c4d383678b84ae6719380090f5c25438797808")]
+    public void WalletCapitalArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
             .Should().Be(expected);
     }
 

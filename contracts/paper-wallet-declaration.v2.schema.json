@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/paper-wallet-declaration.v2.schema.json",
+  "title": "PaperWalletDeclarationEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "paper-wallet-declaration"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/PaperWalletDeclarationRead"
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "streamRevision": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data",
+    "publicationWatermark",
+    "snapshotCursor",
+    "streamRevision"
+  ],
+  "$defs": {
+    "PaperWalletZeroOnlyClaims": {
+      "type": "object",
+      "properties": {
+        "openingNonCashHoldingsKnownZero": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "openingPositionsKnownFlat": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "liabilitiesKnownZeroThroughout": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allManualFillsRecorded": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "allCapitalMovementsRecorded": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "openingNonCashHoldingsKnownZero",
+        "openingPositionsKnownFlat",
+        "liabilitiesKnownZeroThroughout",
+        "allManualFillsRecorded",
+        "allCapitalMovementsRecorded"
+      ]
+    },
+    "PaperWalletDeclarationInput": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "openingFact",
+            "economicEvent",
+            "instrumentHistory",
+            "costCoverage"
+          ]
+        },
+        "sourceId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationSequence": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "kind",
+        "sourceId",
+        "publicationSequence"
+      ]
+    },
+    "PaperWalletDeclaration": {
+      "type": "object",
+      "properties": {
+        "declarationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openingAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "throughOccurredAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "claims": {
+          "$ref": "#/$defs/PaperWalletZeroOnlyClaims"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "source": {
+          "type": "string",
+          "const": "userDeclaredPaperWalletZeroOnly"
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer"
+        },
+        "inputWatermark": {
+          "type": "integer"
+        },
+        "inputKnownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "inputSha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PaperWalletDeclarationInput"
+          },
+          "maxItems": 10000
+        },
+        "rootDeclarationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer"
+        },
+        "replacesDeclarationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "correctionReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "required": [
+        "declarationId",
+        "walletId",
+        "openingAtUtc",
+        "throughOccurredAtUtc",
+        "claims",
+        "reason",
+        "source",
+        "recordedByUserId",
+        "knownAtUtc",
+        "publicationSequence",
+        "inputWatermark",
+        "inputKnownAtUtc",
+        "inputSha256",
+        "inputs",
+        "rootDeclarationId",
+        "revision",
+        "replacesDeclarationId",
+        "correctionReason"
+      ]
+    },
+    "PaperWalletDeclarationReconciliation": {
+      "type": "object",
+      "properties": {
+        "sourceManifestMatches": {
+          "type": "boolean"
+        },
+        "evaluationWatermark": {
+          "type": "integer"
+        },
+        "evaluationKnownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "sourceManifestMatches",
+        "evaluationWatermark",
+        "evaluationKnownAtUtc",
+        "reasons",
+        "limitations"
+      ]
+    },
+    "PaperWalletDeclarationRead": {
+      "type": "object",
+      "properties": {
+        "declaration": {
+          "$ref": "#/$defs/PaperWalletDeclaration"
+        },
+        "replacedByDeclarationId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reconciliation": {
+          "$ref": "#/$defs/PaperWalletDeclarationReconciliation"
+        }
+      },
+      "required": [
+        "declaration",
+        "replacedByDeclarationId",
+        "reconciliation"
+      ]
+    }
+  }
+}

@@ -47,6 +47,10 @@ public sealed class ContractPinTests
         "wallet-capital-create-request.v2.schema.json",
         "wallet-capital.v2.schema.json",
         "wallet-capital-list.v2.schema.json",
+        "paper-wallet-declaration-create-request.v2.schema.json",
+        "paper-wallet-declaration-correction-request.v2.schema.json",
+        "paper-wallet-declaration.v2.schema.json",
+        "paper-wallet-declaration-list.v2.schema.json",
         "paper-allocation-request.v2.schema.json",
         "paper-allocation.v2.schema.json",
         "paper-allocation-list.v2.schema.json",
@@ -292,6 +296,22 @@ public sealed class ContractPinTests
     public void StrategyContextArtifactsAreExactProducerBytes(string relative, string expected)
     {
         Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative["contracts/".Length..]))))
+            .Should().Be(expected);
+    }
+
+    /// <summary>API #142 at fdb4820 produced these declaration artifacts; the CLI bundles them unchanged.</summary>
+    [Theory]
+    [InlineData("paper-wallet-declaration-correction-request.v2.schema.json", "7cacefea2b8b838a0232e456df0999901d26d60bd610e53f73c65949594d2203")]
+    [InlineData("paper-wallet-declaration-create-request.v2.schema.json", "28eb353ba18c9e116ff5b447739108e690783a415af27967b1c976c7eea2fca0")]
+    [InlineData("paper-wallet-declaration-list.v2.schema.json", "4aff48a62ae3682257bfd40d301920861d2371ffe54d73043711a8b89188201b")]
+    [InlineData("paper-wallet-declaration.v2.schema.json", "5de55c7434ebb40756d22ab161e14a551755697773a3282c185bc5136d63ed82")]
+    [InlineData("samples/paper-wallet-declaration-correction-request.v2.sample.json", "5d2e7a5649c020ea79f61fa67250b00124c2bd6d33c559ea63047bb688e19549")]
+    [InlineData("samples/paper-wallet-declaration-create-request.v2.sample.json", "c522c424b67f4326a6d8983d43aa545f11808aae286a118c15841e657cd10427")]
+    [InlineData("samples/paper-wallet-declaration-list.v2.sample.json", "44008d8fc38b2d765597dac2b118d063ad4964820bb0f16f455bdf0a803b6966")]
+    [InlineData("samples/paper-wallet-declaration.v2.sample.json", "4e6dfce44d09c1728d35335f431e2bc3e90e4c8709f12c816b6c585b3b873303")]
+    public void PaperWalletDeclarationArtifactsAreExactProducerBytes(string relative, string expected)
+    {
+        Convert.ToHexStringLower(SHA256.HashData(File.ReadAllBytes(Path.Combine(ContractsRoot(), relative))))
             .Should().Be(expected);
     }
 

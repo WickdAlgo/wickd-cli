@@ -46,3 +46,6 @@ unknown. The API owns cost coverage and all ledger effects.
 Strategy illustrations add the three API105 v2 schema/sample families and the
 existing v1 `setup-research-example` schema/sample from source `c63c1ed`. Evidence
 keeps its canonical v1 wire contract; the CLI validates that version explicitly.
+
+The four `paper-wallet-declaration*` schemas and samples are copied unchanged
+from wickd-api PR #142 at `fdb4820`; `ContractPinTests` pins their bytes.

@@ -10,6 +10,10 @@ backlog and sprint records are retained in [`docs/sprints/`](docs/sprints/);
 ## Unreleased
 
 ### Added
+- Add authenticated `performance report create|get|revise` commands for retained
+  native-paper setup reports, preserving request bytes, idempotency keys, strong
+  ETags and server-reported metrics. Refs #39; requires API #133.
+
 - Add authenticated owner-private `strategy example create|list|get|evidence`
   commands with canonical API validation, exact request retries and frozen
   cursors. Decision-only references are the default; outcome references require

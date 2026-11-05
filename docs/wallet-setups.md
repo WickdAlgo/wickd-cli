@@ -329,3 +329,24 @@ Keep the exact request file, key and ETag for an ambiguous retry. Later
 assessments append a new full revision; history retains earlier summaries,
 lessons and mistake-label snapshots. These commands do not alter the legacy
 trade-review endpoint or calculate performance or financial results.
+
+## Retained setup performance
+
+The authenticated workspace can create a native-paper report from a complete
+API query JSON file, retrieve an immutable result, or append a recalculation
+revision. The API owns the financial values, eligibility, original risk and
+wallet evidence horizons. Unsupported populations and unavailable conversion
+are reported by the API; the CLI does not calculate replacements.
+
+```sh
+wickd performance report create --request query.json --idempotency-key report-key
+wickd performance report get REPORT_ID
+wickd performance report revise REPORT_ID --request reason.json --idempotency-key revision-key --if-match '"setup-performance-REPORT_ID-1"'
+```
+
+Use the actual strong ETag returned by the report in `--if-match`; the example
+is illustrative. `reason.json` is an object such as
+`{"reason":"Reconcile retained evidence"}`. Keep the same request file bytes
+and idempotency key when retrying an uncertain write. For a 412 response, read
+the current result before deciding whether to submit a new revision. Requests
+are limited to 64 KiB. Generated examples and schemas are in `contracts/`.

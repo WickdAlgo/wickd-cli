@@ -1,0 +1,1078 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/WickdAlgo/wickd-api/contracts/setup-performance-report.v2.schema.json",
+  "title": "SetupPerformanceReportEnvelope",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 2
+    },
+    "contract": {
+      "type": "string",
+      "const": "setup-performance-report"
+    },
+    "requestId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "asOf": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "data": {
+      "$ref": "#/$defs/SetupPerformanceReportRevision"
+    },
+    "publicationWatermark": {
+      "type": "integer"
+    },
+    "snapshotCursor": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "contract",
+    "requestId",
+    "asOf",
+    "data",
+    "publicationWatermark",
+    "snapshotCursor"
+  ],
+  "$defs": {
+    "SetupPerformanceQueryRequest": {
+      "type": "object",
+      "properties": {
+        "sampleUnit": {
+          "type": "string",
+          "const": "setup"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "live",
+            "backtest",
+            "shadow"
+          ]
+        },
+        "dateAxis": {
+          "type": "string",
+          "enum": [
+            "decisionAt",
+            "closedAt"
+          ]
+        },
+        "fromUtc": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 33,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]{1,7})?(Z|[\u002B-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))(?![\\s\\S])"
+        },
+        "toUtc": {
+          "type": "string",
+          "format": "date-time",
+          "maxLength": 33,
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\\.[0-9]{1,7})?(Z|[\u002B-]((0[0-9]|1[0-3]):[0-5][0-9]|14:00))(?![\\s\\S])"
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adherence": {
+          "type": "string",
+          "enum": [
+            "all",
+            "followed",
+            "violated",
+            "unknown",
+            "notApplicable"
+          ]
+        },
+        "reportingCurrency": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metrics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "netPnl",
+              "winRate",
+              "meanRealizedR",
+              "cumulativeRealizedR",
+              "cumulativeRDrawdown",
+              "equityDrawdown"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 64
+        },
+        "strategyId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "minLength": 1
+        },
+        "strategyVersionIds": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": null,
+          "maxItems": 1000
+        },
+        "walletIds": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": null,
+          "maxItems": 1000
+        },
+        "instrumentIds": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": null,
+          "maxItems": 1000
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "long",
+                "short"
+              ],
+              "default": null
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "primaryTimeframeIds": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": null,
+          "maxItems": 1000
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "planned",
+                "executed",
+                "open",
+                "closed",
+                "executedUnresolved",
+                "skipped",
+                "missed",
+                "cancelled"
+              ],
+              "default": null
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "disposition": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "planned",
+                "skipped",
+                "missed",
+                "cancelled"
+              ],
+              "default": null
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sessionDefinitionVersionId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "minLength": 1
+        },
+        "marketConditionTagId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "minLength": 1
+        }
+      },
+      "required": [
+        "sampleUnit",
+        "mode",
+        "dateAxis",
+        "fromUtc",
+        "toUtc",
+        "timezone",
+        "adherence",
+        "reportingCurrency",
+        "metrics"
+      ]
+    },
+    "PaperSetupPerformanceWalletHorizon": {
+      "type": "object",
+      "properties": {
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "openingAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "financialThroughExclusiveUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "coverageAttestationIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "walletId",
+        "openingAtUtc",
+        "financialThroughExclusiveUtc",
+        "coverageAttestationIds"
+      ]
+    },
+    "SetupPerformanceMoney": {
+      "type": "object",
+      "properties": {
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "amount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "incompleteReasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "assetId",
+        "amount",
+        "incompleteReasons"
+      ]
+    },
+    "SetupPerformanceRisk": {
+      "type": "object",
+      "properties": {
+        "originalPlanRevisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "initialRiskAmount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "originalPlanRevisionId",
+        "assetId",
+        "initialRiskAmount"
+      ]
+    },
+    "SetupPerformanceObservation": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "walletId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "live",
+            "backtest",
+            "shadow"
+          ]
+        },
+        "inputSnapshotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "decisionAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "finalCloseAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "planned",
+            "open",
+            "closed",
+            "skipped",
+            "missed",
+            "cancelled",
+            "executedUnresolved"
+          ]
+        },
+        "adherence": {
+          "type": "string",
+          "enum": [
+            "followed",
+            "violated",
+            "unknown",
+            "notApplicable"
+          ]
+        },
+        "net": {
+          "$ref": "#/$defs/SetupPerformanceMoney"
+        },
+        "originalRisk": {
+          "$ref": "#/$defs/SetupPerformanceRisk"
+        },
+        "netInRiskAsset": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SetupPerformanceMoney"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "setupId",
+        "walletId",
+        "mode",
+        "inputSnapshotId",
+        "knownAtUtc",
+        "decisionAtUtc",
+        "finalCloseAtUtc",
+        "state",
+        "adherence",
+        "net",
+        "originalRisk"
+      ]
+    },
+    "PaperSetupEconomicResult": {
+      "type": "object",
+      "properties": {
+        "policyVersion": {
+          "type": "string",
+          "const": "paper-setup-net-declared-wallet-horizon-v1"
+        },
+        "observation": {
+          "$ref": "#/$defs/SetupPerformanceObservation"
+        },
+        "walletOpeningAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "financialThroughExclusiveUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "coverageAttestationIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "inputIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "hasUnassignedRetainedGraphPortions": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "policyVersion",
+        "observation",
+        "walletOpeningAtUtc",
+        "financialThroughExclusiveUtc",
+        "coverageAttestationIds",
+        "inputIds",
+        "hasUnassignedRetainedGraphPortions"
+      ]
+    },
+    "SetupPerformanceScope": {
+      "type": "object",
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "paper",
+            "live",
+            "backtest",
+            "shadow"
+          ]
+        },
+        "reportingAssetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "inputSnapshotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "asOfUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dateAxis": {
+          "type": "string",
+          "enum": [
+            "decisionAt",
+            "closedAt"
+          ]
+        },
+        "fromUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "toUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adherence": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "followed",
+                "violated",
+                "unknown",
+                "notApplicable"
+              ],
+              "default": null
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "walletIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "required": [
+        "mode",
+        "reportingAssetId",
+        "inputSnapshotId",
+        "asOfUtc",
+        "dateAxis",
+        "fromUtc",
+        "toUtc",
+        "timezone",
+        "walletIds"
+      ]
+    },
+    "SetupPerformanceCounts": {
+      "type": "object",
+      "properties": {
+        "setups": {
+          "type": "integer"
+        },
+        "executed": {
+          "type": "integer"
+        },
+        "open": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "closed": {
+          "type": "integer"
+        },
+        "unknownExecution": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "planned": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "skipped": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "missed": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "cancelled": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "completeNetPnl": {
+          "type": "integer"
+        },
+        "completeR": {
+          "type": "integer"
+        },
+        "wins": {
+          "type": "integer"
+        },
+        "losses": {
+          "type": "integer"
+        },
+        "breakeven": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "setups",
+        "executed",
+        "open",
+        "closed",
+        "unknownExecution",
+        "planned",
+        "skipped",
+        "missed",
+        "cancelled",
+        "completeNetPnl",
+        "completeR",
+        "wins",
+        "losses",
+        "breakeven"
+      ]
+    },
+    "SetupPerformanceAdherenceCounts": {
+      "type": "object",
+      "properties": {
+        "followed": {
+          "type": "integer"
+        },
+        "violated": {
+          "type": "integer"
+        },
+        "unknown": {
+          "type": "integer"
+        },
+        "notApplicable": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "followed",
+        "violated",
+        "unknown",
+        "notApplicable"
+      ]
+    },
+    "SetupPerformanceExclusion": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "setupId",
+        "reason"
+      ]
+    },
+    "SetupPerformanceMetric": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sampleSize": {
+          "type": "integer"
+        },
+        "sampleDateAxis": {
+          "type": "string",
+          "enum": [
+            "decisionAt",
+            "closedAt"
+          ]
+        },
+        "firstSampleAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "lastSampleAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupPerformanceExclusion"
+          }
+        }
+      },
+      "required": [
+        "value",
+        "unit",
+        "sampleSize",
+        "sampleDateAxis",
+        "firstSampleAtUtc",
+        "lastSampleAtUtc",
+        "exclusions"
+      ]
+    },
+    "SetupPerformanceRPoint": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "originalPlanRevisionId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "closedAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "realizedR": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "cumulativeR": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        },
+        "drawdownR": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]{1,28})?$",
+          "description": "An exact decimal, carried as an invariant-culture string.",
+          "maxLength": 60
+        }
+      },
+      "required": [
+        "setupId",
+        "originalPlanRevisionId",
+        "closedAtUtc",
+        "realizedR",
+        "cumulativeR",
+        "drawdownR"
+      ]
+    },
+    "SetupPerformanceOutcomeClassification": {
+      "type": "object",
+      "properties": {
+        "setupId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assetId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "type": "string",
+          "enum": [
+            "originalRiskAsset",
+            "reportingAssetFallback"
+          ]
+        },
+        "sign": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "setupId",
+        "assetId",
+        "basis",
+        "sign"
+      ]
+    },
+    "SetupPerformanceResult": {
+      "type": "object",
+      "properties": {
+        "policyVersion": {
+          "type": "string",
+          "const": "setup-closed-net-original-risk-decimal-v1"
+        },
+        "sampleUnit": {
+          "type": "string",
+          "const": "setup"
+        },
+        "scope": {
+          "$ref": "#/$defs/SetupPerformanceScope"
+        },
+        "firstCohortAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "lastCohortAtUtc": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "counts": {
+          "$ref": "#/$defs/SetupPerformanceCounts"
+        },
+        "adherence": {
+          "$ref": "#/$defs/SetupPerformanceAdherenceCounts"
+        },
+        "closedNetPnl": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "winRatePercent": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "meanRealizedR": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "cumulativeRealizedR": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "cumulativeRDrawdown": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "openRealizedNetPnl": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "openRealizedR": {
+          "$ref": "#/$defs/SetupPerformanceMetric"
+        },
+        "cumulativeRCurve": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupPerformanceRPoint"
+          }
+        },
+        "outcomeClassificationPolicyVersion": {
+          "type": "string",
+          "const": "closed-setup-prefer-original-asset-sign-v1"
+        },
+        "closedOutcomes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SetupPerformanceOutcomeClassification"
+          }
+        }
+      },
+      "required": [
+        "policyVersion",
+        "sampleUnit",
+        "scope",
+        "firstCohortAtUtc",
+        "lastCohortAtUtc",
+        "counts",
+        "adherence",
+        "closedNetPnl",
+        "winRatePercent",
+        "meanRealizedR",
+        "cumulativeRealizedR",
+        "cumulativeRDrawdown",
+        "openRealizedNetPnl",
+        "openRealizedR",
+        "cumulativeRCurve",
+        "outcomeClassificationPolicyVersion",
+        "closedOutcomes"
+      ]
+    },
+    "PaperSetupPerformanceReport": {
+      "type": "object",
+      "properties": {
+        "reportId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policyVersion": {
+          "type": "string",
+          "const": "paper-setup-performance-report-v1"
+        },
+        "query": {
+          "$ref": "#/$defs/SetupPerformanceQueryRequest"
+        },
+        "queryHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "inputSnapshotId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicationWatermark": {
+          "type": "integer"
+        },
+        "knowledgeCutoffUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "economicPolicyVersion": {
+          "type": "string",
+          "const": "paper-setup-net-declared-wallet-horizon-v1"
+        },
+        "aggregationPolicyVersion": {
+          "type": "string",
+          "const": "setup-closed-net-original-risk-decimal-v1"
+        },
+        "outcomeClassificationPolicyVersion": {
+          "type": "string",
+          "const": "closed-setup-prefer-original-asset-sign-v1"
+        },
+        "inputHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "inputSnapshotJson": {
+          "type": "string",
+          "minLength": 1
+        },
+        "resultHash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "resolvedWalletIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1,
+          "maxItems": 10000,
+          "uniqueItems": true
+        },
+        "walletHorizons": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PaperSetupPerformanceWalletHorizon"
+          },
+          "maxItems": 10000
+        },
+        "inputIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxItems": 10000,
+          "uniqueItems": true
+        },
+        "setups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/PaperSetupEconomicResult"
+          },
+          "maxItems": 10000
+        },
+        "result": {
+          "$ref": "#/$defs/SetupPerformanceResult"
+        }
+      },
+      "required": [
+        "reportId",
+        "policyVersion",
+        "query",
+        "queryHash",
+        "inputSnapshotId",
+        "publicationWatermark",
+        "knowledgeCutoffUtc",
+        "economicPolicyVersion",
+        "aggregationPolicyVersion",
+        "outcomeClassificationPolicyVersion",
+        "inputHash",
+        "inputSnapshotJson",
+        "resultHash",
+        "resolvedWalletIds",
+        "walletHorizons",
+        "inputIds",
+        "setups",
+        "result"
+      ]
+    },
+    "SetupPerformanceReportRevision": {
+      "type": "object",
+      "properties": {
+        "resultId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rootResultId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "priorResultId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "recalculationReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "recordedByUserId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "knownAtUtc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "publicationSequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "eTag": {
+          "type": "string",
+          "minLength": 1
+        },
+        "report": {
+          "$ref": "#/$defs/PaperSetupPerformanceReport"
+        }
+      },
+      "required": [
+        "resultId",
+        "rootResultId",
+        "revision",
+        "priorResultId",
+        "recalculationReason",
+        "recordedByUserId",
+        "knownAtUtc",
+        "publicationSequence",
+        "eTag",
+        "report"
+      ]
+    }
+  }
+}

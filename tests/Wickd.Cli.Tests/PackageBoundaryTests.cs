@@ -23,6 +23,19 @@ public sealed class PackageBoundaryTests
     }
 
     [Fact]
+    public void AnUnreadablePackageIsRefused()
+    {
+        using var workspace = new TempWorkspace();
+        var package = Path.Combine(workspace.Root, "invalid.nupkg");
+        File.WriteAllText(package, "not a zip");
+
+        var result = RunVerify(package);
+
+        result.ExitCode.Should().Be(1);
+        result.Error.Should().Contain("unable to inspect package");
+    }
+
+    [Fact]
     public void ACleanPackageIsAccepted()
     {
         using var workspace = new TempWorkspace();
